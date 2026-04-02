@@ -40,7 +40,7 @@ export default function HeroMediaDesktop() {
         width: "100%",
         height: "100vh",
         background: "#000",
-        overflow: "hidden",
+        overflow: "visible",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

@@ -46,7 +46,9 @@ export default function ScrollCueDesktop() {
       alignItems: "center",
       justifyContent: "center",
       background: "transparent",
-      marginTop: -150,
+      position: "relative",
+      zIndex: 10,
+      marginTop: -80,
     }}>
       <div style={{
         display: "flex", flexDirection: "column",
