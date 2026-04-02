@@ -22,11 +22,11 @@ const BP = { mobile: 640, tablet: 1024 } as const
 
 const JC = {
   bg: "#000000", text: "#ffffff",
-  border: "rgba(255,255,255,0.16)", borderStrong: "rgba(255,255,255,0.3)",
+  border: "rgba(255,255,255,0.16)",
   borderFocus: "#ffffff", surface: "rgba(255,255,255,0.03)",
   error: "#ef4444", errorBg: "rgba(239,68,68,0.08)",
   errorBorder: "rgba(239,68,68,0.24)", success: "#22c55e",
-  placeholder: "rgba(255,255,255,0.28)", muted: "rgba(255,255,255,0.65)",
+  muted: "rgba(255,255,255,0.65)",
 } as const
 
 type ContactStatus = "idle" | "sending" | "success" | "error"
@@ -48,12 +48,12 @@ const srOnly: React.CSSProperties = {
   clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0, margin: -1, padding: 0,
 }
 
-const ghost = (size: number): React.CSSProperties => ({
+const ghostStyle = (size: number): React.CSSProperties => ({
   fontFamily: FONT.display, fontSize: size, fontWeight: 800,
   color: white(OP.ghost), lineHeight: 1, userSelect: "none",
 })
 
-const pill: React.CSSProperties = {
+const pillStyle: React.CSSProperties = {
   padding: "8px 18px", borderRadius: 999, border: `1px solid ${white(0.12)}`,
   background: white(0.05), fontFamily: FONT.body, fontSize: 11, fontWeight: 600,
   color: white(OP.pill), letterSpacing: 1, textTransform: "uppercase",
@@ -68,8 +68,8 @@ function useReducedMotion() {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
     setR(mq.matches)
     const h = (e: MediaQueryListEvent) => setR(e.matches)
-    mq.addEventListener?.("change", h)
-    return () => mq.removeEventListener?.("change", h)
+    mq.addEventListener("change", h)
+    return () => mq.removeEventListener("change", h)
   }, [])
   return r
 }
@@ -122,7 +122,7 @@ function Marquee({ items, speed = 35, fontSize = 72 }: { items: string[]; speed?
       >
         {tripled.map((name, i) => (
           <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 40 }}>
-            <span style={{ ...ghost(fontSize), letterSpacing: -3, textTransform: "uppercase", whiteSpace: "nowrap" }}>{name}</span>
+            <span style={{ ...ghostStyle(fontSize), letterSpacing: -3, textTransform: "uppercase", whiteSpace: "nowrap" }}>{name}</span>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: white(0.1), display: "inline-block", flexShrink: 0 }} />
           </span>
         ))}
@@ -214,7 +214,7 @@ function CaseCard({ imageUrl, brand, title, metric, metricLabel, tags, delay = 0
           <span style={{ fontFamily: FONT.body, fontSize: 11, fontWeight: 600, color: white(OP.caseMetricLabel), letterSpacing: 2, textTransform: "uppercase" }}>{metricLabel}</span>
         </div>
         <ul style={{ display: "flex", flexWrap: "wrap", gap: 8, listStyle: "none", padding: 0, margin: 0 }} aria-label="Tags du projet">
-          {tags.map(tag => <li key={tag} style={pill}>{tag}</li>)}
+          {tags.map(tag => <li key={tag} style={pillStyle}>{tag}</li>)}
         </ul>
       </div>
     </motion.article>
@@ -231,14 +231,14 @@ function ServiceBlock({ number, title, description, items, delay = 0, mobile = f
   return (
     <motion.div ref={ref} initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.8, delay)} style={{ padding: mobile ? "40px 0" : "56px 0", borderBottom: `1px solid ${white(0.05)}`, display: "grid", gridTemplateColumns: stacked ? "minmax(0,1fr)" : "200px minmax(0,1fr)", gap: stacked ? 24 : 56, alignItems: "start", minWidth: 0 }}>
       <div style={{ minWidth: 0 }}>
-        <div aria-hidden="true" style={{ ...ghost(mobile ? 60 : 80), letterSpacing: -4, marginBottom: -20 }}>{number}</div>
+        <div aria-hidden="true" style={{ ...ghostStyle(mobile ? 60 : 80), letterSpacing: -4, marginBottom: -20 }}>{number}</div>
         <h3 style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: mobile ? 20 : 22, color: "#fff", letterSpacing: -0.5, lineHeight: 1.2, margin: 0, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>{title}</h3>
       </div>
       <div style={{ minWidth: 0 }}>
         <p style={{ fontFamily: FONT.body, fontSize: 15, lineHeight: 1.9, color: white(OP.entityDesc), fontWeight: 300, margin: "0 0 24px 0", maxWidth: 560, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>{description}</p>
         <ul style={{ display: "flex", flexWrap: "wrap", gap: 8, listStyle: "none", padding: 0, margin: 0 }} aria-label={`Compétences liées à ${title}`}>
           {items.map((item, i) => (
-            <motion.li key={item} initial={mo(reduced, { opacity: 0, y: 10 }, { opacity: 1, y: 0 })} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.5, delay + 0.2 + i * 0.05)} style={pill}>{item}</motion.li>
+            <motion.li key={item} initial={mo(reduced, { opacity: 0, y: 10 }, { opacity: 1, y: 0 })} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.5, delay + 0.2 + i * 0.05)} style={pillStyle}>{item}</motion.li>
           ))}
         </ul>
       </div>
@@ -304,7 +304,7 @@ export default function JustImpactPage() {
   const rootRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const { mobile, tablet, px, sectionPad, vw } = useResponsive(rootRef)
-  const heroRef = useRef<HTMLElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
   const heroVisible = useInView(heroRef, { once: true })
 
   const heroFont = fluidBetween(vw, 360, 1600, 32, 110)
@@ -396,7 +396,7 @@ export default function JustImpactPage() {
         }
       `}</style>
 
-      <header>
+      <div>
         <section ref={heroRef} aria-labelledby="hero-heading" style={{ minHeight: heroMinHeight, display: "flex", flexDirection: "column", justifyContent: "center", padding: heroPad, position: "relative", overflow: "hidden" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(${white(0.025)} 1px, transparent 1px)`, backgroundSize: mobile ? "28px 28px" : "40px 40px", pointerEvents: "none" }} />
           <motion.p initial={mo(reduced, { opacity: 0 })} animate={heroVisible ? { opacity: 1 } : {}} transition={tr(reduced, 1, 0.2)} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.tag), marginBottom: mobile ? 28 : 48, display: "flex", alignItems: "center", gap: 12, minWidth: 0, overflowWrap: "break-word" }}>
@@ -420,9 +420,9 @@ export default function JustImpactPage() {
             </div>
           )}
         </section>
-      </header>
+      </div>
 
-      <main>
+      <div>
         <Marquee items={["Influence", "Créateurs", "Brand Content", "Social Media", "Campagnes", "Stratégie", "Casting", "Performance"]} speed={40} fontSize={mobile ? 40 : tablet ? 56 : 72} />
 
         <section aria-labelledby="stats-heading" style={{ padding: sectionPad, position: "relative" }}>
@@ -570,7 +570,7 @@ export default function JustImpactPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }
