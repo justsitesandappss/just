@@ -304,7 +304,7 @@ export default function JustImpactPage() {
   const rootRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const { mobile, tablet, px, sectionPad, vw } = useResponsive(rootRef)
-  const heroRef = useRef<HTMLElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
   const heroVisible = useInView(heroRef, { once: true })
 
   const heroFont = fluidBetween(vw, 360, 1600, 32, 110)
@@ -396,7 +396,7 @@ export default function JustImpactPage() {
         }
       `}</style>
 
-      <header>
+      <div>
         <section ref={heroRef} aria-labelledby="hero-heading" style={{ minHeight: heroMinHeight, display: "flex", flexDirection: "column", justifyContent: "center", padding: heroPad, position: "relative", overflow: "hidden" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(${white(0.025)} 1px, transparent 1px)`, backgroundSize: mobile ? "28px 28px" : "40px 40px", pointerEvents: "none" }} />
           <motion.p initial={mo(reduced, { opacity: 0 })} animate={heroVisible ? { opacity: 1 } : {}} transition={tr(reduced, 1, 0.2)} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.tag), marginBottom: mobile ? 28 : 48, display: "flex", alignItems: "center", gap: 12, minWidth: 0, overflowWrap: "break-word" }}>
@@ -420,9 +420,9 @@ export default function JustImpactPage() {
             </div>
           )}
         </section>
-      </header>
+      </div>
 
-      <main>
+      <div>
         <Marquee items={["Influence", "Créateurs", "Brand Content", "Social Media", "Campagnes", "Stratégie", "Casting", "Performance"]} speed={40} fontSize={mobile ? 40 : tablet ? 56 : 72} />
 
         <section aria-labelledby="stats-heading" style={{ padding: sectionPad, position: "relative" }}>
@@ -570,7 +570,7 @@ export default function JustImpactPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }
