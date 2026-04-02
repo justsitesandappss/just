@@ -327,10 +327,10 @@ export default function JustMediaPage() {
   }, [])
 
   const formats = [
-    { title: "Placement Reels & Vidéos", desc: "Intégration native de votre marque dans nos reels et vidéos les plus performants. Format vertical, pensé pour capter l'attention.", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&q=80&auto=format&fit=crop" },
-    { title: "Stories & Highlights", desc: "Séquences de stories dédiées avec call-to-action, interactions et visibilité prolongée grâce aux highlights.", image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80&auto=format&fit=crop" },
-    { title: "Articles & Brand Content", desc: "Contenus rédactionnels conçus pour approfondir le discours de marque et renforcer la visibilité sur plusieurs canaux.", image: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=1200&q=80&auto=format&fit=crop" },
-    { title: "Lives & Événements", desc: "Lives, lancements, interviews et temps forts en direct pour créer de l'attention et de l'engagement immédiat.", image: "https://images.unsplash.com/photo-1574169208507-84376144848b?w=1200&q=80&auto=format&fit=crop" },
+    { title: "Placement Reels & Vidéos", desc: "Intégration native de votre marque dans nos reels et vidéos les plus performants. Format vertical, pensé pour capter l'attention.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/media-phone.jpg" },
+    { title: "Stories & Highlights", desc: "Séquences de stories dédiées avec call-to-action, interactions et visibilité prolongée grâce aux highlights.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/media-cables.jpg" },
+    { title: "Articles & Brand Content", desc: "Contenus rédactionnels conçus pour approfondir le discours de marque et renforcer la visibilité sur plusieurs canaux.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/media-journal.jpg" },
+    { title: "Lives & Événements", desc: "Lives, lancements, interviews et temps forts en direct pour créer de l'attention et de l'engagement immédiat.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/media-live.jpg" },
   ]
   const whys = [
     { n: "01", t: "Audience qualifiée", d: "Notre communauté est construite organiquement depuis des années. Pas de followers achetés, uniquement de l'engagement réel et pertinent." },
