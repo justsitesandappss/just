@@ -53,7 +53,7 @@ export default function ScrollCueMobile() {
         justifyContent: "center",
         background: "transparent",
         padding: "0px 0 20px",
-        marginTop: "-30px", // ← pour pas que j'oublie modif pour remonter le composant
+        marginTop: "-100px", // ← pour pas que j'oublie modif pour remonter le composant
         position: "relative",
         zIndex: 2,
       }}
