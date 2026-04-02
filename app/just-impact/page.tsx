@@ -91,7 +91,8 @@ function useResponsive(ref: React.RefObject<HTMLDivElement | null>) {
   return { vw: size.width, mobile, tablet, px, sectionPad: mobile ? "60px 20px" : tablet ? "80px 40px" : "100px 72px" }
 }
 
-function mo(reduced: boolean, active: Record<string, unknown>, fallback: Record<string, unknown> = {}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mo(reduced: boolean, active: any, fallback: any = {}) {
   return reduced ? fallback : active
 }
 function tr(reduced: boolean, duration: number, delay = 0) {
