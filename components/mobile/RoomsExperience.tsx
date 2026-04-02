@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, memo } from "react"
-import { useMotionValue, useSpring, useTransform } from "framer-motion"
 
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EXPERIENCE_DONE_KEY = "just_rooms_experience_done_v1"
@@ -133,53 +132,38 @@ const ArrowIcon = memo(function ArrowIcon({ side }: { side: Side }) {
   )
 })
 
-const EdgeArrowButton = memo(function EdgeArrowButton({ side, label, onClick }: {
+const EdgeArrowButton = memo(function EdgeArrowButton({ side, onClick }: {
   side: Side; label: string; isPageLink: boolean; onClick: () => void
 }) {
   const [pressed, setPressed] = useState(false)
-  const arrowFirst = side === "left" || side === "top"
 
   return (
     <div style={EDGE_POS[side]}>
       <div
         role="button"
         tabIndex={0}
-        aria-label={label}
+        aria-label={side}
         onClick={onClick}
         onKeyDown={(e) => { if (e.key === "Enter") onClick() }}
         onPointerDown={() => setPressed(true)}
         onPointerUp={() => setPressed(false)}
         onPointerLeave={() => setPressed(false)}
         style={{
+          width: ARROW_SIZE,
           height: ARROW_SIZE,
-          borderRadius: ARROW_SIZE / 2,
+          borderRadius: "50%",
           border: "1px solid rgba(255,255,255,0.14)",
           background: "rgba(18,18,18,0.82)",
           backdropFilter: "blur(10px)",
           WebkitBackdropFilter: "blur(10px)",
-          color: "#fff",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer", touchAction: "manipulation",
-          padding: label ? "0 14px" : "0",
-          gap: label ? 8 : 0,
-          minWidth: ARROW_SIZE, whiteSpace: "nowrap",
           transform: pressed ? "scale(0.94)" : "scale(1)",
           opacity: pressed ? 0.82 : 1,
           transition: "transform 0.15s ease, opacity 0.15s ease",
           willChange: "transform",
         }}>
-        {arrowFirst && <ArrowIcon side={side} />}
-        {label && (
-          <span style={{
-            fontSize: 10, fontWeight: 700,
-            fontFamily: "'Outfit', system-ui, sans-serif",
-            letterSpacing: "0.12em", lineHeight: 1,
-            userSelect: "none", textTransform: "uppercase",
-          }}>
-            {label}
-          </span>
-        )}
-        {!arrowFirst && <ArrowIcon side={side} />}
+        <ArrowIcon side={side} />
       </div>
     </div>
   )
@@ -385,24 +369,6 @@ export default function RoomsExperienceMobile() {
     window.dispatchEvent(new CustomEvent("just-room-changed", { detail: { roomIndex: activeIndex } }))
   }, [activeIndex])
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-    touchStartY.current = e.touches[0].clientY
-  }, [])
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    const dy = e.changedTouches[0].clientY - touchStartY.current
-    if (Math.abs(dx) < 40 && Math.abs(dy) < 40) return
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx < -40) handleEdgeClick(EDGES[activeIndex]?.right)
-      else if (dx > 40) handleEdgeClick(EDGES[activeIndex]?.left)
-    } else {
-      if (dy < -40) handleEdgeClick(EDGES[activeIndex]?.bottom)
-      else if (dy > 40) handleEdgeClick(EDGES[activeIndex]?.top)
-    }
-  }, [activeIndex])
-
   const handleEdgeClick = useCallback((edge: EdgeConfig) => {
     if (!edge?.show) return
     markExperienceAsEntered()
@@ -412,6 +378,25 @@ export default function RoomsExperienceMobile() {
       setPhase("rooms"); setActiveIndex(idx)
     }
   }, [])
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(dx) < 40 && Math.abs(dy) < 40) return
+    const edges = EDGES[activeIndex] || EMPTY_EDGE
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx < -40) handleEdgeClick(edges.right)
+      else if (dx > 40) handleEdgeClick(edges.left)
+    } else {
+      if (dy < -40) handleEdgeClick(edges.bottom)
+      else if (dy > 40) handleEdgeClick(edges.top)
+    }
+  }, [activeIndex, handleEdgeClick])
 
   const currentRoom     = ALL_ROOMS[activeIndex]
   const currentEdges    = EDGES[activeIndex] || EMPTY_EDGE
@@ -466,13 +451,11 @@ export default function RoomsExperienceMobile() {
                 isNeighbor={neighborIndices.has(i)} />
             ) : null
           )}
-
           <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "auto" }}>
             {currentHotspots.map((spot, i) =>
               spot.label ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} /> : null
             )}
           </div>
-
           <div aria-hidden="true" style={{
             position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none",
             background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)",
