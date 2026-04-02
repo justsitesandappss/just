@@ -221,9 +221,9 @@ export default function JustAgencyPage() {
   const { mobile, tablet, vw } = useResponsive(rootRef)
   const reduceMotion = useReducedMotion()
 
-  const heroTitle1Size = fluidBetween(vw, 360, 1600, 48, 110)
-  const heroTitle2Size = fluidBetween(vw, 360, 1600, 48, 118)
-  const heroTitle3Size = fluidBetween(vw, 360, 1600, 40, 108)
+  const heroTitle1Size = fluidBetween(vw, 360, 1600, 32, 110)
+  const heroTitle2Size = fluidBetween(vw, 360, 1600, 32, 118)
+  const heroTitle3Size = fluidBetween(vw, 360, 1600, 32, 108)
   const heroMinHeight = mobile ? 720 : tablet ? 820 : clampNumber(820, Math.round(vw * 0.62), 980)
   const heroPadding = mobile ? "64px 24px 72px" : tablet ? "72px 40px 84px" : "60px 72px 80px"
   const pagePadding = mobile ? "36px 24px" : tablet ? "60px 40px" : "80px 72px"
@@ -319,11 +319,11 @@ export default function JustAgencyPage() {
           Paris · Monaco · Londres · Dubai
         </p>
         <div style={{ maxWidth: Math.min(1280, vw - (mobile ? 48 : tablet ? 80 : 144)), position: "relative", zIndex: 1 }}>
-          <h1 style={{ fontFamily: DISPLAY, fontWeight: 800, lineHeight: 0.94, color: COLORS.text, margin: 0, letterSpacing: mobile ? -2 : -4 }}>
-            <span style={{ display: "block", fontSize: heroTitle1Size }}>L'impossible</span>
-            <span style={{ display: "block", color: "rgba(255,255,255,0.52)", fontSize: heroTitle2Size }}>n'est qu'une</span>
-            <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.78)", fontSize: heroTitle3Size }}>question de temps.</span>
-          </h1>
+          <h1 style={{ fontFamily: DISPLAY, fontWeight: 800, lineHeight: 0.94, color: COLORS.text, margin: 0, letterSpacing: mobile ? -1 : -4, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>
+  <span style={{ display: "block", fontSize: heroTitle1Size, overflowWrap: "break-word", wordBreak: "break-word" }}>L'impossible</span>
+  <span style={{ display: "block", color: "rgba(255,255,255,0.52)", fontSize: heroTitle2Size, overflowWrap: "break-word", wordBreak: "break-word" }}>n'est qu'une</span>
+  <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.78)", fontSize: heroTitle3Size, overflowWrap: "break-word", wordBreak: "break-word" }}>question de temps.</span>
+</h1>
         </div>
         <p style={{ margin: "36px 0 0 0", fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: COLORS.textBody, fontWeight: 300, position: "relative", zIndex: 1 }}>
           Just Agency est la conciergerie de luxe de JUST. Nous orchestrons l'inaccessible, des jets privés aux villas d'exception, pour transformer chaque demande en expérience sur mesure.
