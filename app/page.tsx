@@ -3,6 +3,7 @@ import HeroMedia from "@/components/HeroMedia"
 import ScrollCue from "@/components/ScrollCue"
 import IntroStats from "@/components/IntroStats"
 import RoomsExperience from "@/components/RoomsExperience"
+import Footer from "@/components/Footer"
 
 export default function HomePage() {
   return (
@@ -12,6 +13,7 @@ export default function HomePage() {
       <ScrollCue />
       <IntroStats />
       <RoomsExperience />
+      <Footer />
     </main>
   )
 }
