@@ -458,9 +458,9 @@ export default function JustImpactPage() {
               <h2 id="cases-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16 }}>Les chiffres parlent.</h2>
             </Reveal>
             <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 48 }}>
-              <CaseCard imageUrl="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80" brand="Case Study — Mode" title="Lancement collection été avec 12 créateurs" metric="+340%" metricLabel="Engagement rate" tags={case1Tags} mobile={mobile} tablet={tablet} containerWidth={vw} />
-              <CaseCard imageUrl="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" brand="Case Study — Beauty" title="Campagne virale avec UGC et micro-influence" metric="12M" metricLabel="Vues en 72h" tags={case2Tags} reverse={!mobile} delay={0.05} mobile={mobile} tablet={tablet} containerWidth={vw} />
-              <CaseCard imageUrl="https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=800&q=80" brand="Case Study — Tech" title="Stratégie créateurs pour lancement produit" metric="28K" metricLabel="Conversions directes" tags={case3Tags} delay={0.1} mobile={mobile} tablet={tablet} containerWidth={vw} />
+              <CaseCard imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justimpact-team.jpg" brand="Case Study — Mode" title="Lancement collection été avec 12 créateurs" metric="+340%" metricLabel="Engagement rate" tags={case1Tags} mobile={mobile} tablet={tablet} containerWidth={vw} />
+              <CaseCard imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justimpact-entrepot.jpg" brand="Case Study — Beauty" title="Campagne virale avec UGC et micro-influence" metric="12M" metricLabel="Vues en 72h" tags={case2Tags} reverse={!mobile} delay={0.05} mobile={mobile} tablet={tablet} containerWidth={vw} />
+              <CaseCard imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justimpact-trade.jpg" brand="Case Study — Tech" title="Stratégie créateurs pour lancement produit" metric="28K" metricLabel="Conversions directes" tags={case3Tags} delay={0.1} mobile={mobile} tablet={tablet} containerWidth={vw} />
             </div>
           </div>
         </section>
