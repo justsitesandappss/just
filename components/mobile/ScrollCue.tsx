@@ -46,7 +46,8 @@ export default function ScrollCueMobile() {
       alignItems: "center",
       justifyContent: "center",
       background: "transparent",
-      padding: "12px 0 32px",
+      padding: "0",
+      marginTop: "-40px",
     }}>
       <div style={{
         display: "flex", flexDirection: "column",
