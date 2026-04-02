@@ -36,12 +36,13 @@ export default function HeroMediaMobile() {
     <section
       aria-label="Vidéo de présentation Just"
       style={{
-        position: "relative",
-        width: "100%",
-        height: "100svh",
-        background: "#000",
-        overflow: "hidden",
-      }}
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+  display: "block",
+}}
     >
       <video
         ref={videoRef}
