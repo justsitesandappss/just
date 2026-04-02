@@ -56,10 +56,10 @@ export default function HeroMediaMobile() {
         onCanPlay={handleCanPlay}
         aria-label="Vidéo de présentation Just"
         style={{
-          width: "90%",
-          height: "auto",
+          width: "100%",
+          height: "100",
           display: "block",
-          objectFit: "contain",
+          objectFit: "cover",
         }}
       />
     </section>
