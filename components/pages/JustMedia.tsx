@@ -210,7 +210,7 @@ function Counter({ value, label, delay = 0, reducedMotion = false }: { value: st
 }
 
 function ProcessStep({ number, title, description, isLast = false, delay = 0, reducedMotion = false, isMobile = false }: { number: string; title: string; description: string; isLast?: boolean; delay?: number; reducedMotion?: boolean; isMobile?: boolean }) {
-  const ref = useRef<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLLIElement | null>(null)
   const inView = useInView(ref, { once: true, margin: "-40px 0px" })
   return (
     <motion.li ref={ref} initial={reducedMotion ? false : { opacity: 0, y: 24 }} animate={reducedMotion ? undefined : inView ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.7, delay, ease: EASE }} style={{ flex: 1, position: "relative", listStyle: "none", paddingRight: isMobile || isLast ? 0 : 32, paddingBottom: isMobile && !isLast ? 28 : 0, minWidth: 0 }}>
