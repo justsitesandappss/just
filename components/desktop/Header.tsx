@@ -7,6 +7,7 @@ import Link from "next/link"
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const ROOMS_ANCHOR_ID = "just-rooms-container"
+const scrollOffset = -80
 
 const navItems = [
   { label: "Just",         page: "nav1", room: 1 },
@@ -17,14 +18,30 @@ const navItems = [
   { label: "Nos Talents",  page: "nav6", room: 6 },
 ]
 
-const scrollOffset = -80
-
 export default function HeaderDesktop() {
   const [current, setCurrent] = useState("nav1")
   const [hovered, setHovered] = useState<string | null>(null)
   const navRef   = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
+
+  function scrollToRooms() {
+    const el = document.getElementById(ROOMS_ANCHOR_ID)
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY + scrollOffset
+    window.scrollTo({ top, behavior: "smooth" })
+  }
+
+  function handleClick(item: typeof navItems[0]) {
+    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
+    if (!roomsEl) {
+      window.location.href = `/?jumpToRoom=${item.room - 1}`
+      return
+    }
+    setCurrent(item.page)
+    window.dispatchEvent(new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } }))
+    scrollToRooms()
+  }
 
   useEffect(() => {
     function onRoomChanged(e: Event) {
@@ -58,25 +75,8 @@ export default function HeaderDesktop() {
       }
     }
     tryJump(0)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  function scrollToRooms() {
-    const el = document.getElementById(ROOMS_ANCHOR_ID)
-    if (!el) return
-    const top = el.getBoundingClientRect().top + window.scrollY + scrollOffset
-    window.scrollTo({ top, behavior: "smooth" })
-  }
-
-  function handleClick(item: typeof navItems[0]) {
-    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
-    if (!roomsEl) {
-      window.location.href = `/?jumpToRoom=${item.room - 1}`
-      return
-    }
-    setCurrent(item.page)
-    window.dispatchEvent(new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } }))
-    scrollToRooms()
-  }
 
   const targetPage = hovered ?? current
 

@@ -5,15 +5,17 @@ import Desktop from "@/components/desktop/Header"
 import Mobile from "@/components/mobile/Header"
 
 export default function Header() {
-  const [isMobile, setIsMobile] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024)
     check()
     setMounted(true)
-    window.addEventListener("resize", check)
-    return () => window.removeEventListener("resize", check)
+    const handler = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener("resize", handler)
+    return () => window.removeEventListener("resize", handler)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!mounted) return null

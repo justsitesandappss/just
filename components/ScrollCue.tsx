@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Desktop from "@/components/desktop/HeroMedia"
-import Mobile from "@/components/mobile/HeroMedia"
+import Desktop from "@/components/desktop/ScrollCue"
+import Mobile from "@/components/mobile/ScrollCue"
 
-export default function HeroMedia() {
+export default function ScrollCue() {
   const [isMobile, setIsMobile] = useState(false)
   const [mounted, setMounted] = useState(false)
 
