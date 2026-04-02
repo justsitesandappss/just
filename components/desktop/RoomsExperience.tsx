@@ -41,7 +41,7 @@ const ALL_ROOMS: Room[] = [
 
 const HOTSPOTS: Hotspot[][] = [
   [{ label: "Qui sommes-nous ?", x: 50, y: 52, url: "/just" }],
-  [{ label: "Just Impact", x: 44, y: 62, url: "/justimpact" }],
+  [{ label: "Just Impact", x: 44, y: 62, url: "/just-impact" }],
   [{ label: "Nos Sponsors", x: 50, y: 50, url: "/nosponsors" }],
   [{ label: "Nos Talents", x: 50, y: 50, url: "/nostalents" }],
   [{ label: "Media", x: 38, y: 56, url: "/media" }, { label: "Podcast", x: 62, y: 56, url: "/podcast" }],
