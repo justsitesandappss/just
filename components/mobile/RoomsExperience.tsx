@@ -1,17 +1,33 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, memo } from "react"
+import { useMotionValue, useSpring, useTransform } from "framer-motion"
 
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EXPERIENCE_DONE_KEY = "just_rooms_experience_done_v1"
+const SIDES = ["left", "top", "right", "bottom"] as const
 const IMG_RE = /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i
 
+type Side = (typeof SIDES)[number]
 type Phase = "intro" | "transitionPlaying" | "rooms"
 type Room = { label: string; video: string }
+type EdgeConfig = { show: boolean; target: number; pageUrl: string; pageLabel: string }
+type Hotspot = { label: string; x: number; y: number; url: string }
+
+const ARROW_ROT: Record<Side, number> = { right: 0, left: 180, bottom: 90, top: -90 }
+
+const EMPTY_EDGE: Record<Side, EdgeConfig> = {
+  left:   { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  top:    { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  right:  { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  bottom: { show: false, target: 1, pageUrl: "", pageLabel: "" },
+}
 
 const INTRO_VIDEO      = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/accueil-video-rideau.mp4"
 const TRANSITION_VIDEO = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/accueil-video-rideau-ouverturev2.mp4"
-const RADIUS = 16
+const RADIUS      = 16
+const ARROW_SIZE  = 44
+const ARROW_INSET = 14
 
 const ALL_ROOMS: Room[] = [
   { label: "Just",        video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just.mp4" },
@@ -21,8 +37,53 @@ const ALL_ROOMS: Room[] = [
   { label: "Just Prod",   video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4" },
 ]
 
-const HOTSPOT_URLS: string[]   = ["/just", "/justimpact", "/nosponsors", "/nostalents", "/media"]
-const HOTSPOT_LABELS: string[] = ["Qui sommes-nous ?", "Just Impact", "Nos Sponsors", "Nos Talents", "Explorer"]
+const HOTSPOTS: Hotspot[][] = [
+  [{ label: "Qui sommes-nous ?", x: 50, y: 52, url: "/just" }],
+  [{ label: "Just Impact", x: 50, y: 52, url: "/justimpact" }],
+  [{ label: "Nos Sponsors", x: 50, y: 52, url: "/nosponsors" }],
+  [{ label: "Nos Talents", x: 50, y: 52, url: "/nostalents" }],
+  [{ label: "Media", x: 35, y: 52, url: "/media" }, { label: "Podcast", x: 65, y: 52, url: "/podcast" }],
+]
+
+const EDGES: Record<number, Record<Side, EdgeConfig>> = {
+  0: {
+    left:   { show: true,  target: 1, pageUrl: "/just-agency", pageLabel: "Just Agency" },
+    top:    { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    right:  { show: true,  target: 2, pageUrl: "", pageLabel: "Just Impact" },
+    bottom: { show: true,  target: 5, pageUrl: "", pageLabel: "Just Prod" },
+  },
+  1: {
+    left:   { show: true,  target: 1, pageUrl: "", pageLabel: "Just" },
+    top:    { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    right:  { show: true,  target: 3, pageUrl: "", pageLabel: "Sponsors" },
+    bottom: { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  },
+  2: {
+    left:   { show: true,  target: 2, pageUrl: "", pageLabel: "Just Impact" },
+    top:    { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    right:  { show: true,  target: 4, pageUrl: "", pageLabel: "Nos Talents" },
+    bottom: { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  },
+  3: {
+    left:   { show: true,  target: 3, pageUrl: "", pageLabel: "Sponsors" },
+    top:    { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    right:  { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    bottom: { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  },
+  4: {
+    left:   { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    top:    { show: true,  target: 1, pageUrl: "", pageLabel: "Just" },
+    right:  { show: false, target: 1, pageUrl: "", pageLabel: "" },
+    bottom: { show: false, target: 1, pageUrl: "", pageLabel: "" },
+  },
+}
+
+const EDGE_POS: Record<Side, React.CSSProperties> = {
+  left:   { position: "absolute", zIndex: 8, pointerEvents: "all", left:   ARROW_INSET, top:    "50%", transform: "translateY(-50%)" },
+  right:  { position: "absolute", zIndex: 8, pointerEvents: "all", right:  ARROW_INSET, top:    "50%", transform: "translateY(-50%)" },
+  top:    { position: "absolute", zIndex: 8, pointerEvents: "all", top:    ARROW_INSET, left:   "50%", transform: "translateX(-50%)" },
+  bottom: { position: "absolute", zIndex: 8, pointerEvents: "all", bottom: ARROW_INSET, left:   "50%", transform: "translateX(-50%)" },
+}
 
 function isImage(url: string): boolean {
   if (!url) return false
@@ -62,8 +123,104 @@ function injectStyles() {
   document.head.appendChild(s)
 }
 
-const VideoSlot = memo(function VideoSlot({ room, isActive }: {
-  room: Room; isActive: boolean
+const ArrowIcon = memo(function ArrowIcon({ side }: { side: Side }) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+      style={{ display: "block", flexShrink: 0, transform: `rotate(${ARROW_ROT[side]}deg)` }}>
+      <path d="M5 12H19M19 12L13 6M19 12L13 18"
+        stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+})
+
+const EdgeArrowButton = memo(function EdgeArrowButton({ side, label, onClick }: {
+  side: Side; label: string; isPageLink: boolean; onClick: () => void
+}) {
+  const [pressed, setPressed] = useState(false)
+  const arrowFirst = side === "left" || side === "top"
+
+  return (
+    <div style={EDGE_POS[side]}>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={label}
+        onClick={onClick}
+        onKeyDown={(e) => { if (e.key === "Enter") onClick() }}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerLeave={() => setPressed(false)}
+        style={{
+          height: ARROW_SIZE,
+          borderRadius: ARROW_SIZE / 2,
+          border: "1px solid rgba(255,255,255,0.14)",
+          background: "rgba(18,18,18,0.82)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          color: "#fff",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", touchAction: "manipulation",
+          padding: label ? "0 14px" : "0",
+          gap: label ? 8 : 0,
+          minWidth: ARROW_SIZE, whiteSpace: "nowrap",
+          transform: pressed ? "scale(0.94)" : "scale(1)",
+          opacity: pressed ? 0.82 : 1,
+          transition: "transform 0.15s ease, opacity 0.15s ease",
+          willChange: "transform",
+        }}>
+        {arrowFirst && <ArrowIcon side={side} />}
+        {label && (
+          <span style={{
+            fontSize: 10, fontWeight: 700,
+            fontFamily: "'Outfit', system-ui, sans-serif",
+            letterSpacing: "0.12em", lineHeight: 1,
+            userSelect: "none", textTransform: "uppercase",
+          }}>
+            {label}
+          </span>
+        )}
+        {!arrowFirst && <ArrowIcon side={side} />}
+      </div>
+    </div>
+  )
+})
+
+const HotspotBtn = memo(function HotspotBtn({ label, x, y, url }: Hotspot) {
+  const [hovered, setHovered] = useState(false)
+  if (!label) return null
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onClick={() => { if (!url) return; markExperienceAsEntered(); window.location.href = url }}
+      onKeyDown={(e) => { if (e.key === "Enter" && url) { markExperienceAsEntered(); window.location.href = url } }}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+      style={{
+        position: "absolute", left: `${x}%`, top: `${y}%`,
+        transform: hovered ? "translate(-50%,-50%) scale(1.04)" : "translate(-50%,-50%) scale(1)",
+        zIndex: 9, cursor: url ? "pointer" : "default",
+        display: "flex", alignItems: "center",
+        background: "rgba(18,18,18,0.82)",
+        border: "1px solid rgba(255,255,255,0.14)",
+        borderRadius: 100, padding: "8px 14px", color: "#fff",
+        fontSize: 11, fontFamily: "'Outfit', system-ui, sans-serif",
+        fontWeight: 600, letterSpacing: "0.08em",
+        textTransform: "uppercase", whiteSpace: "nowrap",
+        backdropFilter: "blur(10px)",
+        userSelect: "none", pointerEvents: "all",
+        animation: "jr-fade-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
+        transition: "transform 0.15s ease",
+        willChange: "transform",
+      }}>
+      {label}
+    </div>
+  )
+})
+
+const VideoSlot = memo(function VideoSlot({ room, isActive, isNeighbor }: {
+  room: Room; isActive: boolean; isNeighbor: boolean
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const isImg    = isImage(room.video)
@@ -83,7 +240,7 @@ const VideoSlot = memo(function VideoSlot({ room, isActive }: {
     }
   }, [isActive, isImg])
 
-  if (!isActive) return null
+  if (!isActive && !isNeighbor) return null
 
   const media: React.CSSProperties = {
     width: "100%", height: "100%", objectFit: "cover",
@@ -91,13 +248,20 @@ const VideoSlot = memo(function VideoSlot({ room, isActive }: {
   }
 
   return (
-    <div style={{ position: "absolute", inset: 0, opacity: 1, zIndex: 1, pointerEvents: "none" }}>
-      {isImg
-        ? <img src={room.video} alt={room.label} draggable={false}
-            loading="eager" decoding="async" style={media} />
-        : <video ref={videoRef} src={room.video} muted loop playsInline
-            preload="auto" style={media} aria-label={room.label} />
-      }
+    <div style={{
+      position: "absolute", inset: 0,
+      opacity: isActive ? 1 : 0, transition: "opacity 0.35s ease",
+      zIndex: isActive ? 1 : 0, pointerEvents: "none",
+      visibility: isActive ? "visible" : "hidden",
+    }}>
+      <div style={{ width: "100%", height: "100%" }}>
+        {isImg
+          ? <img src={room.video} alt={room.label} draggable={false}
+              loading={isActive ? "eager" : "lazy"} decoding="async" style={media} />
+          : <video ref={videoRef} src={room.video} muted loop playsInline
+              preload={isActive ? "auto" : "metadata"} style={media} aria-label={room.label} />
+        }
+      </div>
     </div>
   )
 })
@@ -168,7 +332,7 @@ const IntroVideo = memo(function IntroVideo({ src, onExplore }: {
               letterSpacing: "0.18em", textTransform: "uppercase", color: "#fff",
               background: "rgba(0,0,0,0.35)",
               border: "1px solid rgba(255,255,255,0.18)",
-              borderRadius: 999, padding: "14px 28px", cursor: "pointer",
+              borderRadius: 999, padding: "12px 24px", cursor: "pointer",
               display: "inline-flex", alignItems: "center", gap: 12,
               backdropFilter: "blur(10px)",
               transform: btnHovered ? "scale(1.06)" : "scale(1)",
@@ -179,7 +343,8 @@ const IntroVideo = memo(function IntroVideo({ src, onExplore }: {
               boxShadow: "0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
             }}>
             Explorer
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+              style={{ filter: "drop-shadow(0 0 12px rgba(255,255,255,0.7))" }}>
               <path d="M5 12H19M19 12L13 6M19 12L13 18"
                 stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -196,7 +361,6 @@ export default function RoomsExperienceMobile() {
   const [phase, setPhase] = useState<Phase>("intro")
   const [activeIndex, setActiveIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
-  const [swiping, setSwiping] = useState(false)
 
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
@@ -210,7 +374,7 @@ export default function RoomsExperienceMobile() {
   useEffect(() => {
     const handler = (e: Event) => {
       const idx = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
-      if (idx == null || idx < 0 || idx >= ALL_ROOMS.length) return
+      if (idx == null || idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return
       markExperienceAsEntered(); setPhase("rooms"); setActiveIndex(idx)
     }
     window.addEventListener("just-nav-change", handler)
@@ -221,13 +385,6 @@ export default function RoomsExperienceMobile() {
     window.dispatchEvent(new CustomEvent("just-room-changed", { detail: { roomIndex: activeIndex } }))
   }, [activeIndex])
 
-  const goTo = useCallback((idx: number) => {
-    if (idx < 0 || idx >= ALL_ROOMS.length) return
-    markExperienceAsEntered()
-    setPhase("rooms")
-    setActiveIndex(idx)
-  }, [])
-
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
@@ -237,20 +394,40 @@ export default function RoomsExperienceMobile() {
     const dx = e.changedTouches[0].clientX - touchStartX.current
     const dy = e.changedTouches[0].clientY - touchStartY.current
     if (Math.abs(dx) < 40 && Math.abs(dy) < 40) return
-    setSwiping(true)
-    setTimeout(() => setSwiping(false), 300)
     if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx < -40) goTo(activeIndex + 1)
-      else if (dx > 40) goTo(activeIndex - 1)
+      if (dx < -40) handleEdgeClick(EDGES[activeIndex]?.right)
+      else if (dx > 40) handleEdgeClick(EDGES[activeIndex]?.left)
     } else {
-      if (dy < -40) goTo(activeIndex + 1)
-      else if (dy > 40) goTo(activeIndex - 1)
+      if (dy < -40) handleEdgeClick(EDGES[activeIndex]?.bottom)
+      else if (dy > 40) handleEdgeClick(EDGES[activeIndex]?.top)
     }
-  }, [activeIndex, goTo])
+  }, [activeIndex])
 
-  const showTransition = phase === "transitionPlaying"
-  const showIntro      = phase === "intro"
-  const roomsVisible   = phase === "rooms"
+  const handleEdgeClick = useCallback((edge: EdgeConfig) => {
+    if (!edge?.show) return
+    markExperienceAsEntered()
+    if (edge.pageUrl) { window.location.href = edge.pageUrl; return }
+    const idx = edge.target - 1
+    if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
+      setPhase("rooms"); setActiveIndex(idx)
+    }
+  }, [])
+
+  const currentRoom     = ALL_ROOMS[activeIndex]
+  const currentEdges    = EDGES[activeIndex] || EMPTY_EDGE
+  const currentHotspots = HOTSPOTS[activeIndex] || []
+  const roomsVisible    = phase === "rooms"
+  const showTransition  = phase === "transitionPlaying"
+  const showIntro       = phase === "intro"
+
+  const neighborIndices = new Set<number>()
+  for (const side of SIDES) {
+    const edge = currentEdges[side]
+    if (edge.show && !edge.pageUrl) {
+      const idx = edge.target - 1
+      if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) neighborIndices.add(idx)
+    }
+  }
 
   if (!mounted) return (
     <div aria-hidden="true" style={{
@@ -276,26 +453,40 @@ export default function RoomsExperienceMobile() {
           background: "#000",
           overflow: "hidden",
           contain: "layout style paint",
-          opacity: swiping ? 0.85 : 1,
-          transition: "opacity 0.15s ease",
         }}
       >
-        {ALL_ROOMS.map((room, i) =>
-          room.video ? (
-            <VideoSlot key={i} room={room} isActive={i === activeIndex} />
-          ) : null
-        )}
+        <div style={{
+          position: "absolute", inset: 0,
+          overflow: "hidden", borderRadius: RADIUS, zIndex: 1,
+        }}>
+          {ALL_ROOMS.map((room, i) =>
+            room.video ? (
+              <VideoSlot key={i} room={room}
+                isActive={i === activeIndex}
+                isNeighbor={neighborIndices.has(i)} />
+            ) : null
+          )}
 
-        <div aria-hidden="true" style={{
-          position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none",
-          background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.02) 60%, rgba(0,0,0,0.12) 100%)",
-        }} />
+          <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "auto" }}>
+            {currentHotspots.map((spot, i) =>
+              spot.label ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} /> : null
+            )}
+          </div>
 
-        {roomsVisible && (
-          <>
-            <div style={{
-              position: "absolute", top: 14, left: 14, zIndex: 10,
-              padding: "7px 14px", borderRadius: 999,
+          <div aria-hidden="true" style={{
+            position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none",
+            background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)",
+          }} />
+        </div>
+
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none",
+          opacity: roomsVisible ? 1 : 0, transition: "opacity 0.5s ease",
+        }}>
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            <div key={`label-${activeIndex}`} style={{
+              position: "absolute", top: 14, left: 14, pointerEvents: "none",
+              padding: "7px 12px", borderRadius: 999,
               background: "rgba(18,18,18,0.82)",
               border: "1px solid rgba(255,255,255,0.14)",
               backdropFilter: "blur(10px)",
@@ -305,119 +496,26 @@ export default function RoomsExperienceMobile() {
               textTransform: "uppercase", whiteSpace: "nowrap",
               animation: "jr-label-in 0.4s cubic-bezier(0.22,1,0.36,1) both",
             }}>
-              {ALL_ROOMS[activeIndex].label}
+              {currentRoom.label}
             </div>
 
-            {activeIndex > 0 && (
-              <div style={{ position: "absolute", zIndex: 10, pointerEvents: "all", left: 14, top: "50%", transform: "translateY(-50%)" }}>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Salle précédente"
-                  onClick={() => goTo(activeIndex - 1)}
-                  onKeyDown={(e) => { if (e.key === "Enter") goTo(activeIndex - 1) }}
-                  style={{
-                    height: 44, borderRadius: 22,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(18,18,18,0.82)",
-                    backdropFilter: "blur(10px)",
-                    WebkitBackdropFilter: "blur(10px)",
-                    color: "#fff",
-                    display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", touchAction: "manipulation",
-                    padding: "0 14px", gap: 8,
-                    minWidth: 44, whiteSpace: "nowrap",
-                  }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
-                    style={{ display: "block", flexShrink: 0, transform: "rotate(180deg)" }}>
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18"
-                      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span style={{
-                    fontSize: 10, fontWeight: 700,
-                    fontFamily: "'Outfit', system-ui, sans-serif",
-                    letterSpacing: "0.12em", lineHeight: 1,
-                    userSelect: "none", textTransform: "uppercase",
-                  }}>
-                    {ALL_ROOMS[activeIndex - 1].label}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {activeIndex < ALL_ROOMS.length - 1 && (
-              <div style={{ position: "absolute", zIndex: 10, pointerEvents: "all", right: 14, top: "50%", transform: "translateY(-50%)" }}>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Salle suivante"
-                  onClick={() => goTo(activeIndex + 1)}
-                  onKeyDown={(e) => { if (e.key === "Enter") goTo(activeIndex + 1) }}
-                  style={{
-                    height: 44, borderRadius: 22,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(18,18,18,0.82)",
-                    backdropFilter: "blur(10px)",
-                    WebkitBackdropFilter: "blur(10px)",
-                    color: "#fff",
-                    display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", touchAction: "manipulation",
-                    padding: "0 14px", gap: 8,
-                    minWidth: 44, whiteSpace: "nowrap",
-                  }}>
-                  <span style={{
-                    fontSize: 10, fontWeight: 700,
-                    fontFamily: "'Outfit', system-ui, sans-serif",
-                    letterSpacing: "0.12em", lineHeight: 1,
-                    userSelect: "none", textTransform: "uppercase",
-                  }}>
-                    {ALL_ROOMS[activeIndex + 1].label}
-                  </span>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
-                    style={{ display: "block", flexShrink: 0 }}>
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18"
-                      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              </div>
-            )}
-
-            <div style={{
-              position: "absolute", bottom: 20, left: "50%",
-              transform: "translateX(-50%)", zIndex: 10,
-            }}>
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label={HOTSPOT_LABELS[activeIndex]}
-                onClick={() => {
-                  const url = HOTSPOT_URLS[activeIndex]
-                  if (url) { markExperienceAsEntered(); window.location.href = url }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const url = HOTSPOT_URLS[activeIndex]
-                    if (url) { markExperienceAsEntered(); window.location.href = url }
-                  }
-                }}
-                style={{
-                  padding: "10px 20px", borderRadius: 999,
-                  background: "rgba(18,18,18,0.82)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  backdropFilter: "blur(10px)",
-                  color: "#fff", fontSize: 11, fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  fontFamily: "'Outfit', system-ui, sans-serif",
-                  textTransform: "uppercase", whiteSpace: "nowrap",
-                  cursor: "pointer", touchAction: "manipulation",
-                  animation: "jr-fade-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
-                  display: "inline-flex", alignItems: "center",
-                }}>
-                {HOTSPOT_LABELS[activeIndex]}
-              </div>
-            </div>
-          </>
-        )}
+            {roomsVisible && SIDES.map(side => {
+              const edge = currentEdges[side]
+              if (!edge.show) return null
+              if (!edge.pageUrl) {
+                const idx = edge.target - 1
+                if (idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return null
+              }
+              const label = edge.pageUrl
+                ? (edge.pageLabel || "Page")
+                : ALL_ROOMS[edge.target - 1]?.label || ""
+              return (
+                <EdgeArrowButton key={side} side={side} label={label}
+                  isPageLink={!!edge.pageUrl} onClick={() => handleEdgeClick(edge)} />
+              )
+            })}
+          </div>
+        </div>
 
         {showTransition && (
           <TransitionVideo src={TRANSITION_VIDEO}
