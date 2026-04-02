@@ -131,7 +131,7 @@ export default function Footer() {
                   </Link>
                 ))}
               </div>
-              <Link href="mailto:contact@justgroup.fr" className="footer-link footer-email"
+              <Link href="mailto:justdemandes@gmail.com" className="footer-link footer-email"
                 style={{ fontSize: 12, textAlign: "right" }}>
                 contact@justgroup.fr
               </Link>
