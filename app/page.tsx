@@ -1,6 +1,7 @@
 import Header from "@/components/Header"
 import HeroMedia from "@/components/HeroMedia"
 import ScrollCue from "@/components/ScrollCue"
+import IntroStats from "@/components/IntroStats"
 
 export default function HomePage() {
   return (
@@ -8,6 +9,7 @@ export default function HomePage() {
       <Header />
       <HeroMedia />
       <ScrollCue />
+      <IntroStats />
     </main>
   )
 }
