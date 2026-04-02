@@ -21,7 +21,7 @@ const ALL_ROOMS: Room[] = [
   { label: "Just Prod",   video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4" },
 ]
 
-const HOTSPOT_URLS: string[] = ["/just", "/justimpact", "/nosponsors", "/nostalents", "/media"]
+const HOTSPOT_URLS: string[]   = ["/just", "/justimpact", "/nosponsors", "/nostalents", "/media"]
 const HOTSPOT_LABELS: string[] = ["Qui sommes-nous ?", "Just Impact", "Nos Sponsors", "Nos Talents", "Explorer"]
 
 function isImage(url: string): boolean {
@@ -91,10 +91,7 @@ const VideoSlot = memo(function VideoSlot({ room, isActive }: {
   }
 
   return (
-    <div style={{
-      position: "absolute", inset: 0,
-      opacity: 1, zIndex: 1, pointerEvents: "none",
-    }}>
+    <div style={{ position: "absolute", inset: 0, opacity: 1, zIndex: 1, pointerEvents: "none" }}>
       {isImg
         ? <img src={room.video} alt={room.label} draggable={false}
             loading="eager" decoding="async" style={media} />
@@ -312,90 +309,112 @@ export default function RoomsExperienceMobile() {
             </div>
 
             {activeIndex > 0 && (
-              <button
-                onClick={() => goTo(activeIndex - 1)}
-                aria-label="Salle précédente"
-                style={{
-                  position: "absolute", left: 14, top: "50%",
-                  transform: "translateY(-50%)", zIndex: 10,
-                  width: 44, height: 44, borderRadius: 22,
-                  background: "rgba(18,18,18,0.82)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  backdropFilter: "blur(10px)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", touchAction: "manipulation",
-                }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 12H5M5 12L11 6M5 12L11 18"
-                    stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+              <div style={{ position: "absolute", zIndex: 10, pointerEvents: "all", left: 14, top: "50%", transform: "translateY(-50%)" }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Salle précédente"
+                  onClick={() => goTo(activeIndex - 1)}
+                  onKeyDown={(e) => { if (e.key === "Enter") goTo(activeIndex - 1) }}
+                  style={{
+                    height: 44, borderRadius: 22,
+                    border: "1px solid rgba(255,255,255,0.14)",
+                    background: "rgba(18,18,18,0.82)",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
+                    color: "#fff",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", touchAction: "manipulation",
+                    padding: "0 14px", gap: 8,
+                    minWidth: 44, whiteSpace: "nowrap",
+                  }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                    style={{ display: "block", flexShrink: 0, transform: "rotate(180deg)" }}>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18"
+                      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700,
+                    fontFamily: "'Outfit', system-ui, sans-serif",
+                    letterSpacing: "0.12em", lineHeight: 1,
+                    userSelect: "none", textTransform: "uppercase",
+                  }}>
+                    {ALL_ROOMS[activeIndex - 1].label}
+                  </span>
+                </div>
+              </div>
             )}
 
             {activeIndex < ALL_ROOMS.length - 1 && (
-              <button
-                onClick={() => goTo(activeIndex + 1)}
-                aria-label="Salle suivante"
+              <div style={{ position: "absolute", zIndex: 10, pointerEvents: "all", right: 14, top: "50%", transform: "translateY(-50%)" }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Salle suivante"
+                  onClick={() => goTo(activeIndex + 1)}
+                  onKeyDown={(e) => { if (e.key === "Enter") goTo(activeIndex + 1) }}
+                  style={{
+                    height: 44, borderRadius: 22,
+                    border: "1px solid rgba(255,255,255,0.14)",
+                    background: "rgba(18,18,18,0.82)",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
+                    color: "#fff",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", touchAction: "manipulation",
+                    padding: "0 14px", gap: 8,
+                    minWidth: 44, whiteSpace: "nowrap",
+                  }}>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700,
+                    fontFamily: "'Outfit', system-ui, sans-serif",
+                    letterSpacing: "0.12em", lineHeight: 1,
+                    userSelect: "none", textTransform: "uppercase",
+                  }}>
+                    {ALL_ROOMS[activeIndex + 1].label}
+                  </span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                    style={{ display: "block", flexShrink: 0 }}>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18"
+                      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              position: "absolute", bottom: 20, left: "50%",
+              transform: "translateX(-50%)", zIndex: 10,
+            }}>
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label={HOTSPOT_LABELS[activeIndex]}
+                onClick={() => {
+                  const url = HOTSPOT_URLS[activeIndex]
+                  if (url) { markExperienceAsEntered(); window.location.href = url }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const url = HOTSPOT_URLS[activeIndex]
+                    if (url) { markExperienceAsEntered(); window.location.href = url }
+                  }
+                }}
                 style={{
-                  position: "absolute", right: 14, top: "50%",
-                  transform: "translateY(-50%)", zIndex: 10,
-                  width: 44, height: 44, borderRadius: 22,
+                  padding: "10px 20px", borderRadius: 999,
                   background: "rgba(18,18,18,0.82)",
                   border: "1px solid rgba(255,255,255,0.14)",
                   backdropFilter: "blur(10px)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#fff", fontSize: 11, fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  fontFamily: "'Outfit', system-ui, sans-serif",
+                  textTransform: "uppercase", whiteSpace: "nowrap",
                   cursor: "pointer", touchAction: "manipulation",
+                  animation: "jr-fade-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
+                  display: "inline-flex", alignItems: "center",
                 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 12H19M19 12L13 6M19 12L13 18"
-                    stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            )}
-
-            <button
-              onClick={() => {
-                const url = HOTSPOT_URLS[activeIndex]
-                if (url) { markExperienceAsEntered(); window.location.href = url }
-              }}
-              aria-label={HOTSPOT_LABELS[activeIndex]}
-              style={{
-                position: "absolute", bottom: 24, left: "50%",
-                transform: "translateX(-50%)", zIndex: 10,
-                padding: "10px 20px", borderRadius: 999,
-                background: "rgba(18,18,18,0.82)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                backdropFilter: "blur(10px)",
-                color: "#fff", fontSize: 11, fontWeight: 600,
-                letterSpacing: "0.08em",
-                fontFamily: "'Outfit', system-ui, sans-serif",
-                textTransform: "uppercase", whiteSpace: "nowrap",
-                cursor: "pointer", touchAction: "manipulation",
-                animation: "jr-fade-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
-              }}>
-              {HOTSPOT_LABELS[activeIndex]}
-            </button>
-
-            <div style={{
-              position: "absolute", bottom: 80, left: "50%",
-              transform: "translateX(-50%)", zIndex: 10,
-              display: "flex", gap: 6,
-            }}>
-              {ALL_ROOMS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goTo(i)}
-                  aria-label={`Aller à la salle ${i + 1}`}
-                  style={{
-                    width: i === activeIndex ? 18 : 6,
-                    height: 6, borderRadius: 3,
-                    background: i === activeIndex ? "#fff" : "rgba(255,255,255,0.35)",
-                    border: "none", cursor: "pointer",
-                    transition: "width 0.3s ease, background 0.3s ease",
-                    padding: 0,
-                  }}
-                />
-              ))}
+                {HOTSPOT_LABELS[activeIndex]}
+              </div>
             </div>
           </>
         )}
