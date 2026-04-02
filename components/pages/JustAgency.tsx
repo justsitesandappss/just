@@ -332,7 +332,7 @@ export default function JustAgencyPage() {
 
       <main>
         <section aria-label="Image de présentation" style={{ width: "100%", height: mobile ? 520 : tablet ? 620 : clampNumber(620, Math.round(vw * 0.5), 820), position: "relative", overflow: "hidden" }}>
-          <motion.img src="https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1400&q=80&auto=format&fit=crop" alt="Chaque détail compte." loading="lazy" decoding="async" initial={reduceMotion ? undefined : { opacity: 0 }} whileInView={reduceMotion ? undefined : { opacity: 1 }} viewport={{ once: true, amount: 0.2 }} transition={reduceMotion ? undefined : { duration: 1, ease: EASE }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <motion.img src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-sieges.jpg" alt="Chaque détail compte." loading="lazy" decoding="async" initial={reduceMotion ? undefined : { opacity: 0 }} whileInView={reduceMotion ? undefined : { opacity: 1 }} viewport={{ once: true, amount: 0.2 }} transition={reduceMotion ? undefined : { duration: 1, ease: EASE }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.34) 30%, transparent 50%)", pointerEvents: "none" }} />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.34) 42%, rgba(0,0,0,0.14) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: mobile ? 28 : 56, left: mobile ? 24 : tablet ? 40 : 72, right: mobile ? 24 : tablet ? 40 : 72 }}>
