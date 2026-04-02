@@ -36,13 +36,15 @@ export default function HeroMediaDesktop() {
     <section
       aria-label="Vidéo de présentation Just"
       style={{
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%",
-      objectFit: "contain",
-      display: "block",
-    }}
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        background: "#000",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
       <video
         ref={videoRef}
@@ -54,12 +56,10 @@ export default function HeroMediaDesktop() {
         onCanPlay={handleCanPlay}
         aria-label="Vidéo de présentation Just"
         style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          width: "60%",
+          height: "auto",
           display: "block",
+          objectFit: "contain",
         }}
       />
     </section>
