@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import {
   memo,
   useCallback,
@@ -12,6 +13,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react"
+import { useRouter } from "next/navigation"
 import {
   useMotionValue,
   useSpring,
@@ -401,7 +403,17 @@ const EdgeArrowButton = memo(function EdgeArrowButton({
   )
 })
 
-const HotspotBtn = memo(function HotspotBtn({ label, x, y, url }: Hotspot) {
+type HotspotBtnProps = Hotspot & {
+  onNavigate: (url: string) => void
+}
+
+const HotspotBtn = memo(function HotspotBtn({
+  label,
+  x,
+  y,
+  url,
+  onNavigate,
+}: HotspotBtnProps) {
   const [hovered, setHovered] = useState(false)
 
   if (!label) return null
@@ -409,7 +421,7 @@ const HotspotBtn = memo(function HotspotBtn({ label, x, y, url }: Hotspot) {
   const goToUrl = () => {
     if (!url) return
     markExperienceAsEntered()
-    window.location.href = url
+    onNavigate(url)
   }
 
   return (
@@ -560,10 +572,7 @@ const VideoSlot = memo(function VideoSlot({
   if (!isActive && !isNeighbor) return null
 
   const mediaStyle: CSSProperties = {
-    width: "100%",
-    height: "100%",
     objectFit: "cover",
-    display: "block",
     pointerEvents: "none",
   }
 
@@ -582,22 +591,26 @@ const VideoSlot = memo(function VideoSlot({
       <div
         ref={wrapRef}
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
           transform: `scale(${zoom})`,
           transformOrigin: "center",
           willChange: isActive ? "transform" : "auto",
+          overflow: "hidden",
         }}
       >
-{/* eslint-disable-next-line @next/next/no-img-element */}
-<img
-  src={room.video}
-  alt={room.label}
-  draggable={false}
-  loading={isActive ? "eager" : "lazy"}
-  decoding="async"
-  style={mediaStyle}
-/>
+        {isImg ? (
+          <Image
+            src={room.video}
+            alt={room.label}
+            fill
+            unoptimized
+            priority={isActive}
+            sizes="65vw"
+            draggable={false}
+            style={mediaStyle}
+          />
         ) : (
           <video
             ref={videoRef}
@@ -606,7 +619,13 @@ const VideoSlot = memo(function VideoSlot({
             loop
             playsInline
             preload={isActive ? "auto" : "metadata"}
-            style={mediaStyle}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+              pointerEvents: "none",
+            }}
             aria-label={room.label}
           />
         )}
@@ -690,7 +709,10 @@ type IntroVideoProps = {
   onExplore: () => void
 }
 
-const IntroVideo = memo(function IntroVideo({ src, onExplore }: IntroVideoProps) {
+const IntroVideo = memo(function IntroVideo({
+  src,
+  onExplore,
+}: IntroVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(false)
   const [btnHovered, setBtnHovered] = useState(false)
@@ -812,6 +834,8 @@ const IntroVideo = memo(function IntroVideo({ src, onExplore }: IntroVideoProps)
 })
 
 export default function RoomsExperience() {
+  const router = useRouter()
+
   useEffect(() => {
     injectStyles()
   }, [])
@@ -842,6 +866,13 @@ export default function RoomsExperience() {
 
   const x = useSpring(rawX, { stiffness: 40, damping: 25, mass: 1.2 })
   const y = useSpring(rawY, { stiffness: 40, damping: 25, mass: 1.2 })
+
+  const navigate = useCallback(
+    (url: string) => {
+      router.push(url)
+    },
+    [router]
+  )
 
   useEffect(() => {
     const handler = (event: Event) => {
@@ -910,21 +941,24 @@ export default function RoomsExperience() {
     mouseY.set(0.5)
   }, [mouseX, mouseY])
 
-  const handleEdgeClick = useCallback((edge: EdgeConfig) => {
-    markExperienceAsEntered()
+  const handleEdgeClick = useCallback(
+    (edge: EdgeConfig) => {
+      markExperienceAsEntered()
 
-    if (edge.pageUrl) {
-      window.location.href = edge.pageUrl
-      return
-    }
+      if (edge.pageUrl) {
+        navigate(edge.pageUrl)
+        return
+      }
 
-    const idx = edge.target - 1
+      const idx = edge.target - 1
 
-    if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
-      setPhaseOverride("rooms")
-      setActiveIndex(idx)
-    }
-  }, [])
+      if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
+        setPhaseOverride("rooms")
+        setActiveIndex(idx)
+      }
+    },
+    [navigate]
+  )
 
   const currentRoom = ALL_ROOMS[activeIndex]
   const currentEdges = EDGES[activeIndex] ?? EMPTY_EDGE
@@ -1013,7 +1047,11 @@ export default function RoomsExperience() {
           <ParallaxLayer zoom={ZOOM} x={x} y={y}>
             {currentHotspots.map((spot, index) =>
               spot.label ? (
-                <HotspotBtn key={`${activeIndex}-h${index}`} {...spot} />
+                <HotspotBtn
+                  key={`${activeIndex}-h${index}`}
+                  {...spot}
+                  onNavigate={navigate}
+                />
               ) : null
             )}
           </ParallaxLayer>
