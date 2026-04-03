@@ -16,16 +16,32 @@ function useCountUp(target: number, duration: number, active: boolean, suffix: s
   const raf = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!active) { setValue(`0${suffix}`); return }
+    if (!active) {
+      // Utiliser requestAnimationFrame pour éviter le setState synchrone
+      raf.current = requestAnimationFrame(() => {
+        setValue(`0${suffix}`)
+      })
+      return () => {
+        if (raf.current) cancelAnimationFrame(raf.current)
+      }
+    }
+    
     const start = performance.now()
+    
     const step = (now: number) => {
       const p = Math.min((now - start) / duration, 1)
       const e = 1 - Math.pow(1 - p, 4)
       setValue(`${Math.round(e * target)}${suffix}`)
-      if (p < 1) raf.current = requestAnimationFrame(step)
+      if (p < 1) {
+        raf.current = requestAnimationFrame(step)
+      }
     }
+    
     raf.current = requestAnimationFrame(step)
-    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
+    
+    return () => { 
+      if (raf.current) cancelAnimationFrame(raf.current) 
+    }
   }, [active, target, duration, suffix])
 
   return value
@@ -64,6 +80,7 @@ export default function IntroStatsDesktop() {
 
   useEffect(() => {
     if (!inView) return
+    
     const t = setTimeout(() => setCountersActive(true), 1800)
     return () => clearTimeout(t)
   }, [inView])

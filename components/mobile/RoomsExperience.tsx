@@ -49,6 +49,15 @@ type Hotspot = {
   url: string
 }
 
+type VideoSlotProps = {
+  room: Room
+  isActive: boolean
+  isNeighbor: boolean
+  zoom: number
+  x: MotionValue<number>
+  y: MotionValue<number>
+}
+
 const ARROW_ROT: Record<Side, number> = {
   right: 0,
   left: 180,
@@ -77,28 +86,23 @@ const ARROW_INSET = 20
 const ALL_ROOMS: Room[] = [
   {
     label: "Just",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just.mp4",
   },
   {
     label: "Just Impact",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Impact.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Impact.mp4",
   },
   {
     label: "Sponsors",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-SPONSORS.jpg",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-SPONSORS.jpg",
   },
   {
     label: "Nos Talents",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-NOSTALENTS.jpg",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-NOSTALENTS.jpg",
   },
   {
     label: "Just Prod",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4",
   },
 ]
 
@@ -115,12 +119,7 @@ const HOTSPOTS: Hotspot[][] = [
 
 const EDGES: Record<number, Record<Side, EdgeConfig>> = {
   0: {
-    left: {
-      show: true,
-      target: 1,
-      pageUrl: "/just-agency",
-      pageLabel: "Just Agency",
-    },
+    left: { show: true, target: 1, pageUrl: "/just-agency", pageLabel: "Just Agency" },
     top: { show: false, target: 1, pageUrl: "", pageLabel: "" },
     right: { show: true, target: 2, pageUrl: "", pageLabel: "Just Impact" },
     bottom: { show: true, target: 5, pageUrl: "", pageLabel: "Just Prod" },
@@ -188,7 +187,6 @@ const EDGE_POS: Record<Side, CSSProperties> = {
 
 function isImage(url: string): boolean {
   if (!url) return false
-
   try {
     return IMG_RE.test(new URL(url, "https://x").pathname)
   } catch {
@@ -198,7 +196,6 @@ function isImage(url: string): boolean {
 
 function hasEnteredExperience(): boolean {
   if (typeof window === "undefined") return false
-
   try {
     return window.sessionStorage.getItem(EXPERIENCE_DONE_KEY) === "1"
   } catch {
@@ -208,7 +205,6 @@ function hasEnteredExperience(): boolean {
 
 function markExperienceAsEntered(): void {
   if (typeof window === "undefined") return
-
   try {
     window.sessionStorage.setItem(EXPERIENCE_DONE_KEY, "1")
   } catch {
@@ -221,19 +217,16 @@ let stylesInjected = false
 function injectStyles(): void {
   if (stylesInjected || typeof document === "undefined") return
   stylesInjected = true
-
   const style = document.createElement("style")
   style.textContent = `
     @keyframes jr-fade-in {
       from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
       to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
-
     @keyframes jr-label-in {
       from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes jr-btn-in {
       from { opacity: 0; transform: translate(-50%, -50%) translateY(20px); }
       to   { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
@@ -259,27 +252,19 @@ function useParallaxRAF(
 ): void {
   useEffect(() => {
     if (!active) return
-
     const el = ref.current
     if (!el) return
-
     let lastX = x.get()
     let lastY = y.get()
-
     el.style.transform = `scale(${zoom}) translate3d(${lastX}px, ${lastY}px, 0)`
-
     let rafId = 0
     let cancelled = false
-
     const tick = () => {
       if (cancelled) return
-
       const node = ref.current
       if (!node) return
-
       const currentX = x.get()
       const currentY = y.get()
-
       if (
         Math.abs(currentX - lastX) > 0.01 ||
         Math.abs(currentY - lastY) > 0.01
@@ -288,12 +273,9 @@ function useParallaxRAF(
         lastX = currentX
         lastY = currentY
       }
-
       rafId = window.requestAnimationFrame(tick)
     }
-
     rafId = window.requestAnimationFrame(tick)
-
     return () => {
       cancelled = true
       window.cancelAnimationFrame(rafId)
@@ -339,7 +321,6 @@ const EdgeArrowButton = memo(function EdgeArrowButton({
 }: EdgeArrowButtonProps) {
   const [pressed, setPressed] = useState(false)
   const arrowFirst = side === "left" || side === "top"
-
   return (
     <div style={EDGE_POS[side]}>
       <div
@@ -381,7 +362,6 @@ const EdgeArrowButton = memo(function EdgeArrowButton({
         }}
       >
         {arrowFirst && <ArrowIcon side={side} />}
-
         {label ? (
           <span
             style={{
@@ -397,7 +377,6 @@ const EdgeArrowButton = memo(function EdgeArrowButton({
             {label}
           </span>
         ) : null}
-
         {!arrowFirst && <ArrowIcon side={side} />}
       </div>
     </div>
@@ -416,15 +395,12 @@ const HotspotBtn = memo(function HotspotBtn({
   onNavigate,
 }: HotspotBtnProps) {
   const [hovered, setHovered] = useState(false)
-
   if (!label) return null
-
   const goToUrl = () => {
     if (!url) return
     markExperienceAsEntered()
     onNavigate(url)
   }
-
   return (
     <div
       role="button"
@@ -488,9 +464,7 @@ const ParallaxLayer = memo(function ParallaxLayer({
   children,
 }: ParallaxLayerProps) {
   const ref = useRef<HTMLDivElement>(null)
-
   useParallaxRAF(ref, true, zoom, x, y)
-
   return (
     <div
       ref={ref}
@@ -508,15 +482,6 @@ const ParallaxLayer = memo(function ParallaxLayer({
   )
 })
 
-type VideoSlotProps = {
-  room: Room
-  isActive: boolean
-  isNeighbor: boolean
-  zoom: number
-  x: MotionValue<number>
-  y: MotionValue<number>
-}
-
 const VideoSlot = memo(function VideoSlot({
   room,
   isActive,
@@ -529,54 +494,38 @@ const VideoSlot = memo(function VideoSlot({
   const wrapRef = useRef<HTMLDivElement>(null)
   const isImg = isImage(room.video)
   const playPromiseRef = useRef<Promise<void> | null>(null)
-
   useParallaxRAF(wrapRef, isActive, zoom, x, y)
-
   useEffect(() => {
     if (isImg) return
-
     const el = videoRef.current
     if (!el) return
-
     if (isActive) {
       const startPlayback = () => {
         const playPromise = el.play()
         playPromiseRef.current = playPromise
-        playPromise.catch(() => {
-          //
-        })
+        playPromise.catch(() => {})
       }
-
       if (playPromiseRef.current) {
         playPromiseRef.current.then(startPlayback).catch(startPlayback)
       } else {
         startPlayback()
       }
-
       return
     }
-
     if (playPromiseRef.current) {
       playPromiseRef.current
-        .then(() => {
-          el.pause()
-        })
-        .catch(() => {
-          el.pause()
-        })
+        .then(() => { el.pause() })
+        .catch(() => { el.pause() })
       playPromiseRef.current = null
     } else {
       el.pause()
     }
   }, [isActive, isImg])
-
   if (!isActive && !isNeighbor) return null
-
   const mediaStyle: CSSProperties = {
     objectFit: "cover",
     pointerEvents: "none",
   }
-
   return (
     <div
       style={{
@@ -646,33 +595,22 @@ const TransitionVideo = memo(function TransitionVideo({
 }: TransitionVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [fadeOut, setFadeOut] = useState(false)
-
   useEffect(() => {
     const el = videoRef.current
     if (!el) return
-
     let timeoutId: ReturnType<typeof setTimeout> | undefined
-
     el.currentTime = 0
-    el.play().catch(() => {
-      //
-    })
-
+    el.play().catch(() => {})
     const handleEnded = () => {
       setFadeOut(true)
-      timeoutId = setTimeout(() => {
-        onEnd()
-      }, 700)
+      timeoutId = setTimeout(() => { onEnd() }, 700)
     }
-
     el.addEventListener("ended", handleEnded)
-
     return () => {
       el.removeEventListener("ended", handleEnded)
       if (timeoutId) clearTimeout(timeoutId)
     }
   }, [onEnd])
-
   return (
     <div
       style={{
@@ -717,28 +655,13 @@ const IntroVideo = memo(function IntroVideo({
   const videoRef = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(false)
   const [btnHovered, setBtnHovered] = useState(false)
-
   useEffect(() => {
-    videoRef.current?.play().catch(() => {
-      //
-    })
-
-    const timeoutId = setTimeout(() => {
-      setVisible(true)
-    }, 800)
-
+    videoRef.current?.play().catch(() => {})
+    const timeoutId = setTimeout(() => { setVisible(true) }, 800)
     return () => clearTimeout(timeoutId)
   }, [src])
-
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 30,
-        background: "#000",
-      }}
-    >
+    <div style={{ position: "absolute", inset: 0, zIndex: 30, background: "#000" }}>
       <video
         ref={videoRef}
         src={src}
@@ -747,14 +670,8 @@ const IntroVideo = memo(function IntroVideo({
         playsInline
         preload="auto"
         aria-hidden="true"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          display: "block",
-        }}
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
       />
-
       <div
         aria-hidden="true"
         style={{
@@ -764,7 +681,6 @@ const IntroVideo = memo(function IntroVideo({
           pointerEvents: "none",
         }}
       />
-
       {visible ? (
         <div
           style={{
@@ -799,13 +715,10 @@ const IntroVideo = memo(function IntroVideo({
               backdropFilter: "blur(10px)",
               transform: btnHovered ? "scale(1.06)" : "scale(1)",
               opacity: btnHovered ? 0.8 : 1,
-              transition:
-                "transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s",
+              transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s",
               whiteSpace: "nowrap",
-              textShadow:
-                "0 0 20px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.6)",
-              boxShadow:
-                "0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
+              textShadow: "0 0 20px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.6)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
             }}
           >
             Explorer
@@ -815,9 +728,7 @@ const IntroVideo = memo(function IntroVideo({
               viewBox="0 0 24 24"
               fill="none"
               aria-hidden="true"
-              style={{
-                filter: "drop-shadow(0 0 12px rgba(255,255,255,0.7))",
-              }}
+              style={{ filter: "drop-shadow(0 0 12px rgba(255,255,255,0.7))" }}
             >
               <path
                 d="M5 12H19M19 12L13 6M19 12L13 18"
@@ -843,9 +754,10 @@ export default function RoomsExperience() {
   }, [])
 
   const hydrated = useHydrated()
-
   const [phaseOverride, setPhaseOverride] = useState<Phase | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const jumpHandled = useRef(false)
+  const hasMountedRef = useRef(false)
 
   const phase: Phase = phaseOverride
     ? phaseOverride
@@ -876,11 +788,11 @@ export default function RoomsExperience() {
     [router]
   )
 
+  // ✅ Fix: setTimeout pour éviter les cascading renders
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ roomIndex?: number }>).detail
       const idx = detail?.roomIndex
-
       if (
         typeof idx !== "number" ||
         idx < 0 ||
@@ -889,25 +801,29 @@ export default function RoomsExperience() {
       ) {
         return
       }
-
       markExperienceAsEntered()
-      setPhaseOverride("rooms")
-      setActiveIndex(idx)
+      setTimeout(() => {
+        setPhaseOverride("rooms")
+        setActiveIndex(idx)
+      }, 0)
     }
-
     window.addEventListener("just-nav-change", handler)
-
     return () => {
       window.removeEventListener("just-nav-change", handler)
     }
   }, [])
 
+  // ✅ Fix: setTimeout pour éviter les cascading renders
   useEffect(() => {
     const jump = searchParams.get("jumpToRoom")
-    if (jump == null) return
-
+    if (jump == null) {
+      jumpHandled.current = false
+      return
+    }
+    if (jumpHandled.current) return
     const idx = parseInt(jump, 10)
-
+    jumpHandled.current = true
+    router.replace("/", { scroll: false })
     if (
       Number.isNaN(idx) ||
       idx < 0 ||
@@ -916,27 +832,25 @@ export default function RoomsExperience() {
     ) {
       return
     }
-
     markExperienceAsEntered()
-    setPhaseOverride("rooms")
-    setActiveIndex(idx)
-
+    setTimeout(() => {
+      setPhaseOverride("rooms")
+      setActiveIndex(idx)
+    }, 0)
     requestAnimationFrame(() => {
       const el = document.getElementById(ROOMS_ANCHOR_ID)
       if (!el) return
-
       const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
       window.scrollTo({ top, behavior: "smooth" })
     })
-
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("jumpToRoom")
-    const next = params.toString()
-
-    router.replace(next ? `/?${next}` : "/", { scroll: false })
   }, [searchParams, router])
 
+  // ✅ Ne dispatch PAS au premier render pour ne pas écraser pendingPageRef du header
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      return
+    }
     window.dispatchEvent(
       new CustomEvent("just-room-changed", {
         detail: { roomIndex: activeIndex },
@@ -947,19 +861,14 @@ export default function RoomsExperience() {
   const handleMouseMove = useCallback(
     (e: ReactMouseEvent<HTMLDivElement>) => {
       if (rafMove.current) return
-
       const clientX = e.clientX
       const clientY = e.clientY
-
       rafMove.current = window.requestAnimationFrame(() => {
         rafMove.current = 0
-
         const rect = containerRef.current?.getBoundingClientRect()
         if (!rect) return
-
         const nextX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
         const nextY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
-
         mouseX.set(nextX)
         mouseY.set(nextY)
       })
@@ -972,7 +881,6 @@ export default function RoomsExperience() {
       window.cancelAnimationFrame(rafMove.current)
       rafMove.current = 0
     }
-
     mouseX.set(0.5)
     mouseY.set(0.5)
   }, [mouseX, mouseY])
@@ -980,14 +888,11 @@ export default function RoomsExperience() {
   const handleEdgeClick = useCallback(
     (edge: EdgeConfig) => {
       markExperienceAsEntered()
-
       if (edge.pageUrl) {
         navigate(edge.pageUrl)
         return
       }
-
       const idx = edge.target - 1
-
       if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
         setPhaseOverride("rooms")
         setActiveIndex(idx)
@@ -1005,10 +910,8 @@ export default function RoomsExperience() {
   const showIntro = phase === "intro"
 
   const neighborIndices = new Set<number>()
-
   for (const side of SIDES) {
     const edge = currentEdges[side]
-
     if (edge.show && !edge.pageUrl) {
       const idx = edge.target - 1
       if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
@@ -1115,13 +1018,7 @@ export default function RoomsExperience() {
             transition: "opacity 0.5s ease",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-            }}
-          >
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
             <div
               key={`label-${activeIndex}`}
               style={{
@@ -1151,7 +1048,6 @@ export default function RoomsExperience() {
               ? SIDES.map((side) => {
                   const edge = currentEdges[side]
                   if (!edge.show) return null
-
                   if (!edge.pageUrl) {
                     const idx = edge.target - 1
                     if (
@@ -1162,11 +1058,9 @@ export default function RoomsExperience() {
                       return null
                     }
                   }
-
                   const label = edge.pageUrl
                     ? edge.pageLabel || "Page"
                     : ALL_ROOMS[edge.target - 1]?.label || ""
-
                   return (
                     <EdgeArrowButton
                       key={side}
@@ -1195,7 +1089,6 @@ export default function RoomsExperience() {
             src={INTRO_VIDEO}
             onExplore={() => {
               markExperienceAsEntered()
-
               if (TRANSITION_VIDEO) {
                 setPhaseOverride("transitionPlaying")
               } else {
