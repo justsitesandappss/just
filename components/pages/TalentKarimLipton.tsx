@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useEffect, useId, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { motion, useInView, useReducedMotion, type Transition } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -20,20 +20,17 @@ const C = {
   textSoft: "rgba(255,255,255,0.86)",
   textBody: "rgba(255,255,255,0.78)",
   textMuted: "rgba(255,255,255,0.64)",
-  textSubtle: "rgba(255,255,255,0.52)",
   textGhost: "rgba(255,255,255,0.14)",
   chipBg: "rgba(255,255,255,0.05)",
   chipBorder: "rgba(255,255,255,0.10)",
   buttonBorder: "rgba(255,255,255,0.22)",
   buttonBgHover: "#ffffff",
   buttonTextHover: "#000000",
-  focus: "#ffffff",
 }
 
 function useFontsAndStyles() {
   useEffect(() => {
     if (typeof document === "undefined") return
-
     if (!document.getElementById("talent-karim-fonts")) {
       const link = document.createElement("link")
       link.id = "talent-karim-fonts"
@@ -41,59 +38,30 @@ function useFontsAndStyles() {
       link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
       document.head.appendChild(link)
     }
-
     if (!document.getElementById("talent-karim-styles")) {
       const style = document.createElement("style")
       style.id = "talent-karim-styles"
       style.innerHTML = `
         .talent-karim-root * { box-sizing: border-box; }
         .talent-karim-root a:focus-visible,
-        .talent-karim-root button:focus-visible {
-          outline: 2px solid #ffffff;
-          outline-offset: 3px;
-        }
-        .talent-karim-root .sr-only {
-          position: absolute !important;
-          width: 1px !important;
-          height: 1px !important;
-          padding: 0 !important;
-          margin: -1px !important;
-          overflow: hidden !important;
-          clip: rect(0,0,0,0) !important;
-          white-space: nowrap !important;
-          border: 0 !important;
-        }
+        .talent-karim-root button:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
         .talent-karim-root .skip-link {
-          position: absolute;
-          left: 16px;
-          top: 16px;
-          z-index: 30;
-          transform: translateY(-140%);
-          transition: transform 0.2s ease;
-          background: #fff;
-          color: #000;
-          text-decoration: none;
-          font-size: 14px;
-          font-weight: 700;
-          border-radius: 999px;
-          padding: 12px 16px;
+          position: absolute; left: 16px; top: 16px; z-index: 30;
+          transform: translateY(-140%); transition: transform 0.2s ease;
+          background: #fff; color: #000; text-decoration: none;
+          font-size: 14px; font-weight: 700; border-radius: 999px; padding: 12px 16px;
         }
-        .talent-karim-root .skip-link:focus {
-          transform: translateY(0);
-        }
+        .talent-karim-root .skip-link:focus { transform: translateY(0); }
         @media (max-width: 1024px) {
           .talent-karim-hero { grid-template-columns: 1fr !important; min-height: auto !important; }
           .talent-karim-hero-media { height: min(70vh, 700px) !important; order: -1; }
-          .talent-karim-platforms-grid,
-          .talent-karim-collabs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+          .talent-karim-platforms-grid, .talent-karim-collabs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
           .talent-karim-pillars-grid { grid-template-columns: 1fr !important; }
           .talent-karim-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
           .talent-karim-footer { flex-direction: column !important; gap: 12px; align-items: flex-start !important; }
         }
         @media (max-width: 640px) {
-          .talent-karim-platforms-grid,
-          .talent-karim-collabs-grid,
-          .talent-karim-stats-grid { grid-template-columns: 1fr !important; }
+          .talent-karim-platforms-grid, .talent-karim-collabs-grid, .talent-karim-stats-grid { grid-template-columns: 1fr !important; }
           .talent-karim-hero-copy { padding: 32px 20px 48px !important; }
           .talent-karim-section { padding-left: 20px !important; padding-right: 20px !important; }
         }
@@ -111,7 +79,6 @@ function Reveal({ children, delay = 0, y = 32 }: { children: React.ReactNode; de
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-60px" })
   const reducedMotion = useReducedMotion()
-
   return (
     <motion.div
       ref={ref}
@@ -127,21 +94,16 @@ function Reveal({ children, delay = 0, y = 32 }: { children: React.ReactNode; de
 function Marquee({ items, speed = 35, ariaLabel }: { items: string[]; speed?: number; ariaLabel: string }) {
   const reducedMotion = useReducedMotion()
   const repeatedItems = [...items, ...items, ...items]
-
   return (
     <div
       aria-label={ariaLabel}
       role="presentation"
       style={{
-        overflow: "hidden",
-        width: "100%",
+        overflow: "hidden", width: "100%",
         maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
         WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
       }}
     >
-      <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>
-        {items.join(", ")}
-      </span>
       <motion.div
         aria-hidden="true"
         animate={reducedMotion ? undefined : { x: ["0%", "-33.333%"] }}
@@ -150,18 +112,7 @@ function Marquee({ items, speed = 35, ariaLabel }: { items: string[]; speed?: nu
       >
         {repeatedItems.map((item, index) => (
           <React.Fragment key={`${item}-${index}`}>
-            <span
-              style={{
-                whiteSpace: "nowrap",
-                textTransform: "uppercase",
-                fontFamily: DISPLAY,
-                fontWeight: 800,
-                fontSize: "clamp(38px, 7vw, 72px)",
-                color: "rgba(255,255,255,0.06)",
-                letterSpacing: -2,
-                lineHeight: 1,
-              }}
-            >
+            <span style={{ whiteSpace: "nowrap", textTransform: "uppercase", fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(38px, 7vw, 72px)", color: "rgba(255,255,255,0.06)", letterSpacing: -2, lineHeight: 1 }}>
               {item}
             </span>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.14)", display: "inline-block", flexShrink: 0 }} />
@@ -187,9 +138,11 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
 
   useEffect(() => {
     if (!isInView) return
-    if (reducedMotion) { setCount(rawNumber); return }
-
     const timeout = setTimeout(() => {
+      if (reducedMotion) {
+        setCount(rawNumber)
+        return
+      }
       const duration = 2200
       const start = performance.now()
       let frame: number
@@ -202,8 +155,7 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
       }
       frame = requestAnimationFrame(run)
       return () => cancelAnimationFrame(frame)
-    }, delay * 1000)
-
+    }, reducedMotion ? 0 : delay * 1000)
     return () => clearTimeout(timeout)
   }, [isInView, reducedMotion, rawNumber, delay, decimalPlaces])
 
@@ -213,10 +165,7 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
 
   return (
     <div ref={ref} style={{ textAlign: "center", padding: "8px 6px" }}>
-      <p
-        aria-label={`${label} : ${value}`}
-        style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(36px, 6vw, 56px)", color: C.text, letterSpacing: -2, lineHeight: 1, margin: "0 0 10px 0", fontVariantNumeric: "tabular-nums" }}
-      >
+      <p aria-label={`${label} : ${value}`} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(36px, 6vw, 56px)", color: C.text, letterSpacing: -2, lineHeight: 1, margin: "0 0 10px 0", fontVariantNumeric: "tabular-nums" }}>
         {displayValue}
       </p>
       <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: C.textMuted, fontFamily: BODY, margin: 0 }}>
@@ -229,7 +178,6 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
 function PlatformIcon({ platform, size = 16 }: { platform: string; size?: number }) {
   const p = platform.toLowerCase()
   const props = { width: size, height: size, viewBox: "0 0 24 24", fill: "none" as const, stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const }
-
   if (p === "snapchat") return <svg {...props}><path d="M12 2C8 2 6 5 6 8v2c-1 0-2 .5-2 1s1 1 2 1c-.5 2-2 3-4 4 0 .5.5 1 2 1 0 .5 0 1 .5 1.5S6 19 8 19.5c0 1 .5 2.5 4 2.5s4-1.5 4-2.5c2-.5 3-1 3.5-1.5s.5-1 .5-1.5c1.5 0 2-.5 2-1-2-1-3.5-2-4-4 1 0 2-.5 2-1s-1-1-2-1V8c0-3-2-6-6-6z" /></svg>
   if (p === "instagram") return <svg {...props}><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" /></svg>
   if (p === "tiktok") return <svg {...props}><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" /></svg>
@@ -289,64 +237,34 @@ export default function TalentKarimLipton() {
   ]
 
   return (
-    <div
-      className="talent-karim-root"
-      style={{ width: "100%", overflowX: "hidden", background: C.bg, color: C.textBody, fontFamily: BODY, WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}
-    >
+    <div className="talent-karim-root" style={{ width: "100%", overflowX: "hidden", background: C.bg, color: C.textBody, fontFamily: BODY, WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
       <Link href={`#${ids.main}`} className="skip-link">Aller au contenu principal</Link>
 
-      {/* Back button */}
       <div style={{ position: "fixed", top: 24, left: 24, zIndex: 50 }}>
-        <Link
-          href="/nos-talents"
-          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", borderRadius: 100, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMuted, textDecoration: "none" }}
-        >
+        <Link href="/nos-talents" style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", borderRadius: 100, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMuted, textDecoration: "none" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
           Retour aux talents
         </Link>
       </div>
 
       {/* HERO */}
-      <header
-        aria-label="Présentation de Karim Lipton"
-        className="talent-karim-hero"
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh", alignItems: "stretch", position: "relative" }}
-      >
+      <header aria-label="Présentation de Karim Lipton" className="talent-karim-hero" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh", alignItems: "stretch", position: "relative" }}>
         <div className="talent-karim-hero-copy" style={{ padding: "80px 72px", display: "flex", alignItems: "center" }}>
           <div style={{ width: "100%", maxWidth: 620 }}>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={makeTransition(reducedMotion ?? false, 0.7, 0.15)}
-              style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginBottom: 28 }}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.15)} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginBottom: 28 }}>
               <span style={{ padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>Karim LPTN</span>
               <span style={{ fontSize: 13, color: C.textMuted }}>@karimlipton94</span>
             </motion.div>
 
-            <motion.h1
-              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 40 }}
-              animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={makeTransition(reducedMotion ?? false, 0.9, 0.25)}
-              style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(46px, 7vw, 92px)", color: C.text, letterSpacing: -4, lineHeight: 0.92, margin: "0 0 16px 0" }}
-            >
+            <motion.h1 initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 40 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.9, 0.25)} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(46px, 7vw, 92px)", color: C.text, letterSpacing: -4, lineHeight: 0.92, margin: "0 0 16px 0" }}>
               Karim Lipton
             </motion.h1>
 
-            <motion.p
-              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-              animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={makeTransition(reducedMotion ?? false, 0.7, 0.38)}
-              style={{ fontSize: 14, lineHeight: 1.8, marginBottom: 24, color: C.textSoft }}
-            >
+            <motion.p initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.38)} style={{ fontSize: 14, lineHeight: 1.8, marginBottom: 24, color: C.textSoft }}>
               Humour · Voyage · Lifestyle · Storytelling
             </motion.p>
 
-            <motion.ul
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={makeTransition(reducedMotion ?? false, 0.6, 0.48)}
-              style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, listStyle: "none", padding: 0 }}
-            >
+            <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.6, 0.48)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, listStyle: "none", padding: 0 }}>
               {catList.map((cat) => (
                 <li key={cat}>
                   <span style={{ display: "inline-flex", padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>{cat}</span>
@@ -354,29 +272,16 @@ export default function TalentKarimLipton() {
               ))}
             </motion.ul>
 
-            <motion.p
-              initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-              animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={makeTransition(reducedMotion ?? false, 0.7, 0.58)}
-              style={{ fontSize: 15, lineHeight: 1.9, maxWidth: 560, marginBottom: 24, color: C.textBody }}
-            >
+            <motion.p initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.58)} style={{ fontSize: 15, lineHeight: 1.9, maxWidth: 560, marginBottom: 24, color: C.textBody }}>
               Créateur dynamique et authentique, reconnu pour son sens du divertissement. Karim est un poids lourd de Snapchat avec 1,3 à 1,5 million d&apos;abonnés. Il tape régulièrement le million de vues en moins de 24 heures.
             </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={makeTransition(reducedMotion ?? false, 0.55, 0.68)}
-              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textMuted, marginBottom: 32 }}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.55, 0.68)} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textMuted, marginBottom: 32 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
               <span>Val-de-Marne (94), France</span>
             </motion.div>
 
-            <motion.ul
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={makeTransition(reducedMotion ?? false, 0.55, 0.78)}
-              style={{ display: "flex", flexWrap: "wrap", gap: 12, listStyle: "none", padding: 0 }}
-            >
+            <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.55, 0.78)} style={{ display: "flex", flexWrap: "wrap", gap: 12, listStyle: "none", padding: 0 }}>
               {["Snapchat", "Instagram", "TikTok", "YouTube"].map((platform) => (
                 <li key={platform}>
                   <div style={{ width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: C.panelSoft, border: `1px solid ${C.border}`, color: C.textSoft }} aria-label={platform} title={platform}>
@@ -388,20 +293,8 @@ export default function TalentKarimLipton() {
           </div>
         </div>
 
-        <motion.div
-          className="talent-karim-hero-media"
-          initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.03 }}
-          animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-          transition={makeTransition(reducedMotion ?? false, 1, 0.2)}
-          style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}
-        >
-          <Image
-            src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg"
-            alt="Portrait de Karim Lipton"
-            fill priority
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            style={{ objectFit: "cover" }}
-          />
+        <motion.div className="talent-karim-hero-media" initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.03 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }} transition={makeTransition(reducedMotion ?? false, 1, 0.2)} style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}>
+          <Image src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg" alt="Portrait de Karim Lipton" fill priority sizes="(max-width: 1024px) 100vw, 50vw" style={{ objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.15) 34%, transparent 55%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 32%)", pointerEvents: "none" }} />
         </motion.div>
@@ -442,11 +335,7 @@ export default function TalentKarimLipton() {
             <div className="talent-karim-platforms-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
               {platforms.map((platform, index) => (
                 <Reveal key={platform.name} delay={index * 0.05}>
-                  <motion.article
-                    whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }}
-                    transition={makeTransition(reducedMotion ?? false, 0.25)}
-                    style={{ position: "relative", overflow: "hidden", borderRadius: 20, padding: "36px 24px", minHeight: 255, background: C.panelSoft, border: `1px solid ${platform.main ? C.borderStrong : C.border}` }}
-                  >
+                  <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ position: "relative", overflow: "hidden", borderRadius: 20, padding: "36px 24px", minHeight: 255, background: C.panelSoft, border: `1px solid ${platform.main ? C.borderStrong : C.border}` }}>
                     {platform.main && <span style={{ position: "absolute", top: 12, right: 14, padding: "4px 10px", borderRadius: 100, background: "rgba(255,255,255,0.08)", fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: C.textMuted, letterSpacing: 2 }}>Principal</span>}
                     <div style={{ marginBottom: 16, color: C.textSoft }}><PlatformIcon platform={platform.name} size={24} /></div>
                     <h3 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 16, color: C.text, letterSpacing: -0.3, margin: "0 0 4px 0" }}>{platform.name}</h3>
@@ -464,7 +353,6 @@ export default function TalentKarimLipton() {
           <Reveal>
             <div style={{ maxWidth: 860, textAlign: "center" }}>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 28px 0" }}>L&apos;ascension</p>
-              <h2 id={ids.ascension} style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>L&apos;ascension de Karim Lipton</h2>
               <blockquote style={{ margin: 0 }}>
                 <p style={{ fontFamily: DISPLAY, fontSize: "clamp(22px, 2.8vw, 34px)", fontWeight: 400, color: C.textSoft, letterSpacing: -0.5, fontStyle: "italic", lineHeight: 1.55 }}>
                   &ldquo;Karim a véritablement explosé après avoir été propulsé et validé par Nasdas. Il a repris l&apos;énergie du contenu quotidien, l&apos;effet bande et le storytelling, tout en y ajoutant sa propre mise en scène.&rdquo;
@@ -482,11 +370,7 @@ export default function TalentKarimLipton() {
             <div className="talent-karim-pillars-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
               {pillars.map((pillar, index) => (
                 <Reveal key={pillar.title} delay={index * 0.06}>
-                  <motion.article
-                    whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)" }}
-                    transition={makeTransition(reducedMotion ?? false, 0.25)}
-                    style={{ display: "flex", gap: 20, alignItems: "flex-start", borderRadius: 24, padding: "40px 32px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}
-                  >
+                  <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)" }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ display: "flex", gap: 20, alignItems: "flex-start", borderRadius: 24, padding: "40px 32px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}>
                     <div style={{ fontSize: 34, lineHeight: 1, flexShrink: 0 }} aria-hidden="true">{pillar.icon}</div>
                     <div>
                       <h3 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 22, color: C.text, letterSpacing: -0.5, margin: "0 0 12px 0", lineHeight: 1.2 }}>{pillar.title}</h3>
@@ -510,11 +394,7 @@ export default function TalentKarimLipton() {
             <div className="talent-karim-collabs-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
               {collabs.map((item, index) => (
                 <Reveal key={item.title} delay={index * 0.05}>
-                  <motion.article
-                    whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }}
-                    transition={makeTransition(reducedMotion ?? false, 0.25)}
-                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", borderRadius: 20, padding: "40px 24px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}
-                  >
+                  <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", borderRadius: 20, padding: "40px 24px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}>
                     <p aria-hidden="true" style={{ fontFamily: DISPLAY, fontSize: 54, fontWeight: 800, color: "rgba(255,255,255,0.05)", lineHeight: 1, margin: "0 0 14px 0" }}>{String(index + 1).padStart(2, "0")}</p>
                     <h3 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 16, color: C.text, letterSpacing: -0.3, margin: "0 0 10px 0" }}>{item.title}</h3>
                     <p style={{ fontSize: 12, lineHeight: 1.8, color: C.textBody, margin: 0, maxWidth: 240 }}>{item.desc}</p>
@@ -570,13 +450,7 @@ export default function TalentKarimLipton() {
             </p>
           </Reveal>
           <Reveal delay={0.16}>
-            <motion.a
-              href="#"
-              whileHover={reducedMotion ? undefined : { y: -2, backgroundColor: C.buttonBgHover, color: C.buttonTextHover }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={makeTransition(reducedMotion ?? false, 0.25)}
-              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 52, padding: "18px 42px", background: "transparent", color: C.text, fontFamily: DISPLAY, fontWeight: 700, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", borderRadius: 100, border: `1px solid ${C.buttonBorder}` }}
-            >
+            <motion.a href="#" whileHover={reducedMotion ? undefined : { y: -2, backgroundColor: C.buttonBgHover, color: C.buttonTextHover }} whileTap={reducedMotion ? undefined : { scale: 0.98 }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 52, padding: "18px 42px", background: "transparent", color: C.text, fontFamily: DISPLAY, fontWeight: 700, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", borderRadius: 100, border: `1px solid ${C.buttonBorder}` }}>
               <span>Proposer une collab</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
             </motion.a>

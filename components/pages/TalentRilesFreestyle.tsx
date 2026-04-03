@@ -2,17 +2,10 @@
 
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState, useId, useCallback } from "react"
-import {
-    motion,
-    useInView,
-    useReducedMotion,
-    type Transition,
-} from "framer-motion"
+import { motion, useInView, useReducedMotion, type Transition } from "framer-motion"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
-const NUMERIC = "'Inter', 'Segoe UI', Arial, sans-serif"
-
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
 const COLORS = {
@@ -32,10 +25,7 @@ const COLORS = {
     focus: "#FFFFFF",
 } as const
 
-const TRANSITION_BASE: Transition = {
-    duration: 0.9,
-    ease: EASE,
-}
+const TRANSITION_BASE: Transition = { duration: 0.9, ease: EASE }
 
 type PlatformItem = { name: string; followers: string; desc: string; main?: boolean }
 type PillarItem = { title: string; desc: string; icon: string }
@@ -47,11 +37,9 @@ function useFontsAndGlobalStyles() {
             const link = document.createElement("link")
             link.id = "talent-riles-fonts"
             link.rel = "stylesheet"
-            link.href =
-                "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@200;300;400;500;600;700&display=swap"
+            link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@200;300;400;500;600;700&display=swap"
             document.head.appendChild(link)
         }
-
         if (!document.getElementById("talent-riles-accessibility-styles")) {
             const style = document.createElement("style")
             style.id = "talent-riles-accessibility-styles"
@@ -127,9 +115,12 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
 
     useEffect(() => {
         if (!inView) return
-        if (reduceMotion) { setCount(numericValue); return }
-        let raf = 0
         const timeout = window.setTimeout(() => {
+            if (reduceMotion) {
+                setCount(numericValue)
+                return
+            }
+            let raf = 0
             const duration = 2200
             const start = performance.now()
             const tick = (now: number) => {
@@ -140,8 +131,9 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
                 if (progress < 1) raf = requestAnimationFrame(tick)
             }
             raf = requestAnimationFrame(tick)
-        }, delay * 1000)
-        return () => { clearTimeout(timeout); cancelAnimationFrame(raf) }
+            return () => cancelAnimationFrame(raf)
+        }, reduceMotion ? 0 : delay * 1000)
+        return () => clearTimeout(timeout)
     }, [inView, reduceMotion, numericValue, delay, decimals])
 
     const visibleValue = inView ? `${prefix}${decimals > 0 ? count.toFixed(decimals) : count}${suffix}` : `${prefix}0${suffix}`
