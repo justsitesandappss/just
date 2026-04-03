@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
   { label: "Just Prod", page: "nav5", room: 5 },
   { label: "Just Agency", page: "nav4", href: "/just-agency" },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
-  { label: "Nos Talents", page: "nav6", room: 6 },
+  { label: "Nos Talents", page: "nav6", room: 4 },
 ]
 
 export default function HeaderDesktop() {
@@ -65,6 +65,7 @@ export default function HeaderDesktop() {
     window.dispatchEvent(
       new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } })
     )
+
     scrollToRooms()
   }
 
@@ -78,22 +79,27 @@ export default function HeaderDesktop() {
 
     if (jump !== null) {
       const roomIndex = parseInt(jump, 10)
+
       if (!Number.isNaN(roomIndex)) {
         const match = navItems.find((item) => item.room === roomIndex + 1)
+
         if (match) {
           setCurrent(match.page)
 
           const tryJump = (attempt: number) => {
             const el = document.getElementById(ROOMS_ANCHOR_ID)
+
             if (el) {
               window.dispatchEvent(
                 new CustomEvent("just-nav-change", { detail: { roomIndex } })
               )
+
               setTimeout(scrollToRooms, 100)
 
               const params = new URLSearchParams(searchParams.toString())
               params.delete("jumpToRoom")
               const next = params.toString()
+
               router.replace(next ? `/?${next}` : "/", { scroll: false })
             } else if (attempt < 20) {
               setTimeout(() => tryJump(attempt + 1), 150)
@@ -121,7 +127,10 @@ export default function HeaderDesktop() {
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
-    return () => window.removeEventListener("just-room-changed", onRoomChanged)
+
+    return () => {
+      window.removeEventListener("just-room-changed", onRoomChanged)
+    }
   }, [])
 
   const targetPage = hovered ?? current
