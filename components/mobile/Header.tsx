@@ -10,9 +10,9 @@ const ROOMS_ANCHOR_ID = "just-rooms-container"
 const navItems = [
   { label: "Just",         page: "nav1", room: 1 },
   { label: "Just Impact",  page: "nav2", room: 2 },
-  { label: "Just Prod",    page: "nav3", room: 3 },
+  { label: "Just Prod",    page: "nav5", room: 5 },
   { label: "Just Agency",  page: "nav4", room: 4 },
-  { label: "Nos Sponsors", page: "nav5", room: 5 },
+  { label: "Nos Sponsors", page: "nav3", room: 3 },
   { label: "Nos Talents",  page: "nav6", room: 6 },
 ]
 
