@@ -22,18 +22,19 @@ const navItems: NavItem[] = [
   { label: "Just Impact", page: "nav2", room: 2 },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
   { label: "Just Agency", page: "nav4", href: "/just-agency" },
-  { label: "Nos Talents", page: "nav6", room: 4 },
-  { label: "Just Prod", page: "nav5", room: 5 },
+  { label: "Nos Talents", page: "nav5", room: 4 }, // ✅ corrigé: nav5 au lieu de nav6
+  { label: "Just Prod", page: "nav6", room: 5 },   // ✅ corrigé: nav6 au lieu de nav5
 ]
 
 const PATHNAME_TO_PAGE: Record<string, string> = {
-  "/just": "nav1",
+  "/": "nav1",
   "/just-impact": "nav2",
   "/nosponsors": "nav3",
   "/just-agency": "nav4",
-  "/nos-talents": "nav6",
-  "/media": "nav5",
-  "/podcast": "nav5",
+  "/nos-talents": "nav5", // ✅ corrigé: nav5
+  "/just-prod": "nav6",   // ✅ ajouté
+  "/media": "nav6",
+  "/podcast": "nav6",
 }
 
 export default function HeaderDesktop() {
@@ -41,7 +42,6 @@ export default function HeaderDesktop() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // ✅ FIX : extraire la valeur primitive pour que useEffect se déclenche correctement
   const jumpToRoom = searchParams.get("jumpToRoom")
 
   const [current, setCurrent] = useState("nav1")
@@ -92,8 +92,6 @@ export default function HeaderDesktop() {
     router.push("/?jumpToRoom=0")
   }
 
-  // ✅ FIX : dépendance sur `jumpToRoom` (string | null) au lieu de `searchParams` (objet)
-  // Cela garantit que l'effet se re-déclenche à chaque changement de room dans l'URL
   useEffect(() => {
     const mapped = PATHNAME_TO_PAGE[pathname]
     if (mapped) {
@@ -115,7 +113,6 @@ export default function HeaderDesktop() {
         }
       }
 
-      // "/" sans jumpToRoom
       if (pendingPageRef.current !== null) {
         setCurrent(pendingPageRef.current)
         pendingPageRef.current = null
@@ -124,15 +121,12 @@ export default function HeaderDesktop() {
 
       setCurrent("nav1")
     }
-  }, [pathname, jumpToRoom]) // ✅ string primitive, pas l'objet searchParams
+  }, [pathname, jumpToRoom])
 
-  // Garde uniquement just-room-changed pour la navigation INTERNE aux rooms
-  // (quand on clique les flèches entre salles depuis la home)
   useEffect(() => {
     function onRoomChanged(e: Event) {
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
-      // Ignore si on a un pending (transition inter-pages en cours)
       if (pendingPageRef.current !== null) return
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
