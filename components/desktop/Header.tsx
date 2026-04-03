@@ -55,18 +55,17 @@ export default function HeaderDesktop() {
 
     setCurrent(item.page)
 
-    if (pathname !== "/") {
-      router.push(`/?jumpToRoom=${item.room - 1}`)
+    if (pathname === "/") {
+      window.dispatchEvent(
+        new CustomEvent("just-nav-change", {
+          detail: { roomIndex: item.room - 1 },
+        })
+      )
+      scrollToRooms()
       return
     }
 
-    window.dispatchEvent(
-      new CustomEvent("just-nav-change", {
-        detail: { roomIndex: item.room - 1 },
-      })
-    )
-
-    scrollToRooms()
+    router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
   useEffect(() => {
