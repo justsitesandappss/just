@@ -1,373 +1,1846 @@
+// components/pages/talents/RilesFreestyle.tsx
 "use client"
 
-import { useEffect, useMemo, useRef, useState, useCallback, useId } from "react"
-import type { FormEvent } from "react"
-import { motion, AnimatePresence, useReducedMotion, useInView } from "framer-motion"
+import * as React from "react"
+import { useEffect, useMemo, useRef, useState, useId, useCallback } from "react"
+import {
+    motion,
+    useInView,
+    useReducedMotion,
+    type Transition,
+} from "framer-motion"
+
+/**
+ * TalentRilesFreestyle - Version Next.js
+ *
+ * Converti depuis Framer pour intégration dans le projet Just Impact
+ */
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
+const NUMERIC = "'Inter', 'Segoe UI', Arial, sans-serif"
+
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
-const WEB3FORMS_ACCESS_KEY = "b891692e-8148-4785-856a-e1c43f4816dc"
 
 const COLORS = {
-  bg: "#000000",
-  panel: "#080808",
-  border: "rgba(255,255,255,0.08)",
-  borderStrong: "rgba(255,255,255,0.16)",
-  text: "#ffffff",
-  textSoft: "rgba(255,255,255,0.82)",
-  textMuted: "rgba(255,255,255,0.70)",
-  textLow: "rgba(255,255,255,0.60)",
-  accent: "#ff6b4a",
-  success: "#22c55e",
-  surface: "rgba(255,255,255,0.03)",
-  error: "#ef4444",
-  errorBg: "rgba(239,68,68,0.08)",
-  errorBorder: "rgba(239,68,68,0.24)",
+    bg: "#000000",
+    panel: "rgba(255,255,255,0.02)",
+    panelSoft: "rgba(255,255,255,0.03)",
+    panelStrong: "rgba(255,255,255,0.05)",
+    border: "rgba(255,255,255,0.08)",
+    borderStrong: "rgba(255,255,255,0.14)",
+    text: "#FFFFFF",
+    textSoft: "rgba(255,255,255,0.84)",
+    textBody: "rgba(255,255,255,0.78)",
+    textMuted: "rgba(255,255,255,0.68)",
+    textSubtle: "rgba(255,255,255,0.56)",
+    textGhost: "rgba(255,255,255,0.18)",
+    textUltraGhost: "rgba(255,255,255,0.10)",
+    focus: "#FFFFFF",
 } as const
 
-function white(opacity: number) {
-  return `rgba(255,255,255,${opacity})`
+const TRANSITION_BASE: Transition = {
+    duration: 0.9,
+    ease: EASE,
 }
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+type PlatformItem = {
+    name: string
+    followers: string
+    desc: string
+    main?: boolean
 }
 
-function sanitizeText(value: unknown): string {
-  return String(value ?? "").replace(/\s+/g, " ").trim()
+type PillarItem = {
+    title: string
+    desc: string
+    icon: string
 }
 
-function useResponsive() {
-  const [bp, setBp] = useState<"mobile" | "tablet" | "desktop">("desktop")
-  useEffect(() => {
-    const check = () => {
-      const w = window.innerWidth
-      setBp(w < 768 ? "mobile" : w < 1024 ? "tablet" : "desktop")
+type CollabItem = {
+    title: string
+    desc: string
+}
+
+type TalentRilesFreestyleProps = {
+    heroImage?: string
+    heroImageAlt?: string
+    name?: string
+    alias?: string
+    handle?: string
+    tagline?: string
+    bio?: string
+    location?: string
+
+    stat1?: string
+    stat1Label?: string
+    stat2?: string
+    stat2Label?: string
+    stat3?: string
+    stat3Label?: string
+    stat4?: string
+    stat4Label?: string
+    stat5?: string
+    stat5Label?: string
+    stat6?: string
+    stat6Label?: string
+
+    ytFollowers?: string
+    ytDesc?: string
+    tiktokFollowers?: string
+    tiktokDesc?: string
+    instaFollowers?: string
+    instaDesc?: string
+    snapFollowers?: string
+    snapDesc?: string
+
+    pillar1Title?: string
+    pillar1Desc?: string
+    pillar1Icon?: string
+    pillar2Title?: string
+    pillar2Desc?: string
+    pillar2Icon?: string
+    pillar3Title?: string
+    pillar3Desc?: string
+    pillar3Icon?: string
+    pillar4Title?: string
+    pillar4Desc?: string
+    pillar4Icon?: string
+
+    ascensionText?: string
+    categories?: string
+
+    collab1?: string
+    collab1Desc?: string
+    collab2?: string
+    collab2Desc?: string
+    collab3?: string
+    collab3Desc?: string
+    collab4?: string
+    collab4Desc?: string
+
+    brandsWorked?: string
+    manifesto?: string
+
+    ctaTitle?: string
+    ctaDesc?: string
+    ctaUrl?: string
+    ctaLabel?: string
+
+    seoTitle?: string
+    seoDescription?: string
+}
+
+function useFontsAndGlobalStyles() {
+    useEffect(() => {
+        if (!document.getElementById("talent-riles-fonts")) {
+            const link = document.createElement("link")
+            link.id = "talent-riles-fonts"
+            link.rel = "stylesheet"
+            link.href =
+                "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@200;300;400;500;600;700&display=swap"
+            document.head.appendChild(link)
+        }
+
+        if (!document.getElementById("talent-riles-accessibility-styles")) {
+            const style = document.createElement("style")
+            style.id = "talent-riles-accessibility-styles"
+            style.innerHTML = `
+                .talent-riles-root * {
+                    box-sizing: border-box;
+                }
+
+                .talent-riles-root a,
+                .talent-riles-root button,
+                .talent-riles-root [tabindex]:not([tabindex="-1"]) {
+                    -webkit-tap-highlight-color: transparent;
+                }
+
+                .talent-riles-root a:focus-visible,
+                .talent-riles-root button:focus-visible,
+                .talent-riles-root [role="button"]:focus-visible {
+                    outline: 2px solid ${COLORS.focus};
+                    outline-offset: 4px;
+                    box-shadow: 0 0 0 6px rgba(255,255,255,0.12);
+                }
+
+                .talent-riles-root .sr-only {
+                    position: absolute !important;
+                    width: 1px !important;
+                    height: 1px !important;
+                    padding: 0 !important;
+                    margin: -1px !important;
+                    overflow: hidden !important;
+                    clip: rect(0, 0, 0, 0) !important;
+                    white-space: nowrap !important;
+                    border: 0 !important;
+                }
+
+                .talent-riles-root .tr-grid-6 {
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 48px;
+                    row-gap: 56px;
+                }
+
+                .talent-riles-root .tr-grid-4 {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 12px;
+                }
+
+                .talent-riles-root .tr-grid-2 {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 16px;
+                }
+
+                .talent-riles-root .tr-hero {
+                    display: grid;
+                    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+                    align-items: center;
+                    min-height: 100vh;
+                    position: relative;
+                }
+
+                .talent-riles-root .tr-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                @media (max-width: 1199px) {
+                    .talent-riles-root .tr-grid-4 {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+                }
+
+                @media (max-width: 991px) {
+                    .talent-riles-root .tr-hero {
+                        grid-template-columns: 1fr;
+                        min-height: auto;
+                    }
+
+                    .talent-riles-root .tr-hero-media {
+                        height: 60vh !important;
+                        min-height: 420px;
+                    }
+
+                    .talent-riles-root .tr-grid-6 {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+
+                    .talent-riles-root .tr-grid-2 {
+                        grid-template-columns: 1fr;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .talent-riles-root .tr-section-padding {
+                        padding-left: 24px !important;
+                        padding-right: 24px !important;
+                    }
+
+                    .talent-riles-root .tr-hero-copy {
+                        padding: 48px 24px !important;
+                    }
+
+                    .talent-riles-root .tr-grid-6,
+                    .talent-riles-root .tr-grid-4 {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .talent-riles-root .tr-footer {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    .talent-riles-root html:focus-within {
+                        scroll-behavior: auto;
+                    }
+                }
+            `
+            document.head.appendChild(style)
+        }
+    }, [])
+}
+
+function useDocumentMeta(title?: string, description?: string) {
+    useEffect(() => {
+        if (!title && !description) return
+
+        const previousTitle = document.title
+        let previousDescription = ""
+        let metaDescription = document.querySelector(
+            'meta[name="description"]'
+        ) as HTMLMetaElement | null
+
+        if (metaDescription) {
+            previousDescription = metaDescription.content
+        }
+
+        if (title) {
+            document.title = title
+        }
+
+        if (description) {
+            if (!metaDescription) {
+                metaDescription = document.createElement("meta")
+                metaDescription.name = "description"
+                document.head.appendChild(metaDescription)
+            }
+            metaDescription.content = description
+        }
+
+        return () => {
+            if (title) document.title = previousTitle
+            if (description && metaDescription) {
+                metaDescription.content = previousDescription
+            }
+        }
+    }, [title, description])
+}
+
+function Reveal({
+    children,
+    delay = 0,
+    y = 40,
+}: {
+    children: React.ReactNode
+    delay?: number
+    y?: number
+}) {
+    const ref = useRef<HTMLDivElement | null>(null)
+    const inView = useInView(ref, { once: true, margin: "-60px" })
+    const reduceMotion = useReducedMotion()
+
+    const initial = reduceMotion ? { opacity: 0 } : { opacity: 0, y }
+    const animate = inView
+        ? reduceMotion
+            ? { opacity: 1 }
+            : { opacity: 1, y: 0 }
+        : {}
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={initial}
+            animate={animate}
+            transition={{ ...TRANSITION_BASE, delay }}
+        >
+            {children}
+        </motion.div>
+    )
+}
+
+function Marquee({
+    items,
+    speed = 35,
+    ariaLabel,
+}: {
+    items: string[]
+    speed?: number
+    ariaLabel?: string
+}) {
+    const reduceMotion = useReducedMotion()
+    const tripled = useMemo(() => [...items, ...items, ...items], [items])
+
+    return (
+        <div
+            aria-label={ariaLabel}
+            style={{
+                overflow: "hidden",
+                width: "100%",
+                maskImage:
+                    "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+                WebkitMaskImage:
+                    "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+            }}
+        >
+            <motion.div
+                aria-hidden="true"
+                animate={reduceMotion ? undefined : { x: ["0%", "-33.333%"] }}
+                transition={
+                    reduceMotion
+                        ? undefined
+                        : {
+                              duration: speed,
+                              repeat: Infinity,
+                              ease: "linear",
+                          }
+                }
+                style={{
+                    display: "flex",
+                    gap: 40,
+                    width: "max-content",
+                    alignItems: "center",
+                }}
+            >
+                {tripled.map((item, index) => (
+                    <React.Fragment key={`${item}-${index}`}>
+                        <span
+                            style={{
+                                fontFamily: DISPLAY,
+                                fontSize: 72,
+                                fontWeight: 800,
+                                color: "rgba(255,255,255,0.06)",
+                                letterSpacing: -3,
+                                textTransform: "uppercase",
+                                whiteSpace: "nowrap",
+                                userSelect: "none",
+                            }}
+                        >
+                            {item}
+                        </span>
+                        <span
+                            aria-hidden="true"
+                            style={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                background: "rgba(255,255,255,0.10)",
+                                display: "inline-block",
+                                flexShrink: 0,
+                            }}
+                        />
+                    </React.Fragment>
+                ))}
+            </motion.div>
+        </div>
+    )
+}
+
+function Counter({
+    value,
+    label,
+    delay = 0,
+}: {
+    value: string
+    label: string
+    delay?: number
+}) {
+    const ref = useRef<HTMLDivElement | null>(null)
+    const inView = useInView(ref, { once: true, margin: "-40px" })
+    const reduceMotion = useReducedMotion()
+
+    const parsed = value.match(/^([+\-]?)(\d+\.?\d*)(.*)$/)
+    const prefix = parsed ? parsed[1] : ""
+    const numericValue = parsed ? parseFloat(parsed[2]) : 0
+    const suffix = parsed ? parsed[3] : value
+    const decimals =
+        parsed && parsed[2].includes(".")
+            ? (parsed[2].split(".")[1] || "").length
+            : 0
+
+    const [count, setCount] = useState(0)
+
+    useEffect(() => {
+        if (!inView) return
+
+        if (reduceMotion) {
+            setCount(numericValue)
+            return
+        }
+
+        let raf = 0
+        const timeout = window.setTimeout(() => {
+            const duration = 2200
+            const start = performance.now()
+
+            const tick = (now: number) => {
+                const progress = Math.min((now - start) / duration, 1)
+                const eased = 1 - Math.pow(1 - progress, 4)
+                const current = eased * numericValue
+
+                setCount(
+                    decimals > 0
+                        ? parseFloat(current.toFixed(decimals))
+                        : Math.floor(current)
+                )
+
+                if (progress < 1) {
+                    raf = requestAnimationFrame(tick)
+                }
+            }
+
+            raf = requestAnimationFrame(tick)
+        }, delay * 1000)
+
+        return () => {
+            clearTimeout(timeout)
+            cancelAnimationFrame(raf)
+        }
+    }, [inView, reduceMotion, numericValue, delay, decimals])
+
+    const visibleValue = inView
+        ? `${prefix}${decimals > 0 ? count.toFixed(decimals) : count}${suffix}`
+        : `${prefix}0${suffix}`
+
+    return (
+        <div
+            ref={ref}
+            style={{ textAlign: "center" }}
+            aria-label={`${label} : ${value}`}
+        >
+            <div
+                aria-hidden="true"
+                style={{
+                    fontFamily: DISPLAY,
+                    fontWeight: 800,
+                    fontSize: 56,
+                    color: COLORS.text,
+                    lineHeight: 1,
+                    marginBottom: 8,
+                    letterSpacing: -3,
+                    fontVariantNumeric: "tabular-nums",
+                    fontFamilyFallback: NUMERIC,
+                }}
+            >
+                {visibleValue}
+            </div>
+            <div className="sr-only">{`${label} : ${value}`}</div>
+            <div
+                style={{
+                    fontSize: 11,
+                    color: COLORS.textSubtle,
+                    fontWeight: 700,
+                    letterSpacing: 3,
+                    textTransform: "uppercase",
+                    fontFamily: BODY,
+                }}
+            >
+                {label}
+            </div>
+        </div>
+    )
+}
+
+function PlatformIcon({
+    platform,
+    size = 16,
+}: {
+    platform: string
+    size?: number
+}) {
+    const p = platform.toLowerCase()
+    const color = "rgba(255,255,255,0.74)"
+
+    if (p === "youtube") {
+        return (
+            <svg
+                aria-hidden="true"
+                focusable="false"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+                <path d="m10 15 5-3-5-3z" />
+            </svg>
+        )
     }
-    check()
-    window.addEventListener("resize", check, { passive: true })
-    return () => window.removeEventListener("resize", check)
-  }, [])
-  return bp
+
+    if (p === "instagram") {
+        return (
+            <svg
+                aria-hidden="true"
+                focusable="false"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <circle cx="12" cy="12" r="5" />
+                <circle cx="17.5" cy="6.5" r="1.5" fill={color} stroke="none" />
+            </svg>
+        )
+    }
+
+    if (p === "tiktok") {
+        return (
+            <svg
+                aria-hidden="true"
+                focusable="false"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+            </svg>
+        )
+    }
+
+    if (p === "snapchat") {
+        return (
+            <svg
+                aria-hidden="true"
+                focusable="false"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <path d="M12 2C8 2 6 5 6 8v2c-1 0-2 .5-2 1s1 1 2 1c-.5 2-2 3-4 4 0 .5.5 1 2 1 0 .5 0 1 .5 1.5S6 19 8 19.5c0 1 .5 2.5 4 2.5s4-1.5 4-2.5c2-.5 3-1 3.5-1.5s.5-1 .5-1.5c1.5 0 2-.5 2-1-2-1-3.5-2-4-4 1 0 2-.5 2-1s-1-1-2-1V8c0-3-2-6-6-6z" />
+            </svg>
+        )
+    }
+
+    return (
+        <svg
+            aria-hidden="true"
+            focusable="false"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth="1.75"
+        >
+            <circle cx="12" cy="12" r="10" />
+        </svg>
+    )
 }
 
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
-  const reducedMotion = useReducedMotion()
-  if (reducedMotion) {
-    return <div style={{ width: "100%", minWidth: 0 }}>{children}</div>
-  }
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.8, delay, ease: EASE }}
-      style={{ width: "100%", minWidth: 0 }}
-    >
-      {children}
-    </motion.div>
-  )
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+    return (
+        <p
+            style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 5,
+                textTransform: "uppercase",
+                color: COLORS.textGhost,
+                margin: "0 0 14px 0",
+                fontFamily: BODY,
+            }}
+        >
+            {children}
+        </p>
+    )
 }
 
-type ContactStatus = "idle" | "sending" | "success" | "error"
-type ContactFormData = { name: string; email: string; phone: string; company: string; entity: string; message: string }
-type ContactErrors = Partial<Record<keyof ContactFormData, string>>
-
-function ContactInputField({ id, label, name, type = "text", autoComplete, inputMode, placeholder, required = false, value, error, hint, onChange }: {
-  id: string; label: string; name: string; type?: string; autoComplete?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; placeholder?: string; required?: boolean; value: string; error?: string; hint?: string; onChange: (v: string) => void
+function SectionTitle({
+    children,
+    id,
+}: {
+    children: React.ReactNode
+    id?: string
 }) {
-  const [focused, setFocused] = useState(false)
-  const active = focused || value.length > 0
-  return (
-    <div style={{ position: "relative", minWidth: 0 }}>
-      <motion.label htmlFor={id} animate={{ top: active ? 6 : 24, fontSize: active ? 11 : 15, color: error ? COLORS.error : COLORS.text, letterSpacing: active ? 3.5 : 0 }} transition={{ duration: 0.22 }} style={{ position: "absolute", left: 0, fontFamily: BODY, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", pointerEvents: "none", zIndex: 1, lineHeight: 1 }}>
-        {label}{required && <span aria-hidden="true"> *</span>}
-      </motion.label>
-      <input id={id} name={name} type={type} value={value} required={required} autoComplete={autoComplete} inputMode={inputMode} aria-required={required || undefined} aria-invalid={error ? true : undefined} placeholder={focused ? placeholder : ""} onChange={(e) => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} style={{ width: "100%", background: "transparent", border: "none", borderBottom: `1px solid ${error ? COLORS.error : focused ? COLORS.text : COLORS.border}`, padding: "30px 0 16px", fontFamily: BODY, fontSize: 17, fontWeight: 400, color: COLORS.text, outline: "none", transition: "border-color 0.25s ease", letterSpacing: 0.2 }} />
-      {hint && <p style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 12, color: COLORS.textMuted }}>{hint}</p>}
-      {error && <p role="alert" style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 13, color: COLORS.error }}>{error}</p>}
-    </div>
-  )
-}
-
-function ContactTextareaField({ id, label, name, placeholder, required = false, value, error, onChange }: {
-  id: string; label: string; name: string; placeholder?: string; required?: boolean; value: string; error?: string; onChange: (v: string) => void
-}) {
-  const [focused, setFocused] = useState(false)
-  const active = focused || value.length > 0
-  return (
-    <div style={{ position: "relative", minWidth: 0 }}>
-      <motion.label htmlFor={id} animate={{ top: active ? 6 : 24, fontSize: active ? 11 : 15, color: error ? COLORS.error : COLORS.text, letterSpacing: active ? 3.5 : 0 }} transition={{ duration: 0.22 }} style={{ position: "absolute", left: 0, fontFamily: BODY, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", pointerEvents: "none", zIndex: 1, lineHeight: 1 }}>
-        {label}{required && <span aria-hidden="true"> *</span>}
-      </motion.label>
-      <textarea id={id} name={name} value={value} required={required} aria-required={required || undefined} aria-invalid={error ? true : undefined} placeholder={focused ? placeholder : ""} onChange={(e) => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} rows={5} style={{ width: "100%", background: "transparent", border: "none", borderBottom: `1px solid ${error ? COLORS.error : focused ? COLORS.text : COLORS.border}`, padding: "30px 0 16px", fontFamily: BODY, fontSize: 17, fontWeight: 400, color: COLORS.text, outline: "none", resize: "vertical", minHeight: 130, transition: "border-color 0.25s ease", letterSpacing: 0.2 }} />
-      {error && <p role="alert" style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 13, color: COLORS.error }}>{error}</p>}
-    </div>
-  )
-}
-
-function ContactPillSelect({ label, name, options, value, onChange }: { label: string; name: string; options: string[]; value: string; onChange: (v: string) => void }) {
-  const groupId = useId()
-  const reducedMotion = useReducedMotion()
-  return (
-    <fieldset style={{ border: "none", padding: 0, margin: 0, minWidth: 0 }}>
-      <legend id={groupId} style={{ fontFamily: BODY, fontSize: 11, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: COLORS.text, marginBottom: 18 }}>{label}</legend>
-      <div role="group" aria-labelledby={groupId} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-        {options.map((opt) => {
-          const isActive = value === opt
-          return (
-            <motion.button key={opt} type="button" aria-pressed={isActive} onClick={() => onChange(isActive ? "" : opt)} whileHover={reducedMotion ? undefined : { scale: 1.02 }} whileTap={reducedMotion ? undefined : { scale: 0.98 }} animate={{ background: isActive ? "#ffffff" : "transparent", borderColor: isActive ? "#ffffff" : "rgba(255,255,255,0.18)", color: isActive ? "#000000" : "#ffffff" }} transition={{ duration: 0.2 }} style={{ padding: "11px 20px", borderRadius: 100, border: "1px solid", fontFamily: BODY, fontSize: 13, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", outline: "none", boxShadow: "none" }}>
-              {opt}
-            </motion.button>
-          )
-        })}
-      </div>
-      <input type="hidden" name={name} value={value} />
-    </fieldset>
-  )
-}
-
-function PlatformIcon({ platform, size = 16 }: { platform: string; size?: number }) {
-  const p = sanitizeText(platform).toLowerCase()
-  const color = "currentColor"
-  if (p === "instagram")
     return (
-      <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1.5" fill={color} stroke="none" /></svg>
+        <h2
+            id={id}
+            style={{
+                fontFamily: DISPLAY,
+                fontWeight: 800,
+                fontSize: "clamp(34px, 4.5vw, 58px)",
+                color: COLORS.text,
+                lineHeight: 1,
+                letterSpacing: -3,
+                margin: 0,
+            }}
+        >
+            {children}
+        </h2>
     )
-  if (p === "tiktok")
-    return (
-      <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" /></svg>
-    )
-  if (p === "youtube")
-    return (
-      <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" /><path d="m10 15 5-3-5-3z" /></svg>
-    )
-  return (
-    <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20M2 12h20" /></svg>
-  )
 }
 
-export default function RilesFreestyle() {
-  const bp = useResponsive()
-  const reducedMotion = useReducedMotion()
-  const isMobile = bp === "mobile"
-  const isTablet = bp === "tablet"
-  
-  const nameId = useId(), emailId = useId(), phoneId = useId(), companyId = useId(), messageId = useId(), successTitleId = useId()
-  
-  const [formData, setFormData] = useState<ContactFormData>({ name: "", email: "", phone: "", company: "", entity: "", message: "" })
-  const [errors, setErrors] = useState<ContactErrors>({})
-  const [status, setStatus] = useState<ContactStatus>("idle")
-  const [liveMessage, setLiveMessage] = useState("")
-  const entityList = ["Just Impact", "Just Prod", "Just Agency", "Just 4 You"]
+function safeExternalHref(url: string) {
+    if (!url) return "#"
+    const trimmed = url.trim()
 
-  const updateField = useCallback((field: keyof ContactFormData) => (value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
-    if (status === "error") { setStatus("idle"); setLiveMessage("") }
-  }, [errors, status])
+    if (
+        trimmed.startsWith("/") ||
+        trimmed.startsWith("#") ||
+        trimmed.startsWith("mailto:") ||
+        trimmed.startsWith("tel:")
+    ) {
+        return trimmed
+    }
 
-  const validateForm = useCallback(() => {
-    const e: ContactErrors = {}
-    if (!formData.name.trim()) e.name = "Merci d'indiquer votre nom."
-    if (!formData.email.trim()) e.email = "Merci d'indiquer votre adresse email."
-    else if (!isValidEmail(formData.email)) e.email = "L'adresse email semble invalide."
-    if (!formData.message.trim()) e.message = "Merci de préciser votre demande."
-    else if (formData.message.trim().length < 10) e.message = "Votre message est un peu trop court."
-    return e
-  }, [formData])
-
-  const resetForm = useCallback(() => {
-    setFormData({ name: "", email: "", phone: "", company: "", entity: "", message: "" })
-    setErrors({}); setStatus("idle"); setLiveMessage("")
-  }, [])
-
-  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const nextErrors = validateForm()
-    setErrors(nextErrors)
-    if (Object.keys(nextErrors).length > 0) { setStatus("error"); setLiveMessage("Le formulaire contient des erreurs."); return }
-    setStatus("sending"); setLiveMessage("Envoi du formulaire en cours.")
     try {
-      const fd = new FormData()
-      fd.append("access_key", WEB3FORMS_ACCESS_KEY)
-      fd.append("subject", `[JUST] Nouveau contact — ${formData.entity || "Général"}`)
-      fd.append("from_name", formData.name)
-      fd.append("name", formData.name); fd.append("email", formData.email)
-      fd.append("phone", formData.phone); fd.append("company", formData.company)
-      fd.append("entity", formData.entity); fd.append("message", formData.message)
-      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: fd })
-      const data = await res.json()
-      if (res.ok && data?.success) { setStatus("success"); setLiveMessage("Message envoyé.") }
-      else { setStatus("error"); setLiveMessage(data?.message || "Une erreur est survenue.") }
-    } catch { setStatus("error"); setLiveMessage("Une erreur est survenue.") }
-  }, [formData, validateForm])
+        const parsed = new URL(trimmed)
+        return parsed.href
+    } catch {
+        return "#"
+    }
+}
 
-  const isSubmitDisabled = status === "sending" || !formData.name.trim() || !formData.email.trim() || !formData.message.trim()
-  const sectionPadding = isMobile ? "60px 20px" : isTablet ? "80px 40px" : "100px 72px"
+export default function TalentRilesFreestyle(props: TalentRilesFreestyleProps) {
+    const {
+        heroImage = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=1200&q=80",
+        heroImageAlt = "Portrait de Riles Freestyle",
+        name = "Riles Freestyle",
+        alias = "Sensei",
+        handle = "@rilesfreestyle",
+        tagline = "Football · Freestyle · Futsal · Analyse · Culture",
+        bio = "Le nouveau visage du freestyle français. Riles mêle technique balle au pied, analyse footballistique passionnée et références manga pour créer un univers unique. Grand frère de quartier à la fois accessible et hyper talentueux, il est là pour régaler les yeux et transmettre sa passion.",
+        location = "Bondy, Seine-Saint-Denis (93)",
 
-  const stats = [
-    { platform: "Instagram", count: "200.9K", icon: "instagram" },
-    { platform: "TikTok", count: "1.3M", icon: "tiktok" },
-    { platform: "YouTube", count: "61.9K", icon: "youtube" },
-  ]
+        stat1 = "1.2M+",
+        stat1Label = "Abonnés YouTube",
+        stat2 = "200K",
+        stat2Label = "Abonnés Instagram",
+        stat3 = "1.3M",
+        stat3Label = "Abonnés TikTok",
+        stat4 = "139M+",
+        stat4Label = "Vues totales",
+        stat5 = "61K",
+        stat5Label = "Abonnés Snap",
+        stat6 = "6.1%",
+        stat6Label = "Taux d'engagement",
 
-  return (
-    <div style={{ width: "100%", minWidth: 0, background: COLORS.bg, color: COLORS.textSoft, fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@300;400;500;600;700;800&family=Outfit:wght@200;300;400;500;600;700&display=swap');input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.28);}input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill{-webkit-box-shadow:0 0 0px 1000px #000 inset!important;-webkit-text-fill-color:#fff!important;caret-color:#fff!important;}a:focus-visible,button:focus-visible{outline:2px solid ${COLORS.text};outline-offset:3px;box-shadow:0 0 0 4px rgba(255,255,255,0.14);}`}</style>
+        ytFollowers = "1.2M+",
+        ytDesc = "Plateforme empire. La chaîne 'Les Vidéos de Riles' est le cœur de son contenu : futsal immersif, tutoriels techniques, débriefs tactiques et vlogs. Le format long est sa force.",
+        tiktokFollowers = "1.3M",
+        tiktokDesc = "Vitrine virale pour les formats courts. Dribbles, petits ponts, gestes techniques impossibles : l'algorithme adore ce genre de contenu.",
+        instaFollowers = "200.9K",
+        instaDesc = "Vitrine visuelle : highlights de ses matchs, behind the scenes des tournages et prises de position sur l'actualité foot.",
+        snapFollowers = "61.9K",
+        snapDesc = "Contenu quotidien plus intime, coulisses de sa vie de freestyler et interactions directes avec sa communauté.",
 
-      {/* Hero Section */}
-      <section style={{ minHeight: "100vh", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-riles.jpg)", backgroundSize: "cover", backgroundPosition: "center", filter: "brightness(0.4)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%)" }} />
-        
-        <div style={{ position: "relative", zIndex: 2, minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: sectionPadding }}>
-          <motion.div initial={reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={reducedMotion ? { duration: 0 } : { duration: 1, delay: 0.2, ease: EASE }}>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: 5, textTransform: "uppercase", color: COLORS.accent, margin: "0 0 20px 0" }}>Foot Freestyle · Journalisme</p>
-            <h1 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(48px, 10vw, 120px)", lineHeight: 0.9, color: COLORS.text, margin: 0, letterSpacing: -4 }}>
-              RILES<br />
-              <span style={{ fontWeight: 300, color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>FREESTYLE</span>
-            </h1>
-            <p style={{ fontSize: 16, lineHeight: 1.8, maxWidth: 500, color: COLORS.textMuted, marginTop: 32, fontWeight: 300 }}>
-              Pro du foot freestyle. Partenaire PSG, Canal+ et SNCF. 139M+ de vues cumulées.
-            </p>
-          </motion.div>
+        pillar1Title = "Le Terrain",
+        pillar1Desc = "Vidéos immersives de futsal tournées dans les gymnases de banlieue parisienne, tutoriels pour maîtriser le ballon, défis techniques contre d'autres freestylers. Le cœur de son contenu.",
+        pillar1Icon = "⚽",
+        pillar2Title = "L'Analyse Sportive",
+        pillar2Desc = "Il troque ses crampons pour le micro et débriefe l'actu foot avec un parti pris assumé pour le Real Madrid. Décryptages, débats, réactions : du contenu passionné et clivant.",
+        pillar2Icon = "🎙️",
+        pillar3Title = "La Pop Culture",
+        pillar3Desc = "Il saupoudre tout de références manga, notamment Captain Tsubasa, qui parlent directement à la jeune génération. Le foot rencontre l'anime, et ça marche.",
+        pillar3Icon = "🎌",
+        pillar4Title = "L'Engagement Solidaire",
+        pillar4Desc = "Derrière les passements de jambes, il y a aussi des valeurs. Il prête son image à des initiatives solidaires tournées vers l'inclusion des jeunes par le sport.",
+        pillar4Icon = "💛",
 
-          {/* Stats */}
-          <motion.div initial={reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={reducedMotion ? { duration: 0 } : { duration: 0.8, delay: 0.6, ease: EASE }} style={{ display: "flex", gap: 32, marginTop: 48, flexWrap: "wrap" }}>
-            {stats.map((stat) => (
-              <div key={stat.platform} style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 24px", background: "rgba(255,255,255,0.05)", borderRadius: 12, border: `1px solid ${COLORS.border}` }}>
-                <PlatformIcon platform={stat.icon} size={20} />
-                <div>
-                  <p style={{ margin: 0, fontFamily: DISPLAY, fontSize: 20, fontWeight: 800, color: COLORS.text }}>{stat.count}</p>
-                  <p style={{ margin: 0, fontSize: 11, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>{stat.platform}</p>
+        ascensionText = "Riles est souvent présenté comme le nouveau visage du freestyle français. Son empire YouTube dépasse 1,2 million d'abonnés, et ses vidéos de futsal tournées dans les gymnases de Bondy sont devenues une référence. Il a su créer un pont unique entre le football de rue, l'analyse tactique et la culture manga.",
+        categories = "Football, Freestyle, Futsal, Analyse Sportive, Manga, Engagement",
+
+        collab1 = "Placement de produit",
+        collab1Desc = "Intégration naturelle dans ses vidéos YouTube, stories et contenus courts : équipements, applications, boissons, tech.",
+        collab2 = "Défi / Challenge sponsorisé",
+        collab2Desc = "Création d'un défi technique autour de votre marque, dans un format viral avec potentiel de reprise.",
+        collab3 = "Ambassadeur de marque",
+        collab3Desc = "Partenariat long terme avec apparitions régulières, contenu dédié et représentation lors d'événements sportifs.",
+        collab4 = "Activation terrain",
+        collab4Desc = "Organisation d'un tournoi de futsal, clinic ou meet & greet sponsorisé par votre marque.",
+
+        brandsWorked = "PSG, Canal+, SNCF, Sport, Équipementiers, Tech, Food, Formation",
+        manifesto = "Riles ne fait pas que jongler. Il inspire. Quand plus d'un million de personnes suivent chacune de ses vidéos, c'est parce qu'il incarne quelque chose de vrai : la passion du foot, l'accessibilité et le travail.",
+        ctaTitle = "Collaborer avec Riles.",
+        ctaDesc = "Placement, challenge, ambassadeur, activation terrain : discutons de la meilleure manière pour votre marque d'entrer dans l'univers Riles Freestyle.",
+        ctaUrl = "#",
+        ctaLabel = "Proposer une collaboration avec Riles Freestyle",
+
+        seoTitle = "Riles Freestyle | Talent, audience et collaborations",
+        seoDescription = "Découvrez l'univers de Riles Freestyle : audience, plateformes, contenus, collaborations et opportunités de partenariat.",
+    } = props
+
+    useFontsAndGlobalStyles()
+    useDocumentMeta(seoTitle, seoDescription)
+
+    const reduceMotion = useReducedMotion()
+
+    const heroId = useId()
+    const statsId = useId()
+    const platformsId = useId()
+    const pillarsId = useId()
+    const collabsId = useId()
+    const sectorsId = useId()
+    const manifestoId = useId()
+    const ctaId = useId()
+
+    const catList = useMemo(
+        () =>
+            categories
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean),
+        [categories]
+    )
+
+    const brandList = useMemo(
+        () =>
+            brandsWorked
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean),
+        [brandsWorked]
+    )
+
+    const platforms = useMemo<PlatformItem[]>(
+        () => [
+            {
+                name: "YouTube",
+                followers: ytFollowers,
+                desc: ytDesc,
+                main: true,
+            },
+            {
+                name: "TikTok",
+                followers: tiktokFollowers,
+                desc: tiktokDesc,
+            },
+            {
+                name: "Instagram",
+                followers: instaFollowers,
+                desc: instaDesc,
+            },
+            {
+                name: "Snapchat",
+                followers: snapFollowers,
+                desc: snapDesc,
+            },
+        ],
+        [
+            ytFollowers,
+            ytDesc,
+            tiktokFollowers,
+            tiktokDesc,
+            instaFollowers,
+            instaDesc,
+            snapFollowers,
+            snapDesc,
+        ]
+    )
+
+    const pillars = useMemo<PillarItem[]>(
+        () => [
+            { title: pillar1Title, desc: pillar1Desc, icon: pillar1Icon },
+            { title: pillar2Title, desc: pillar2Desc, icon: pillar2Icon },
+            { title: pillar3Title, desc: pillar3Desc, icon: pillar3Icon },
+            { title: pillar4Title, desc: pillar4Desc, icon: pillar4Icon },
+        ],
+        [
+            pillar1Title,
+            pillar1Desc,
+            pillar1Icon,
+            pillar2Title,
+            pillar2Desc,
+            pillar2Icon,
+            pillar3Title,
+            pillar3Desc,
+            pillar3Icon,
+            pillar4Title,
+            pillar4Desc,
+            pillar4Icon,
+        ]
+    )
+
+    const collabs = useMemo<CollabItem[]>(
+        () => [
+            { title: collab1, desc: collab1Desc },
+            { title: collab2, desc: collab2Desc },
+            { title: collab3, desc: collab3Desc },
+            { title: collab4, desc: collab4Desc },
+        ],
+        [
+            collab1,
+            collab1Desc,
+            collab2,
+            collab2Desc,
+            collab3,
+            collab3Desc,
+            collab4,
+            collab4Desc,
+        ]
+    )
+
+    const finalCtaUrl = useMemo(() => safeExternalHref(ctaUrl), [ctaUrl])
+
+    const getMotionHover = useCallback(
+        (hoverStyles: Record<string, string | number>) =>
+            reduceMotion ? undefined : hoverStyles,
+        [reduceMotion]
+    )
+
+    return (
+        <main
+            className="talent-riles-root"
+            aria-labelledby={heroId}
+            style={{
+                width: "100%",
+                background: COLORS.bg,
+                color: COLORS.textBody,
+                fontFamily: BODY,
+                overflowX: "hidden",
+                WebkitFontSmoothing: "antialiased",
+                MozOsxFontSmoothing: "grayscale",
+            }}
+        >
+            <a href={`#${ctaId}`} className="sr-only">
+                Aller directement à la section de contact
+            </a>
+
+            {/* HERO */}
+            <header
+                className="tr-hero"
+                style={{
+                    position: "relative",
+                }}
+            >
+                <div className="tr-hero-copy" style={{ padding: "80px 72px" }}>
+                    <Reveal delay={0.05} y={20}>
+                        <p
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                margin: "0 0 24px 0",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            <span
+                                style={{
+                                    padding: "6px 14px",
+                                    borderRadius: 100,
+                                    background: COLORS.panelStrong,
+                                    border: `1px solid ${COLORS.border}`,
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    letterSpacing: 2,
+                                    textTransform: "uppercase",
+                                    color: COLORS.textSubtle,
+                                }}
+                            >
+                                {alias}
+                            </span>
+                            <span
+                                style={{
+                                    fontSize: 12,
+                                    color: COLORS.textSubtle,
+                                }}
+                            >
+                                {handle}
+                            </span>
+                        </p>
+                    </Reveal>
+
+                    <Reveal delay={0.12} y={36}>
+                        <h1
+                            id={heroId}
+                            style={{
+                                fontFamily: DISPLAY,
+                                fontWeight: 800,
+                                fontSize: "clamp(48px, 6vw, 90px)",
+                                lineHeight: 0.92,
+                                color: COLORS.text,
+                                margin: 0,
+                                letterSpacing: -4,
+                            }}
+                        >
+                            {name}
+                        </h1>
+                    </Reveal>
+
+                    <Reveal delay={0.18} y={24}>
+                        <p
+                            style={{
+                                margin: "18px 0 0 0",
+                                fontSize: 14,
+                                lineHeight: 1.8,
+                                maxWidth: 620,
+                                color: COLORS.textMuted,
+                                fontWeight: 500,
+                            }}
+                        >
+                            {tagline}
+                        </p>
+                    </Reveal>
+
+                    <Reveal delay={0.24} y={16}>
+                        <ul
+                            aria-label="Catégories de contenu"
+                            style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 8,
+                                margin: "24px 0 0 0",
+                                padding: 0,
+                                listStyle: "none",
+                            }}
+                        >
+                            {catList.map((cat) => (
+                                <li key={cat}>
+                                    <span
+                                        style={{
+                                            display: "inline-flex",
+                                            padding: "6px 16px",
+                                            borderRadius: 100,
+                                            border: `1px solid ${COLORS.border}`,
+                                            background: COLORS.panelSoft,
+                                            fontSize: 10,
+                                            fontWeight: 600,
+                                            color: COLORS.textSoft,
+                                            letterSpacing: 1,
+                                            textTransform: "uppercase",
+                                        }}
+                                    >
+                                        {cat}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Reveal>
+
+                    <Reveal delay={0.3} y={20}>
+                        <p
+                            style={{
+                                marginTop: 28,
+                                fontSize: 15,
+                                lineHeight: 1.9,
+                                maxWidth: 540,
+                                color: COLORS.textBody,
+                                fontWeight: 300,
+                            }}
+                        >
+                            {bio}
+                        </p>
+                    </Reveal>
+
+                    <Reveal delay={0.36} y={16}>
+                        <p
+                            style={{
+                                margin: "24px 0 0 0",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                color: COLORS.textMuted,
+                                fontSize: 12,
+                                letterSpacing: 0.4,
+                            }}
+                        >
+                            <svg
+                                aria-hidden="true"
+                                focusable="false"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="rgba(255,255,255,0.72)"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span>{location}</span>
+                        </p>
+                    </Reveal>
+
+                    <Reveal delay={0.42} y={14}>
+                        <ul
+                            aria-label="Plateformes principales"
+                            style={{
+                                margin: "32px 0 0 0",
+                                padding: 0,
+                                listStyle: "none",
+                                display: "flex",
+                                gap: 12,
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {["YouTube", "TikTok", "Instagram", "Snapchat"].map(
+                                (platform) => (
+                                    <li key={platform}>
+                                        <span
+                                            title={platform}
+                                            aria-label={platform}
+                                            style={{
+                                                width: 44,
+                                                height: 44,
+                                                borderRadius: "50%",
+                                                background: COLORS.panelSoft,
+                                                border: `1px solid ${COLORS.border}`,
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            }}
+                                        >
+                                            <PlatformIcon
+                                                platform={platform}
+                                                size={18}
+                                            />
+                                        </span>
+                                    </li>
+                                )
+                            )}
+                        </ul>
+                    </Reveal>
                 </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
-      {/* Bio Section */}
-      <section style={{ padding: sectionPadding, borderTop: `1px solid ${COLORS.border}` }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Reveal>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 64, alignItems: "start" }}>
-              <div>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 5, textTransform: "uppercase", color: COLORS.textLow, margin: "0 0 20px 0" }}>À propos</p>
-                <h2 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(28px, 4vw, 48px)", color: COLORS.text, lineHeight: 1.1, letterSpacing: -2, margin: "0 0 32px 0" }}>
-                  Le ballon comme<br />langage universel
-                </h2>
-                <p style={{ fontSize: 16, lineHeight: 1.9, color: COLORS.textMuted, fontWeight: 300, margin: "0 0 24px 0" }}>
-                  Riles Freestyle a transformé sa passion pour le football en art de vivre. Avec plus de 139 millions de vues sur ses contenus, il incarne la nouvelle génération de créateurs sportifs qui allient performance technique et storytelling authentique.
-                </p>
-                <p style={{ fontSize: 16, lineHeight: 1.9, color: COLORS.textMuted, fontWeight: 300, margin: 0 }}>
-                  Partenaire officiel du PSG, de Canal+ et de la SNCF, il maîtrise aussi bien les caméras cachées que les collaborations corporate. Son approche décalée et son talent indéniable en font un atout précieux pour les marques seeking authenticité et reach.
-                </p>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ padding: 32, background: COLORS.panel, borderRadius: 20, border: `1px solid ${COLORS.border}` }}>
-                  <p style={{ fontSize: 48, fontWeight: 800, fontFamily: DISPLAY, color: COLORS.accent, margin: "0 0 8px 0" }}>139M+</p>
-                  <p style={{ margin: 0, fontSize: 14, color: COLORS.textMuted }}>Vues cumulées</p>
-                </div>
-                <div style={{ padding: 32, background: COLORS.panel, borderRadius: 20, border: `1px solid ${COLORS.border}` }}>
-                  <p style={{ fontSize: 48, fontWeight: 800, fontFamily: DISPLAY, color: COLORS.accent, margin: "0 0 8px 0" }}>3</p>
-                  <p style={{ margin: 0, fontSize: 14, color: COLORS.textMuted }}>Partenariats majeurs (PSG, Canal+, SNCF)</p>
-                </div>
-              </div>
+                <Reveal delay={0.18} y={0}>
+                    <div
+                        className="tr-hero-media"
+                        style={{
+                            height: "100vh",
+                            position: "relative",
+                            overflow: "hidden",
+                        }}
+                    >
+                        <img
+                            src={heroImage}
+                            alt={heroImageAlt || name}
+                            loading="eager"
+                            decoding="async"
+                            fetchPriority="high"
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                display: "block",
+                            }}
+                        />
+                        <div
+                            aria-hidden="true"
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(to right, #000 0%, transparent 32%)",
+                                pointerEvents: "none",
+                            }}
+                        />
+                        <div
+                            aria-hidden="true"
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 34%)",
+                                pointerEvents: "none",
+                            }}
+                        />
+                    </div>
+                </Reveal>
+            </header>
+
+            <div aria-hidden="true" style={{ paddingTop: 8 }}>
+                <Marquee
+                    items={[
+                        "Riles Freestyle",
+                        "Sensei",
+                        "YouTube 1.2M",
+                        "Futsal",
+                        "Bondy",
+                        "Real Madrid",
+                        "Captain Tsubasa",
+                        "139M vues",
+                    ]}
+                    speed={40}
+                />
             </div>
-          </Reveal>
-        </div>
-      </section>
 
-      {/* Contact Section */}
-      <section id="contact" aria-label="Formulaire de contact" style={{ padding: isMobile ? "80px 20px 100px" : isTablet ? "100px 40px 120px" : "110px 72px 140px", borderTop: `1px solid ${white(0.06)}`, position: "relative" }}>
-        <div aria-live="polite" aria-atomic="true" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>{liveMessage}</div>
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center top,rgba(255,255,255,0.03) 0%,transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 1320, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <Reveal>
-            <div style={{ marginBottom: isMobile ? 48 : 72 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(0.58), margin: "0 0 28px", display: "flex", alignItems: "center", gap: 12 }}>
-                <motion.span aria-hidden="true" animate={reducedMotion ? undefined : { scale: [1, 1.45, 1], opacity: [0.35, 0.85, 0.35] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: "50%", background: "#ffffff", display: "inline-block" }} />
-                Collaboration
-              </p>
-              <h2 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: isMobile ? "clamp(40px, 12vw, 58px)" : "clamp(56px, 8vw, 110px)", lineHeight: 0.92, color: "#ffffff", margin: 0, letterSpacing: isMobile ? -2 : -5 }}>
-                <span style={{ display: "block" }}>Travaillons</span>
-                <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: white(0.88), letterSpacing: isMobile ? -1 : -3 }}>ensemble.</span>
-              </h2>
-              <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: white(0.62), fontWeight: 300 }}>
-                Vous souhaitez collaborer avec Riles Freestyle ? Remplissez le formulaire ci-dessous.
-              </p>
+            {/* STATS */}
+            <section
+                aria-labelledby={statsId}
+                className="tr-section-padding"
+                style={{ padding: "100px 72px", position: "relative" }}
+            >
+                <div
+                    aria-hidden="true"
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "radial-gradient(ellipse at center, rgba(255,255,255,0.025) 0%, transparent 70%)",
+                        pointerEvents: "none",
+                    }}
+                />
+
+                <Reveal>
+                    <div style={{ textAlign: "center", marginBottom: 48 }}>
+                        <SectionEyebrow>En chiffres</SectionEyebrow>
+                        <SectionTitle id={statsId}>
+                            L&apos;audience{" "}
+                            <span style={{ color: COLORS.textUltraGhost }}>
+                                Riles.
+                            </span>
+                        </SectionTitle>
+                    </div>
+                </Reveal>
+
+                <Reveal delay={0.04}>
+                    <div
+                        className="tr-grid-6"
+                        style={{
+                            maxWidth: 1200,
+                            margin: "0 auto",
+                        }}
+                    >
+                        <Counter value={stat1} label={stat1Label} delay={0} />
+                        <Counter
+                            value={stat2}
+                            label={stat2Label}
+                            delay={0.06}
+                        />
+                        <Counter
+                            value={stat3}
+                            label={stat3Label}
+                            delay={0.12}
+                        />
+                        <Counter
+                            value={stat4}
+                            label={stat4Label}
+                            delay={0.18}
+                        />
+                        <Counter
+                            value={stat5}
+                            label={stat5Label}
+                            delay={0.24}
+                        />
+                        <Counter value={stat6} label={stat6Label} delay={0.3} />
+                    </div>
+                </Reveal>
+            </section>
+
+            {/* PLATFORMS */}
+            <section
+                aria-labelledby={platformsId}
+                className="tr-section-padding"
+                style={{ padding: "40px 72px 80px" }}
+            >
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                    <Reveal>
+                        <SectionEyebrow>Plateformes</SectionEyebrow>
+                        <div style={{ marginBottom: 48 }}>
+                            <SectionTitle id={platformsId}>
+                                Son empire digital.
+                            </SectionTitle>
+                        </div>
+                    </Reveal>
+
+                    <div className="tr-grid-4">
+                        {platforms.map((platform, index) => (
+                            <Reveal key={platform.name} delay={index * 0.05}>
+                                <motion.article
+                                    whileHover={getMotionHover({
+                                        backgroundColor:
+                                            "rgba(255,255,255,0.035)",
+                                        borderColor: "rgba(255,255,255,0.11)",
+                                    })}
+                                    transition={{ duration: 0.3 }}
+                                    style={{
+                                        background: COLORS.panel,
+                                        border: `1px solid ${
+                                            platform.main
+                                                ? COLORS.borderStrong
+                                                : COLORS.border
+                                        }`,
+                                        borderRadius: 20,
+                                        padding: "36px 24px",
+                                        position: "relative",
+                                        overflow: "hidden",
+                                        minHeight: 255,
+                                    }}
+                                >
+                                    {platform.main && (
+                                        <p
+                                            style={{
+                                                position: "absolute",
+                                                top: 12,
+                                                right: 14,
+                                                padding: "4px 10px",
+                                                borderRadius: 100,
+                                                background: COLORS.panelStrong,
+                                                fontSize: 8,
+                                                fontWeight: 700,
+                                                letterSpacing: 2,
+                                                textTransform: "uppercase",
+                                                color: COLORS.textSoft,
+                                                margin: 0,
+                                            }}
+                                        >
+                                            Empire
+                                        </p>
+                                    )}
+
+                                    <div style={{ marginBottom: 16 }}>
+                                        <PlatformIcon
+                                            platform={platform.name}
+                                            size={24}
+                                        />
+                                    </div>
+
+                                    <h3
+                                        style={{
+                                            fontFamily: DISPLAY,
+                                            fontWeight: 800,
+                                            fontSize: 16,
+                                            color: COLORS.text,
+                                            letterSpacing: -0.3,
+                                            margin: "0 0 4px 0",
+                                        }}
+                                    >
+                                        {platform.name}
+                                    </h3>
+
+                                    <p
+                                        style={{
+                                            fontFamily: DISPLAY,
+                                            fontWeight: 800,
+                                            fontSize: 32,
+                                            color: COLORS.text,
+                                            letterSpacing: -2,
+                                            lineHeight: 1,
+                                            margin: "0 0 14px 0",
+                                        }}
+                                    >
+                                        {platform.followers}
+                                    </p>
+
+                                    <p
+                                        style={{
+                                            fontSize: 13,
+                                            lineHeight: 1.75,
+                                            color: COLORS.textBody,
+                                            fontWeight: 300,
+                                            margin: 0,
+                                        }}
+                                    >
+                                        {platform.desc}
+                                    </p>
+                                </motion.article>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ASCENSION */}
+            <section
+                className="tr-section-padding"
+                aria-label="Présentation de l'ascension de Riles Freestyle"
+                style={{
+                    padding: "80px 72px",
+                    display: "flex",
+                    justifyContent: "center",
+                }}
+            >
+                <Reveal>
+                    <figure
+                        style={{
+                            maxWidth: 820,
+                            textAlign: "center",
+                            margin: 0,
+                        }}
+                    >
+                        <SectionEyebrow>L&apos;ascension</SectionEyebrow>
+
+                        <blockquote
+                            style={{
+                                fontFamily: DISPLAY,
+                                fontSize: "clamp(20px, 2.8vw, 34px)",
+                                fontWeight: 300,
+                                lineHeight: 1.55,
+                                color: COLORS.textSoft,
+                                margin: 0,
+                                letterSpacing: -0.4,
+                                fontStyle: "italic",
+                            }}
+                        >
+                            {ascensionText}
+                        </blockquote>
+
+                        <motion.div
+                            aria-hidden="true"
+                            initial={reduceMotion ? undefined : { width: 0 }}
+                            whileInView={
+                                reduceMotion ? undefined : { width: 60 }
+                            }
+                            viewport={{ once: true }}
+                            transition={
+                                reduceMotion
+                                    ? undefined
+                                    : { duration: 1, delay: 0.3, ease: EASE }
+                            }
+                            style={{
+                                width: reduceMotion ? 60 : undefined,
+                                height: 2,
+                                background: "rgba(255,255,255,0.18)",
+                                margin: "36px auto 0",
+                            }}
+                        />
+                    </figure>
+                </Reveal>
+            </section>
+
+            {/* CONTENT PILLARS */}
+            <section
+                aria-labelledby={pillarsId}
+                className="tr-section-padding"
+                style={{ padding: "40px 72px 80px" }}
+            >
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                    <Reveal>
+                        <SectionEyebrow>Le contenu</SectionEyebrow>
+                        <div style={{ marginBottom: 48 }}>
+                            <SectionTitle id={pillarsId}>
+                                Le mix{" "}
+                                <span style={{ color: COLORS.textUltraGhost }}>
+                                    gagnant.
+                                </span>
+                            </SectionTitle>
+                        </div>
+                    </Reveal>
+
+                    <div className="tr-grid-2">
+                        {pillars.map((pillar, index) => (
+                            <Reveal key={pillar.title} delay={index * 0.06}>
+                                <motion.article
+                                    whileHover={getMotionHover({
+                                        backgroundColor:
+                                            "rgba(255,255,255,0.035)",
+                                    })}
+                                    transition={{ duration: 0.3 }}
+                                    style={{
+                                        background: COLORS.panel,
+                                        border: `1px solid ${COLORS.border}`,
+                                        borderRadius: 24,
+                                        padding: "40px 32px",
+                                        display: "flex",
+                                        gap: 20,
+                                        alignItems: "flex-start",
+                                        minHeight: 230,
+                                    }}
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        style={{
+                                            fontSize: 34,
+                                            flexShrink: 0,
+                                            lineHeight: 1,
+                                        }}
+                                    >
+                                        {pillar.icon}
+                                    </span>
+
+                                    <div>
+                                        <h3
+                                            style={{
+                                                fontFamily: DISPLAY,
+                                                fontWeight: 800,
+                                                fontSize: 22,
+                                                color: COLORS.text,
+                                                letterSpacing: -0.5,
+                                                margin: "0 0 12px 0",
+                                                lineHeight: 1.2,
+                                            }}
+                                        >
+                                            {pillar.title}
+                                        </h3>
+
+                                        <p
+                                            style={{
+                                                fontSize: 14,
+                                                lineHeight: 1.85,
+                                                color: COLORS.textBody,
+                                                fontWeight: 300,
+                                                margin: 0,
+                                            }}
+                                        >
+                                            {pillar.desc}
+                                        </p>
+                                    </div>
+                                </motion.article>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <div aria-hidden="true" style={{ padding: "40px 0" }}>
+                <Marquee
+                    items={[
+                        "Futsal",
+                        "Freestyle",
+                        "Real Madrid",
+                        "Vinicius Jr",
+                        "Captain Tsubasa",
+                        "Bondy",
+                        "Giftasso",
+                        "Sensei",
+                    ]}
+                    speed={30}
+                />
             </div>
-          </Reveal>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0,1fr)" : "minmax(0,1fr) minmax(280px,0.42fr)", gap: isMobile ? 56 : 88, alignItems: "start" }}>
-            <Reveal>
-              <div>
-                {status === "success" ? (
-                  <motion.section aria-labelledby={successTitleId} initial={reducedMotion ? false : { opacity: 0, y: 24 }} animate={reducedMotion ? undefined : { opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE }} style={{ textAlign: "center", padding: isMobile ? "56px 24px" : "80px 40px", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 24 }}>
-                    <motion.div initial={reducedMotion ? false : { scale: 0.85, opacity: 0 }} animate={reducedMotion ? undefined : { scale: 1, opacity: 1 }} transition={{ duration: 0.45, delay: 0.12, ease: EASE }} style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 28px" }}>
-                      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                    </motion.div>
-                    <h3 id={successTitleId} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 34, color: "#ffffff", letterSpacing: -2, margin: "0 0 12px" }}>Message envoyé.</h3>
-                    <p style={{ fontFamily: BODY, fontSize: 16, color: white(0.6), fontWeight: 300, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>Merci pour votre intérêt. Notre équipe revient vers vous sous 24h.</p>
-                    <motion.button type="button" onClick={resetForm} whileHover={reducedMotion ? undefined : { opacity: 0.85 }} style={{ marginTop: 36, padding: "14px 30px", borderRadius: 100, border: "1px solid #ffffff", background: "transparent", color: "#ffffff", fontFamily: BODY, fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer" }}>
-                      Nouveau message
-                    </motion.button>
-                  </motion.section>
-                ) : (
-                  <section>
-                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(0.58), margin: "0 0 14px" }}>Formulaire</p>
-                    <h3 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 48px)", color: "#ffffff", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>Dites-nous tout.</h3>
-                    <p style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: white(0.6), maxWidth: 620 }}>Les champs marqués d'un astérisque sont obligatoires.</p>
-                    <form onSubmit={handleSubmit} noValidate>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))", gap: isMobile ? 28 : 44 }}>
-                          <ContactInputField id={nameId} label="Nom complet" name="name" required autoComplete="name" value={formData.name} error={errors.name} placeholder="Jean Dupont" onChange={updateField("name")} />
-                          <ContactInputField id={emailId} label="Adresse email" name="email" type="email" required autoComplete="email" inputMode="email" value={formData.email} error={errors.email} placeholder="jean@marque.com" onChange={updateField("email")} />
+
+            {/* COLLABORATION */}
+            <section
+                aria-labelledby={collabsId}
+                className="tr-section-padding"
+                style={{ padding: "80px 72px" }}
+            >
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                    <Reveal>
+                        <SectionEyebrow>Collaborer</SectionEyebrow>
+                        <div style={{ marginBottom: 48 }}>
+                            <SectionTitle id={collabsId}>
+                                Formats de{" "}
+                                <span style={{ color: COLORS.textUltraGhost }}>
+                                    collaboration.
+                                </span>
+                            </SectionTitle>
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))", gap: isMobile ? 28 : 44 }}>
-                          <ContactInputField id={phoneId} label="Téléphone" name="phone" type="tel" autoComplete="tel" inputMode="tel" value={formData.phone} placeholder="+33 6 12 34 56 78" hint="Optionnel" onChange={updateField("phone")} />
-                          <ContactInputField id={companyId} label="Entreprise / Marque" name="company" autoComplete="organization" value={formData.company} placeholder="Votre marque" hint="Optionnel" onChange={updateField("company")} />
-                        </div>
-                        <ContactPillSelect label="Entité" name="entity" options={entityList} value={formData.entity} onChange={updateField("entity")} />
-                        <ContactTextareaField id={messageId} label="Votre message" name="message" required value={formData.message} error={errors.message} placeholder="Décrivez votre projet, vos objectifs, vos délais..." onChange={updateField("message")} />
-                        <AnimatePresence>
-                          {status === "error" && (
-                            <motion.div role="alert" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} style={{ padding: "16px 22px", borderRadius: 12, background: COLORS.errorBg, border: `1px solid ${COLORS.errorBorder}`, fontFamily: BODY, fontSize: 14, color: COLORS.error, fontWeight: 400, lineHeight: 1.7 }}>
-                              <strong>Une erreur est survenue.</strong> {liveMessage && liveMessage !== "Une erreur est survenue." ? liveMessage : "Veuillez réessayer ou nous contacter directement."}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        <motion.button type="submit" disabled={isSubmitDisabled} aria-disabled={isSubmitDisabled} whileHover={!isSubmitDisabled && !reducedMotion ? { y: -2, backgroundColor: "#ffffff", color: "#000000" } : undefined} whileTap={!isSubmitDisabled && !reducedMotion ? { scale: 0.98 } : undefined} style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", gap: 12, padding: "18px 42px", background: "transparent", color: isSubmitDisabled ? "rgba(255,255,255,0.25)" : "#ffffff", fontFamily: DISPLAY, fontWeight: 700, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", border: `1px solid ${isSubmitDisabled ? "rgba(255,255,255,0.12)" : "#ffffff"}`, borderRadius: 100, cursor: isSubmitDisabled ? "not-allowed" : "pointer", transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", opacity: status === "sending" ? 0.58 : 1 }}>
-                          {status === "sending" ? "Envoi en cours..." : "Envoyer"}
-                          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                        </motion.button>
-                      </div>
-                    </form>
-                  </section>
-                )}
-              </div>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <aside aria-label="Informations de contact" style={{ position: isMobile ? "relative" : "sticky", top: 100, display: "flex", flexDirection: "column", gap: 24 }}>
-                <div style={{ padding: "20px", borderRadius: 16, background: COLORS.surface, border: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 14 }}>
-                  <motion.div aria-hidden="true" animate={reducedMotion ? undefined : { scale: [1, 1.3, 1], opacity: [0.45, 1, 0.45] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.success, flexShrink: 0 }} />
-                  <p style={{ margin: 0, fontFamily: BODY, fontSize: 13, fontWeight: 500, color: "#ffffff" }}>Réponse sous 24h</p>
+                    </Reveal>
+
+                    <div className="tr-grid-4">
+                        {collabs.map((collab, index) => (
+                            <Reveal key={collab.title} delay={index * 0.05}>
+                                <motion.article
+                                    whileHover={getMotionHover({
+                                        backgroundColor:
+                                            "rgba(255,255,255,0.035)",
+                                        borderColor: "rgba(255,255,255,0.11)",
+                                    })}
+                                    transition={{ duration: 0.3 }}
+                                    style={{
+                                        background: COLORS.panel,
+                                        border: `1px solid ${COLORS.border}`,
+                                        borderRadius: 20,
+                                        padding: "40px 24px",
+                                        textAlign: "center",
+                                        minHeight: 230,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
+                                    <p
+                                        aria-hidden="true"
+                                        style={{
+                                            fontFamily: DISPLAY,
+                                            fontSize: 56,
+                                            fontWeight: 800,
+                                            color: "rgba(255,255,255,0.06)",
+                                            lineHeight: 1,
+                                            margin: "0 0 16px 0",
+                                        }}
+                                    >
+                                        {String(index + 1).padStart(2, "0")}
+                                    </p>
+
+                                    <h3
+                                        style={{
+                                            fontFamily: DISPLAY,
+                                            fontWeight: 800,
+                                            fontSize: 16,
+                                            color: COLORS.text,
+                                            margin: "0 0 12px 0",
+                                            letterSpacing: -0.3,
+                                        }}
+                                    >
+                                        {collab.title}
+                                    </h3>
+
+                                    <p
+                                        style={{
+                                            fontSize: 12,
+                                            lineHeight: 1.8,
+                                            color: COLORS.textBody,
+                                            fontWeight: 300,
+                                            margin: 0,
+                                            maxWidth: 220,
+                                        }}
+                                    >
+                                        {collab.desc}
+                                    </p>
+                                </motion.article>
+                            </Reveal>
+                        ))}
+                    </div>
                 </div>
-                <div style={{ padding: isMobile ? "24px" : "28px", borderRadius: 20, background: white(0.02), border: `1px solid ${white(0.08)}` }}>
-                  <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(0.55), marginBottom: 16, marginTop: 0 }}>Note</p>
-                  <blockquote style={{ margin: 0, fontFamily: DISPLAY, fontSize: isMobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: white(0.75), fontStyle: "italic", letterSpacing: -0.8 }}>
-                    "Chaque projet commence par une conversation. La vôtre commence ici."
-                  </blockquote>
+            </section>
+
+            {/* SECTORS */}
+            <section
+                aria-labelledby={sectorsId}
+                className="tr-section-padding"
+                style={{ padding: "40px 72px 80px" }}
+            >
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                    <Reveal>
+                        <SectionEyebrow>
+                            Secteurs d&apos;activité
+                        </SectionEyebrow>
+                        <h2 id={sectorsId} className="sr-only">
+                            Secteurs d&apos;activité visés
+                        </h2>
+
+                        <ul
+                            style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 10,
+                                margin: 0,
+                                padding: 0,
+                                listStyle: "none",
+                            }}
+                        >
+                            {brandList.map((brand, index) => (
+                                <motion.li
+                                    key={brand}
+                                    initial={
+                                        reduceMotion
+                                            ? undefined
+                                            : { opacity: 0, y: 10 }
+                                    }
+                                    whileInView={
+                                        reduceMotion
+                                            ? undefined
+                                            : { opacity: 1, y: 0 }
+                                    }
+                                    viewport={{ once: true }}
+                                    transition={
+                                        reduceMotion
+                                            ? undefined
+                                            : {
+                                                  duration: 0.4,
+                                                  delay: index * 0.05,
+                                                  ease: EASE,
+                                              }
+                                    }
+                                    style={{
+                                        padding: "10px 24px",
+                                        borderRadius: 100,
+                                        border: `1px solid ${COLORS.borderStrong}`,
+                                        background: COLORS.panelSoft,
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: COLORS.textSoft,
+                                        letterSpacing: 1,
+                                        textTransform: "uppercase",
+                                    }}
+                                >
+                                    {brand}
+                                </motion.li>
+                            ))}
+                        </ul>
+                    </Reveal>
                 </div>
-              </aside>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-    </div>
-  )
+            </section>
+
+            {/* MANIFESTO */}
+            <section
+                aria-labelledby={manifestoId}
+                className="tr-section-padding"
+                style={{
+                    padding: "100px 72px",
+                    display: "flex",
+                    justifyContent: "center",
+                }}
+            >
+                <Reveal>
+                    <figure
+                        style={{
+                            maxWidth: 820,
+                            textAlign: "center",
+                            margin: 0,
+                        }}
+                    >
+                        <SectionEyebrow>Pourquoi Riles</SectionEyebrow>
+
+                        <h2 id={manifestoId} className="sr-only">
+                            Pourquoi collaborer avec Riles Freestyle
+                        </h2>
+
+                        <blockquote
+                            style={{
+                                fontFamily: DISPLAY,
+                                fontSize: "clamp(22px, 3vw, 38px)",
+                                fontWeight: 300,
+                                lineHeight: 1.5,
+                                color: COLORS.textSoft,
+                                margin: 0,
+                                letterSpacing: -0.8,
+                                fontStyle: "italic",
+                            }}
+                        >
+                            {manifesto}
+                        </blockquote>
+
+                        <motion.div
+                            aria-hidden="true"
+                            initial={reduceMotion ? undefined : { width: 0 }}
+                            whileInView={
+                                reduceMotion ? undefined : { width: 60 }
+                            }
+                            viewport={{ once: true }}
+                            transition={
+                                reduceMotion
+                                    ? undefined
+                                    : { duration: 1, delay: 0.3, ease: EASE }
+                            }
+                            style={{
+                                width: reduceMotion ? 60 : undefined,
+                                height: 2,
+                                background: "rgba(255,255,255,0.18)",
+                                margin: "36px auto 0",
+                            }}
+                        />
+                    </figure>
+                </Reveal>
+            </section>
+
+            {/* CTA */}
+            <section
+                id={ctaId}
+                aria-labelledby={`${ctaId}-title`}
+                className="tr-section-padding"
+                style={{
+                    textAlign: "center",
+                    padding: "120px 72px",
+                    position: "relative",
+                }}
+            >
+                <div
+                    aria-hidden="true"
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "radial-gradient(ellipse at center bottom, rgba(255,255,255,0.03) 0%, transparent 60%)",
+                        pointerEvents: "none",
+                    }}
+                />
+
+                <Reveal>
+                    <h2
+                        id={`${ctaId}-title`}
+                        style={{
+                            fontFamily: DISPLAY,
+                            fontWeight: 800,
+                            fontSize: "clamp(44px, 7vw, 100px)",
+                            lineHeight: 0.95,
+                            margin: "0 0 20px 0",
+                            letterSpacing: -4,
+                            color: COLORS.text,
+                        }}
+                    >
+                        {ctaTitle}
+                    </h2>
+                </Reveal>
+
+                <Reveal delay={0.08}>
+                    <p
+                        style={{
+                            fontSize: 15,
+                            color: COLORS.textBody,
+                            maxWidth: 520,
+                            margin: "0 auto 40px",
+                            lineHeight: 1.8,
+                            fontWeight: 300,
+                        }}
+                    >
+                        {ctaDesc}
+                    </p>
+                </Reveal>
+
+                <Reveal delay={0.16}>
+                    <motion.a
+                        href={finalCtaUrl}
+                        aria-label={ctaLabel}
+                        whileHover={getMotionHover({
+                            y: -3,
+                            backgroundColor: "#FFFFFF",
+                            color: "#000000",
+                        })}
+                        whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                        transition={{ duration: 0.35, ease: EASE }}
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 12,
+                            minHeight: 52,
+                            padding: "18px 42px",
+                            background: "transparent",
+                            color: COLORS.text,
+                            fontFamily: DISPLAY,
+                            fontWeight: 700,
+                            fontSize: 12,
+                            letterSpacing: 3,
+                            textTransform: "uppercase",
+                            textDecoration: "none",
+                            borderRadius: 100,
+                            border: "1px solid rgba(255,255,255,0.24)",
+                        }}
+                    >
+                        <span>Proposer une collab</span>
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </motion.a>
+                </Reveal>
+            </section>
+
+            <footer
+                className="tr-footer tr-section-padding"
+                style={{
+                    padding: "28px 72px",
+                    borderTop: `1px solid ${COLORS.border}`,
+                }}
+            >
+                <p
+                    style={{
+                        fontSize: 10,
+                        color: COLORS.textGhost,
+                        letterSpacing: 4,
+                        margin: 0,
+                        fontWeight: 700,
+                        fontFamily: DISPLAY,
+                    }}
+                >
+                    JUST IMPACT
+                    <span style={{ color: COLORS.textMuted }}>.</span> © 2026
+                </p>
+
+                <p
+                    style={{
+                        fontSize: 10,
+                        color: COLORS.textSubtle,
+                        letterSpacing: 3,
+                        margin: 0,
+                        fontFamily: BODY,
+                    }}
+                >
+                    Paris, France
+                </p>
+            </footer>
+        </main>
+    )
 }
