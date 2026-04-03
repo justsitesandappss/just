@@ -366,10 +366,10 @@ export default function JustPodcastPage() {
   const WEB3FORMS_ACCESS_KEY = "b891692e-8148-4785-856a-e1c43f4816dc"
 
   const formats: FormatItem[] = [
-    { title: "Série de marque", desc: "Un podcast à votre nom, avec votre identité sonore, votre ligne éditoriale et un rendez-vous régulier.", image: "https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=1200&q=80&auto=format&fit=crop", imageAlt: "Microphone de studio" },
-    { title: "Interviews & Conversations", desc: "Invitez experts, clients ou partenaires pour installer votre marque au centre des discussions qui comptent.", image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1200&q=80&auto=format&fit=crop", imageAlt: "Casque audio studio" },
-    { title: "Podcast interne", desc: "Partagez la culture, embarquez les équipes, onboardez mieux et rendez la communication interne plus humaine.", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80&auto=format&fit=crop", imageAlt: "Équipe en studio" },
-    { title: "Podcast événementiel", desc: "Captez l'énergie d'un événement et prolongez son impact bien après la dernière lumière.", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&q=80&auto=format&fit=crop", imageAlt: "Scène événement audio" },
+    { title: "Série de marque", desc: "Un podcast à votre nom, avec votre identité sonore, votre ligne éditoriale et un rendez-vous régulier.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/podcast-podcast.jpg", imageAlt: "Microphone de studio" },
+    { title: "Interviews & Conversations", desc: "Invitez experts, clients ou partenaires pour installer votre marque au centre des discussions qui comptent.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/podcast-talk.jpg", imageAlt: "Casque audio studio" },
+    { title: "Podcast interne", desc: "Partagez la culture, embarquez les équipes, onboardez mieux et rendez la communication interne plus humaine.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/podcast-groupe.jpg", imageAlt: "Équipe en studio" },
+    { title: "Podcast événementiel", desc: "Captez l'énergie d'un événement et prolongez son impact bien après la dernière lumière.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/podcast-show.jpg", imageAlt: "Scène événement audio" },
   ]
   const whys: WhyItem[] = [
     { n: "01", t: "Intimité inégalée", d: "Le podcast crée une connexion directe avec votre audience, dans les oreilles, dans le quotidien, dans la durée." },
