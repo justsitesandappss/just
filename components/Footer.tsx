@@ -13,9 +13,9 @@ const navColumns = [
     { label: "Podcast",           href: "/podcast"     },
   ],
   [
-    { label: "Just Impact",       href: "/justimpact"  },
+    { label: "Just Impact",       href: "/just-impact"  },
     { label: "Qui sommes-nous ?", href: "/just"        },
-    { label: "Nos Talents",       href: "/nostalents"  },
+    { label: "Nos Talents",       href: "/nos-talents"  },
     { label: "Contact",           href: "/contact"     },
   ],
 ]
@@ -50,9 +50,9 @@ const socials = [
 ]
 
 const legalLinks = [
-  { label: "CONDITIONS",      href: "/conditions"      },
-  { label: "CONFIDENTIALITÉ", href: "/confidentialite" },
-  { label: "COOKIES",         href: "/cookies"         },
+  { label: "CONDITIONS",      href: "/mentions-legales" },
+  { label: "CONFIDENTIALITÉ", href: "/confidentialite"  },
+  { label: "COOKIES",         href: "/cookies"          },
 ]
 
 export default function Footer() {
