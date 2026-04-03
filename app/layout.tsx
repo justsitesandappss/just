@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import HeaderDesktop from "@/components/HeaderDesktop" // ✅ adapte le chemin selon ton projet
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +35,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body>
+        <HeaderDesktop />
+        {children}
+      </body>
     </html>
   )
 }
