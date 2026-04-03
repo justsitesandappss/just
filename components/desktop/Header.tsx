@@ -3,23 +3,36 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const scrollOffset = -80
 
-const navItems = [
+type NavItem = {
+  label: string
+  page: string
+  room?: number
+  href?: string
+}
+
+const navItems: NavItem[] = [
   { label: "Just", page: "nav1", room: 1 },
   { label: "Just Impact", page: "nav2", room: 2 },
   { label: "Just Prod", page: "nav5", room: 5 },
-  { label: "Just Agency", page: "nav4", room: 4 },
+  { label: "Just Agency", page: "nav4", href: "/just-agency" },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
   { label: "Nos Talents", page: "nav6", room: 6 },
 ]
 
 export default function HeaderDesktop() {
-  const [current, setCurrent] = useState("nav1")
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [current, setCurrent] = useState(
+    pathname === "/just-agency" ? "nav4" : "nav1"
+  )
   const [hovered, setHovered] = useState<string | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
@@ -32,13 +45,22 @@ export default function HeaderDesktop() {
     window.scrollTo({ top, behavior: "smooth" })
   }
 
-  function handleClick(item: (typeof navItems)[number]) {
+  function handleClick(item: NavItem) {
+    setCurrent(item.page)
+
+    if (item.href) {
+      router.push(item.href)
+      return
+    }
+
+    if (typeof item.room !== "number") return
+
     const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
     if (!roomsEl) {
       window.location.href = `/?jumpToRoom=${item.room - 1}`
       return
     }
-    setCurrent(item.page)
+
     window.dispatchEvent(
       new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } })
     )
@@ -46,18 +68,36 @@ export default function HeaderDesktop() {
   }
 
   useEffect(() => {
+    if (pathname === "/just-agency") {
+      setCurrent("nav4")
+      return
+    }
+
+    if (pathname === "/" || pathname === "") {
+      if (current === "nav4") {
+        setCurrent("nav1")
+      }
+    }
+  }, [pathname, current])
+
+  useEffect(() => {
     function onRoomChanged(e: Event) {
+      if (pathname === "/just-agency") return
+
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
+
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
     return () => window.removeEventListener("just-room-changed", onRoomChanged)
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
+    if (pathname !== "/") return
+
     const params = new URLSearchParams(window.location.search)
     const jump = params.get("jumpToRoom")
     if (jump == null) return
@@ -88,7 +128,7 @@ export default function HeaderDesktop() {
     }
 
     tryJump(0)
-  }, [])
+  }, [pathname])
 
   const targetPage = hovered ?? current
 
@@ -100,6 +140,7 @@ export default function HeaderDesktop() {
 
       const navRect = nav.getBoundingClientRect()
       const elRect = el.getBoundingClientRect()
+
       const next = {
         left: elRect.left - navRect.left,
         width: elRect.width,
@@ -115,7 +156,7 @@ export default function HeaderDesktop() {
       window.clearTimeout(t)
       window.removeEventListener("resize", update)
     }
-  }, [targetPage, current])
+  }, [targetPage, current, pathname])
 
   const dot = (
     <span
@@ -154,7 +195,7 @@ export default function HeaderDesktop() {
       }}
     >
       <button
-        onClick={() => handleClick(navItems[0])}
+        onClick={() => router.push("/")}
         aria-label="Just — retour à l'accueil"
         style={{
           fontFamily: DISPLAY,
