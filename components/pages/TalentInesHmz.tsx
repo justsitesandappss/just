@@ -316,13 +316,13 @@ function Counter({
     const reduced = useReducedMotion() ?? false
 
     const match = value.match(/^(?:([+\-]?)(\d+\.?\d*)(.*))$/)
-    const prefix = match?.groups?.prefix ?? ""
-    const num = match?.groups?.num ? parseFloat(match.groups.num) : 0
-    const suffix = match?.groups?.suffix ?? value
-    const decimals =
-        match?.groups?.num?.includes(".") ?? false
-            ? ((match.groups.num ?? "").split(".")[1] || "").length
-            : 0
+    const groups = match?.groups
+    const prefix = groups?.prefix ?? ""
+    const num = groups?.num ? parseFloat(groups.num) : 0
+    const suffix = groups?.suffix ?? value
+    const decimals = groups?.num?.includes(".") 
+        ? (groups.num.split(".")[1] || "").length 
+        : 0
 
     const [count, setCount] = useState(0)
     const frameRef = useRef<number | null>(null)
