@@ -12,7 +12,6 @@ import {
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const NUMERIC = "'Satoshi', 'Inter', 'Segoe UI', Arial, sans-serif"
-const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
 const COLORS = {
@@ -276,10 +275,7 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
     useEffect(() => {
         if (!inView) return
         const timer = window.setTimeout(() => {
-            if (reducedMotion) {
-                setCount(numeric)
-                return
-            }
+            if (reducedMotion) { setCount(numeric); return }
             let raf = 0
             const duration = 2200
             const start = performance.now()
@@ -493,16 +489,8 @@ export default function NosTalents() {
     const bp = useBreakpoint()
     const isMobile = bp === "mobile"
     const isTablet = bp === "tablet"
-    const isMobileOrTablet = isMobile || isTablet
 
     const p = {
-        activePage: "nav1", logoText: "JUST", contactLabel: "Nous contacter", contactUrl: "#contact",
-        nav1Label: "Just", nav2Label: "Just Agency", nav3Label: "Just Prod", nav4Label: "Just Impact", nav5Label: "", nav6Label: "",
-        nav1Mode: "room" as "room" | "page", nav2Mode: "room" as "room" | "page", nav3Mode: "room" as "room" | "page",
-        nav4Mode: "room" as "room" | "page", nav5Mode: "room" as "room" | "page", nav6Mode: "room" as "room" | "page",
-        nav1Room: 1, nav2Room: 2, nav3Room: 3, nav4Room: 4, nav5Room: 5, nav6Room: 6,
-        nav1Url: "", nav2Url: "", nav3Url: "", nav4Url: "", nav5Url: "", nav6Url: "",
-        scrollOffset: -80, homeUrl: "/",
         heroTagline: "Influence · Créativité · Authenticité · Résultats",
         heroTitle1: "Nos talents", heroTitle2: "font la différence.",
         heroDesc: "Un réseau de créateurs triés sur le volet, alignés avec vos valeurs. Des voix authentiques, des communautés engagées, des résultats mesurables, c'est la force de Just Impact.",
@@ -588,107 +576,6 @@ export default function NosTalents() {
 
     const isContactSubmitDisabled = contactStatus === "sending" || !contactFormData.name.trim() || !contactFormData.email.trim() || !contactFormData.message.trim()
 
-    const allNavItems = useMemo(() => [
-        { label: p.nav1Label, page: "nav1", mode: p.nav1Mode, room: p.nav1Room, url: p.nav1Url },
-        { label: p.nav2Label, page: "nav2", mode: p.nav2Mode, room: p.nav2Room, url: p.nav2Url },
-        { label: p.nav3Label, page: "nav3", mode: p.nav3Mode, room: p.nav3Room, url: p.nav3Url },
-        { label: p.nav4Label, page: "nav4", mode: p.nav4Mode, room: p.nav4Room, url: p.nav4Url },
-        { label: p.nav5Label, page: "nav5", mode: p.nav5Mode, room: p.nav5Room, url: p.nav5Url },
-        { label: p.nav6Label, page: "nav6", mode: p.nav6Mode, room: p.nav6Room, url: p.nav6Url },
-    ].filter((item) => item.label && item.label.trim() !== ""), [p])
-
-    const [current, setCurrent] = useState(p.activePage)
-    const [hovered, setHovered] = useState<string | null>(null)
-    const [menuOpen, setMenuOpen] = useState(false)
-    const navRef = useRef<HTMLDivElement>(null)
-    const itemRefs = useRef<Record<string, HTMLElement | null>>({})
-
-    useEffect(() => { setCurrent(p.activePage) }, [p.activePage])
-    useEffect(() => { if (!isMobileOrTablet) setMenuOpen(false) }, [isMobileOrTablet])
-    useEffect(() => {
-        if (menuOpen) document.body.style.overflow = "hidden"
-        else document.body.style.overflow = ""
-        return () => { document.body.style.overflow = "" }
-    }, [menuOpen])
-
-    useEffect(() => {
-        function handleRoomChanged(e: any) {
-            const roomIndex = e.detail?.roomIndex
-            if (roomIndex == null) return
-            const match = allNavItems.find((item) => item.mode === "room" && item.room === roomIndex + 1)
-            if (match) setCurrent(match.page)
-        }
-        window.addEventListener("just-room-changed", handleRoomChanged)
-        return () => window.removeEventListener("just-room-changed", handleRoomChanged)
-    }, [allNavItems])
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search)
-        const jump = params.get("jumpToRoom")
-        if (jump == null) return
-        const roomIndex = parseInt(jump, 10)
-        if (isNaN(roomIndex) || roomIndex < 0) return
-        params.delete("jumpToRoom")
-        const clean = params.toString()
-        window.history.replaceState(null, "", window.location.pathname + (clean ? `?${clean}` : "") + window.location.hash)
-        const tryJump = (attempt: number) => {
-            const el = document.getElementById(ROOMS_ANCHOR_ID)
-            if (el) {
-                window.dispatchEvent(new CustomEvent("just-nav-change", { detail: { roomIndex } }))
-                const match = allNavItems.find((item) => item.mode === "room" && item.room === roomIndex + 1)
-                if (match) setCurrent(match.page)
-                setTimeout(scrollToRooms, 100)
-            } else if (attempt < 20) { setTimeout(() => tryJump(attempt + 1), 150) }
-        }
-        tryJump(0)
-    }, [])
-
-    const scrollToRooms = useCallback(() => {
-        const el = document.getElementById(ROOMS_ANCHOR_ID)
-        if (el) {
-            const top = el.getBoundingClientRect().top + window.scrollY + (p.scrollOffset || 0)
-            window.scrollTo({ top, behavior: "smooth" })
-        }
-    }, [p.scrollOffset])
-
-    const handleClick = useCallback((item: (typeof allNavItems)[0]) => {
-        if (item.mode === "page" && item.url) { setMenuOpen(false); return }
-        const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
-        if (!roomsEl) { const sep = p.homeUrl.includes("?") ? "&" : "?"; window.location.href = `${p.homeUrl}${sep}jumpToRoom=${item.room - 1}`; return }
-        setCurrent(item.page); setMenuOpen(false)
-        window.dispatchEvent(new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } }))
-        scrollToRooms()
-    }, [p.homeUrl, scrollToRooms])
-
-    const targetPage = hovered || current
-    const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
-
-    useEffect(() => {
-        if (isMobileOrTablet) return
-        const update = () => {
-            const el = itemRefs.current[targetPage]; const nav = navRef.current
-            if (!el || !nav) return
-            const navRect = nav.getBoundingClientRect(); const elRect = el.getBoundingClientRect()
-            const rect = { left: elRect.left - navRect.left, width: elRect.width }
-            if (rect.width > 0) setPillStyle(rect)
-        }
-        const t = setTimeout(update, 50)
-        window.addEventListener("resize", update)
-        return () => { clearTimeout(t); window.removeEventListener("resize", update) }
-    }, [targetPage, current, isMobileOrTablet])
-
-    const mkStyle = (isActive: boolean, isHov: boolean): React.CSSProperties => ({
-        position: "relative", zIndex: 1, padding: "0 18px", height: 32, cursor: "pointer",
-        fontFamily: BODY, fontSize: 11, fontWeight: isActive ? 600 : 400, letterSpacing: 1.5,
-        textTransform: "uppercase", color: isActive || isHov ? "#fff" : "rgba(255,255,255,0.7)",
-        textShadow: isHov ? "0 0 12px rgba(255,255,255,0.8), 0 0 24px rgba(255,255,255,0.4)" : "none",
-        transition: "color 0.3s ease, text-shadow 0.3s ease", whiteSpace: "nowrap",
-        display: "flex", alignItems: "center", userSelect: "none", textDecoration: "none", border: "none", background: "transparent",
-    })
-
-    const dot = <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#ff3b3b", marginRight: 8, flexShrink: 0, boxShadow: "0 0 8px rgba(255,59,59,0.5)" }} />
-    const navHeight = isMobile ? 56 : 64
-
     const allTalents = useMemo(() => [
         parseTalent(p.t1Name, p.t1Handle, p.t1Image, p.t1Cats, p.t1Followers, p.t1Views, p.t1Bio, "01", p.t1Link),
         parseTalent(p.t2Name, p.t2Handle, p.t2Image, p.t2Cats, p.t2Followers, p.t2Views, p.t2Bio, "02", p.t2Link),
@@ -709,7 +596,6 @@ export default function NosTalents() {
         return allTalents.filter((talent) => talent.categories.includes(activeFilter))
     }, [activeFilter, allTalents])
 
-    const navPadding = isMobile ? "0 20px" : isTablet ? "0 32px" : "0 48px"
     const socials = useMemo(() => [
         p.footerInstagram ? { href: p.footerInstagram, label: "Instagram", icon: ICONS.instagram } : null,
         p.footerTikTok ? { href: p.footerTikTok, label: "TikTok", icon: ICONS.tiktok } : null,
@@ -719,90 +605,28 @@ export default function NosTalents() {
     return (
         <div className="just-merged-root" style={{ width: "100%", minWidth: 0, background: COLORS.bg, color: COLORS.textSoft, fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
 
-            {/* NAVBAR */}
-            <nav style={{ width: "100%", background: "rgba(0,0,0,0.88)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: navPadding, height: navHeight, display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: BODY, position: "fixed", top: 0, left: 0, zIndex: 100, boxSizing: "border-box" }}>
-                <div onClick={() => { if (allNavItems.length > 0) handleClick(allNavItems[0]) }} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: isMobile ? 20 : 22, color: "#fff", letterSpacing: -1, cursor: "pointer", userSelect: "none", flexShrink: 0, transition: "opacity 0.25s ease" }} onPointerOver={(e) => { e.currentTarget.style.opacity = "0.7" }} onPointerOut={(e) => { e.currentTarget.style.opacity = "1" }}>
-                    {p.logoText}
-                </div>
-
-                {!isMobileOrTablet && (
-                    <div ref={navRef} style={{ display: "flex", alignItems: "center", gap: 2, position: "relative", marginLeft: 48, marginRight: "auto", paddingLeft: 48, borderLeft: "1px solid rgba(255,255,255,0.06)", height: 32 }}>
-                        <motion.div animate={{ left: pillStyle.left, width: pillStyle.width }} transition={{ type: "spring", stiffness: 400, damping: 35 }} style={{ position: "absolute", top: 0, height: 32, borderRadius: 100, background: current === targetPage ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", pointerEvents: "none", zIndex: 0 }} />
-                        {allNavItems.map((item) => {
-                            const isActive = current === item.page; const isHov = hovered === item.page
-                            const isPageMode = item.mode === "page" && item.url
-                            if (isPageMode) return (<a key={item.page} href={item.url} ref={(el) => { itemRefs.current[item.page] = el }} onMouseEnter={() => setHovered(item.page)} onMouseLeave={() => setHovered(null)} style={mkStyle(isActive, isHov) as any}>{isActive && dot}{item.label}</a>)
-                            return (<div key={item.page} ref={(el) => { itemRefs.current[item.page] = el }} onClick={() => handleClick(item)} onMouseEnter={() => setHovered(item.page)} onMouseLeave={() => setHovered(null)} style={mkStyle(isActive, isHov)}>{isActive && dot}{item.label}</div>)
-                        })}
-                    </div>
-                )}
-
-                {!isMobileOrTablet && (
-                    <a href={p.contactUrl} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px", background: "transparent", color: "#e82828", fontFamily: BODY, fontWeight: 600, fontSize: 10, letterSpacing: 2.5, textTransform: "uppercase", textDecoration: "none", borderRadius: 100, border: "none", cursor: "pointer", flexShrink: 0, transition: "transform 0.2s ease, opacity 0.2s ease" }} onPointerOver={(e) => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.opacity = "0.7" }} onPointerOut={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.opacity = "1" }}>
-                        {p.contactLabel}
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                    </a>
-                )}
-
-                {isMobileOrTablet && (
-                    <button onClick={() => setMenuOpen((prev) => !prev)} style={{ width: 40, height: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: menuOpen ? 0 : 5, background: "transparent", border: "none", cursor: "pointer", padding: 0, position: "relative", zIndex: 200 }} aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}>
-                        <span style={{ display: "block", height: 1.5, background: menuOpen ? "#000" : "#fff", borderRadius: 2, width: menuOpen ? 20 : 18, transformOrigin: "center", transform: menuOpen ? "rotate(45deg) translateY(1px)" : "none", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)" }} />
-                        <span style={{ display: "block", height: 1.5, width: 14, background: menuOpen ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.5)", borderRadius: 2, opacity: menuOpen ? 0 : 1, transform: menuOpen ? "scale(0)" : "scale(1)", transition: "all 0.2s ease" }} />
-                        <span style={{ display: "block", height: 1.5, background: menuOpen ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.7)", borderRadius: 2, alignSelf: "flex-start", marginLeft: 10, width: menuOpen ? 20 : 10, transformOrigin: "center", transform: menuOpen ? "rotate(-45deg) translateY(-1px)" : "none", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)" }} />
-                    </button>
-                )}
-            </nav>
-
-            {/* MENU MOBILE */}
-            <AnimatePresence>
-                {menuOpen && isMobileOrTablet && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ position: "fixed", inset: 0, top: navHeight, background: "#ffffff", zIndex: 99, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 8, padding: "0 24px" }}>
-                        {allNavItems.map((item, i) => {
-                            const isActive = current === item.page; const isPageMode = item.mode === "page" && item.url
-                            const inner = (
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }} style={{ padding: "16px 0", fontFamily: DISPLAY, fontSize: 28, fontWeight: isActive ? 800 : 400, color: isActive ? "#000" : "rgba(0,0,0,0.40)", letterSpacing: -1, textTransform: "uppercase", cursor: "pointer", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, textDecoration: "none" }}>
-                                    {isActive && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff3b3b", boxShadow: "0 0 12px rgba(255,59,59,0.6)", flexShrink: 0 }} />}
-                                    {item.label}
-                                </motion.div>
-                            )
-                            if (isPageMode) return (<a key={item.page} href={item.url} onClick={() => setMenuOpen(false)} style={{ textDecoration: "none" }}>{inner}</a>)
-                            return (<div key={item.page} onClick={() => handleClick(item)}>{inner}</div>)
-                        })}
-                        <motion.a href={p.contactUrl} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: allNavItems.length * 0.05 + 0.1 }} onClick={() => setMenuOpen(false)} style={{ marginTop: 32, display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 32px", border: "1px solid rgba(0,0,0,0.15)", borderRadius: 100, color: "#e82828", fontFamily: BODY, fontWeight: 600, fontSize: 11, letterSpacing: 2.5, textTransform: "uppercase", textDecoration: "none", background: "rgba(232,40,40,0.04)" }}>
-                            {p.contactLabel}
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                        </motion.a>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <div style={{ height: navHeight }} />
-
             <main id="main-content" aria-label="Présentation des talents Just Impact" style={{ width: "100%", minWidth: 0 }}>
+
                 {/* HERO */}
                 <section className="jm-section jm-hero" aria-labelledby="jm-main-title" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 72px 80px", position: "relative", width: "100%", minWidth: 0 }}>
                     <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
-
                     {sanitizeText(p.heroTagline) && (
                         <motion.p className="jm-hero-tagline" {...getMotionProps(reducedMotion, true, 0, 1, 0.2)} style={{ fontSize: 11, fontWeight: 600, letterSpacing: 5, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 48px 0", display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1, lineHeight: 1.5 }}>
                             <motion.span aria-hidden="true" animate={reducedMotion ? { scale: 1, opacity: 0.65 } : { scale: [1, 1.5, 1], opacity: [0.35, 0.85, 0.35] }} transition={reducedMotion ? { duration: 0 } : { duration: 2.5, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.text, display: "inline-block", flexShrink: 0 }} />
                             {p.heroTagline}
                         </motion.p>
                     )}
-
                     <div style={{ width: "100%", maxWidth: 1100, position: "relative", zIndex: 1, minWidth: 0 }}>
                         <motion.h1 id="jm-main-title" className="jm-hero-title" {...getMotionProps(reducedMotion, true, 60, 1, 0.4)} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(44px, 9vw, 130px)", lineHeight: 0.95, color: COLORS.text, margin: 0, letterSpacing: -4, width: "100%", minWidth: 0 }}>
                             <span style={{ display: "block" }}>{p.heroTitle1}</span>
                             <span style={{ display: "block", fontWeight: 300, color: "rgba(255,255,255,0.30)", fontStyle: "italic" }}>{p.heroTitle2}</span>
                         </motion.h1>
                     </div>
-
                     {sanitizeText(p.heroDesc) && (
                         <motion.p className="jm-hero-desc" {...getMotionProps(reducedMotion, true, 30, 0.8, 0.8)} style={{ marginTop: 40, marginBottom: 0, fontSize: 16, lineHeight: 1.9, maxWidth: 560, color: COLORS.textMuted, fontWeight: 300, position: "relative", zIndex: 1, overflowWrap: "anywhere" }}>
                             {p.heroDesc}
                         </motion.p>
                     )}
-
                     <motion.div className="jm-hero-scroll" {...getMotionProps(reducedMotion, true, 0, 0.8, 1.2)} aria-hidden="true" style={{ position: "absolute", bottom: 40, left: 72, display: "flex", alignItems: "center", gap: 12 }}>
                         <motion.div animate={reducedMotion ? { y: 0 } : { y: [0, 8, 0] }} transition={reducedMotion ? { duration: 0 } : { duration: 2, repeat: Infinity, ease: "easeInOut" }} style={{ width: 1, height: 40, background: "linear-gradient(to bottom, rgba(255,255,255,0.42), transparent)" }} />
                         <span style={{ fontSize: 10, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textLow, fontWeight: 600 }}>Scroll</span>
@@ -904,7 +728,6 @@ export default function NosTalents() {
                                 <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: white(OP.heroDesc), fontWeight: 300 }}>{p.formHeroDesc}</p>
                             </div>
                         </Reveal>
-
                         <div className="jm2-contact-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(280px,0.42fr)", gap: isMobile ? 56 : 88, alignItems: "start" }}>
                             <Reveal>
                                 <div>
@@ -951,7 +774,6 @@ export default function NosTalents() {
                                     )}
                                 </div>
                             </Reveal>
-
                             <Reveal delay={0.15}>
                                 <aside className="jm2-contact-sticky" aria-label="Informations de contact" style={{ position: "sticky", top: 100, display: "flex", flexDirection: "column", gap: 24 }}>
                                     <div style={{ padding: "20px", borderRadius: 16, background: JC.surface, border: `1px solid ${JC.border}`, display: "flex", alignItems: "center", gap: 14 }}>
