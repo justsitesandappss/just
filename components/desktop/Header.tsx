@@ -26,6 +26,17 @@ const navItems: NavItem[] = [
   { label: "Just Prod", page: "nav5", room: 5 },
 ]
 
+// ✅ Map pathname → page active
+const PATHNAME_TO_PAGE: Record<string, string> = {
+  "/just": "nav1",
+  "/just-impact": "nav2",
+  "/nosponsors": "nav3",
+  "/just-agency": "nav4",
+  "/nos-talents": "nav6",
+  "/media": "nav5",
+  "/podcast": "nav5",
+}
+
 export default function HeaderDesktop() {
   const pathname = usePathname()
   const router = useRouter()
@@ -65,11 +76,9 @@ export default function HeaderDesktop() {
       return
     }
 
-    // Vient d'une autre page (ex: /just-agency) → passe par l'URL
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
-  // Bouton logo JUST — retour à l'accueil en précisant la room 0
   function handleLogoClick() {
     if (pathname === "/") {
       window.scrollTo({ top: 0, behavior: "smooth" })
@@ -79,13 +88,15 @@ export default function HeaderDesktop() {
   }
 
   useEffect(() => {
-    if (pathname === "/just-agency") {
-      setCurrent("nav4")
+    // ✅ Vérifie d'abord si le pathname correspond à une page connue
+    const mapped = PATHNAME_TO_PAGE[pathname]
+    if (mapped) {
+      setCurrent(mapped)
       return
     }
 
+    // Page d'accueil avec jumpToRoom
     const jump = searchParams.get("jumpToRoom")
-
     if (pathname === "/" && jump !== null) {
       const roomIndex = parseInt(jump, 10)
       if (!Number.isNaN(roomIndex)) {
@@ -97,6 +108,7 @@ export default function HeaderDesktop() {
       }
     }
 
+    // Page d'accueil sans paramètre → nav1 par défaut
     if (pathname === "/") {
       setCurrent("nav1")
     }
@@ -106,11 +118,9 @@ export default function HeaderDesktop() {
     function onRoomChanged(e: Event) {
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
-
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
     }
-
     window.addEventListener("just-room-changed", onRoomChanged)
     return () => window.removeEventListener("just-room-changed", onRoomChanged)
   }, [])
@@ -122,21 +132,16 @@ export default function HeaderDesktop() {
       const el = itemRefs.current[targetPage]
       const nav = navRef.current
       if (!el || !nav) return
-
       const navRect = nav.getBoundingClientRect()
       const elRect = el.getBoundingClientRect()
-
       const next = {
         left: elRect.left - navRect.left,
         width: elRect.width,
       }
-
       if (next.width > 0) setPillStyle(next)
     }
-
     const t = window.setTimeout(update, 50)
     window.addEventListener("resize", update)
-
     return () => {
       window.clearTimeout(t)
       window.removeEventListener("resize", update)
