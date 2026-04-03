@@ -768,8 +768,10 @@ export default function RoomsExperience() {
   const [phaseOverride, setPhaseOverride] = useState<Phase | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // ✅ Guard pour éviter le re-déclenchement en boucle
   const jumpHandled = useRef(false)
+
+  // ✅ Ignore le dispatch au premier mount
+  const hasMountedRef = useRef(false)
 
   const phase: Phase = phaseOverride
     ? phaseOverride
@@ -822,25 +824,18 @@ export default function RoomsExperience() {
     }
   }, [])
 
-  // ✅ useEffect corrigé — ne boucle plus grâce au ref guard
   useEffect(() => {
     const jump = searchParams.get("jumpToRoom")
 
-    // Pas de paramètre → reset le guard pour la prochaine navigation entrante
     if (jump == null) {
       jumpHandled.current = false
       return
     }
 
-    // Déjà traité → on ignore complètement
     if (jumpHandled.current) return
 
     const idx = parseInt(jump, 10)
-
-    // Marque comme traité IMMÉDIATEMENT avant tout setState ou router call
     jumpHandled.current = true
-
-    // Nettoie l'URL en premier, de façon synchrone
     router.replace("/", { scroll: false })
 
     if (
@@ -864,7 +859,12 @@ export default function RoomsExperience() {
     })
   }, [searchParams, router])
 
+  // ✅ Ne dispatch PAS au premier render — laisse le header gérer via pendingPageRef
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      return
+    }
     window.dispatchEvent(
       new CustomEvent("just-room-changed", {
         detail: { roomIndex: activeIndex },
