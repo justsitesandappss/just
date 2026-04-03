@@ -285,7 +285,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
 // Main Component
 export default function TalentDchinois93() {
   // Data
-  const heroImage = "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=1200&q=80"
+  const heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-dchinois.jpg"
   const name = "Dchinois93"
   const alias = "Le Franc-Parler du 93"
   const handle = "@dchinois93"

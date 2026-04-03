@@ -285,7 +285,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
 // Main Component
 export default function TalentNaoilTita() {
   // Data
-  const heroImage = "https://images.unsplash.com/photo-1552072092-7f9b8d63efcb?w=1200&q=80"
+  const heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-naoil.jpg"
   const name = "Naoil Tita"
   const alias = "La Guerrière"
   const handle = "@naoiel_kohlanta"

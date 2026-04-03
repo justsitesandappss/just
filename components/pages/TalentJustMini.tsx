@@ -285,7 +285,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
 // Main Component
 export default function TalentJustMini() {
   // Data
-  const heroImage = "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=1200&q=80"
+  const heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-justmini.jpg"
   const name = "Just Mini"
   const alias = "Le Nain Boxeur"
   const handle = "@justmini"
