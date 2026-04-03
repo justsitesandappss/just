@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 
 export const metadata: Metadata = {
   title: {
@@ -10,10 +11,6 @@ export const metadata: Metadata = {
   description:
     "Agence d'influence, production et conciergerie premium, Just crée des campagnes, contenus et expériences sur mesure pour les marques.",
   metadataBase: new URL("https://justagency-inc.com"),
-
-  alternates: {
-    canonical: "/",
-  },
 
   openGraph: {
     title: "Just — Agence d'influence, production & conciergerie",
@@ -44,13 +41,6 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
 
   icons: {
@@ -72,9 +62,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -100,6 +90,8 @@ export default function RootLayout({
         <main id="contenu-principal" role="main">
           {children}
         </main>
+
+        <Footer />
 
         <script
           type="application/ld+json"

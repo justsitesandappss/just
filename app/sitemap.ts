@@ -1,37 +1,47 @@
 import type { MetadataRoute } from "next"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.justagency-inc.com"
+  const baseUrl = "https://justagency-inc.com"
   const now = new Date()
+
+  const create = (
+    path: string,
+    priority: number,
+    changeFrequency: "daily" | "weekly" | "monthly" | "yearly"
+  ) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: now,
+    changeFrequency,
+    priority,
+  })
 
   return [
     // 🥇 Pages principales
-    { url: baseUrl, lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/just`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${baseUrl}/just-agency`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${baseUrl}/just-impact`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    create("", 1, "weekly"),
+    create("/just-agency", 0.9, "weekly"),
+    create("/just-impact", 0.9, "weekly"),
 
     // 🧩 Sections
-    { url: `${baseUrl}/nos-talents`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${baseUrl}/media`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/podcast`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nosponsors`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    create("/nos-talents", 0.9, "weekly"),
+    create("/media", 0.8, "weekly"),
+    create("/podcast", 0.8, "weekly"),
+    create("/nos-sponsors", 0.7, "monthly"),
 
-    // 👤 Talents 
-    { url: `${baseUrl}/nos-talents/karim-lipton`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/riles-freestyle`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/moumlame`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/romain-benn`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/kimo-djz`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/ines-hmz`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/naoil-kohlanta`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/d-chinois-93`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/nos-talents/just-mini`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    // 👤 Talents
+    create("/nos-talents/karim-lipton", 0.8, "weekly"),
+    create("/nos-talents/riles-freestyle", 0.8, "weekly"),
+    create("/nos-talents/moumlame", 0.8, "weekly"),
+    create("/nos-talents/romain-benn", 0.8, "weekly"),
+    create("/nos-talents/kimo-djz", 0.8, "weekly"),
+    create("/nos-talents/ines-hmz", 0.8, "weekly"),
+    create("/nos-talents/naoil-kohlanta", 0.8, "weekly"),
+    create("/nos-talents/d-chinois-93", 0.8, "weekly"),
+    create("/nos-talents/just-mini", 0.8, "weekly"),
 
     // 📩 Conversion
-    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    create("/contact", 0.7, "monthly"),
 
     // ⚖️ Légal
-    { url: `${baseUrl}/mentions-legales`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    create("/mentions-legales", 0.3, "yearly"),
   ]
 }
