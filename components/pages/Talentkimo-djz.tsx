@@ -1028,13 +1028,12 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
                     }}
                 >
                     <img
-                        src={heroImage}
-                        alt={`Portrait de ${name}, artiste et créateur de contenus musicaux`}
-                        fill
-                        priority
-                        style={{
-                            objectFit: "cover",
-                        }}
+                      src={heroImage}
+                     alt={`Portrait de ${name}, artiste et créateur de contenus musicaux`}
+                     style={{
+                     width: "100%",
+                     objectFit: "cover",
+                      }}
                     />
                     <div
                         aria-hidden="true"
