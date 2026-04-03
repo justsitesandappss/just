@@ -1,6 +1,6 @@
 // app/nos-talents/kimo-djz/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import TalentKimoDjz from "@/components/pages/Talentkimo-djz"
 
 export default function KimoDjzPage() {
-  return <TalentKarimLipton />
+  return <TalentKimoDjz />
 }
