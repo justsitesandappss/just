@@ -1,6 +1,17 @@
-// app/nos-talents/moumlame/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import type { Metadata } from "next"
+import Header from "@/components/Header"
+import TalentMoumlame from "@/components/pages/TalentMoumlame"
 
-export default function MoumlamePage() {
-  return <TalentKarimLipton />
+export const metadata: Metadata = {
+  title: "Moumlame — Just Impact",
+  description: "L'électron libre de la Team Nasdas. Moumlame, créateur viral TikTok et Snapchat, bad boy au cœur tendre.",
+}
+
+export default function Page() {
+  return (
+    <>
+      <Header />
+      <TalentMoumlame />
+    </>
+  )
 }
