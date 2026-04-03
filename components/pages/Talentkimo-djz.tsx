@@ -606,7 +606,7 @@ interface TalentKimoDjzProps {
 
 export default function TalentKimoDjz(props: TalentKimoDjzProps) {
     const {
-        heroImage = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&q=80",
+        heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-kimodjz.jpg",
         name = "Kimo Djz",
         alias = "Le Créateur de Sons",
         handle = "@kimodjz",
