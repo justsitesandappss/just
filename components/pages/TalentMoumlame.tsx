@@ -58,7 +58,7 @@ function getSlideUp(reduced: boolean | null, delay = 0) {
 }
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLLIElement | null>(null)
+  const ref = useRef<HTMLDivElement | null>(null)
   const visible = useInView(ref, { once: true, margin: "-60px" })
   const reduced = useReducedMotion()
   return (
@@ -86,8 +86,8 @@ function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
 }
 
 function Counter({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const visible = useInView(ref, { once: true })
+  const liRef = useRef<HTMLLIElement | null>(null)
+  const visible = useInView(liRef, { once: true })
   const reduced = useReducedMotion()
   const match = value.match(/^([+\-]?)(\d+\.?\d*)(.*)$/)
   const prefix = match ? match[1] : ""
@@ -116,7 +116,7 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
 
   const display = `${prefix}${decimals > 0 ? count.toFixed(decimals) : count}${suffix}`
   return (
-    <li ref={ref} style={{ textAlign: "center", listStyle: "none" }} aria-label={`${label}: ${value}`}>
+    <li ref={liRef} style={{ textAlign: "center", listStyle: "none" }} aria-label={`${label}: ${value}`}>
       <div aria-hidden="true" style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(40px,4vw,56px)", color: "#fff", lineHeight: 1, marginBottom: 8, letterSpacing: -3, fontVariantNumeric: "tabular-nums" }}>{display}</div>
       <div style={{ fontSize: 10, color: WHITE(0.2), fontWeight: 600, letterSpacing: 4, textTransform: "uppercase", fontFamily: BODY }}>{label}</div>
       <span style={SR_ONLY}>{value} {label}</span>
