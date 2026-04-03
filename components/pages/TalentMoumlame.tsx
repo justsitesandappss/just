@@ -58,7 +58,7 @@ function getSlideUp(reduced: boolean | null, delay = 0) {
 }
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLLIElement | null>(null)
   const visible = useInView(ref, { once: true, margin: "-60px" })
   const reduced = useReducedMotion()
   return (
