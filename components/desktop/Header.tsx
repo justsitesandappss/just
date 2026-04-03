@@ -65,7 +65,17 @@ export default function HeaderDesktop() {
       return
     }
 
+    // Vient d'une autre page (ex: /just-agency) → passe par l'URL
     router.push(`/?jumpToRoom=${item.room - 1}`)
+  }
+
+  // Bouton logo JUST — retour à l'accueil en précisant la room 0
+  function handleLogoClick() {
+    if (pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      return
+    }
+    router.push("/?jumpToRoom=0")
   }
 
   useEffect(() => {
@@ -170,7 +180,7 @@ export default function HeaderDesktop() {
       }}
     >
       <button
-        onClick={() => router.push("/")}
+        onClick={handleLogoClick}
         aria-label="Just — retour à l'accueil"
         style={{
           fontFamily: DISPLAY,
