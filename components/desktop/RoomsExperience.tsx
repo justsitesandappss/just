@@ -13,7 +13,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   useMotionValue,
   useSpring,
@@ -25,6 +25,7 @@ const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EXPERIENCE_DONE_KEY = "just_rooms_experience_done_v1"
 const SIDES = ["left", "top", "right", "bottom"] as const
 const IMG_RE = /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i
+const HEADER_OFFSET = 80
 
 type Side = (typeof SIDES)[number]
 type Phase = "intro" | "transitionPlaying" | "rooms"
@@ -835,6 +836,7 @@ const IntroVideo = memo(function IntroVideo({
 
 export default function RoomsExperience() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     injectStyles()
@@ -899,6 +901,40 @@ export default function RoomsExperience() {
       window.removeEventListener("just-nav-change", handler)
     }
   }, [])
+
+  useEffect(() => {
+    const jump = searchParams.get("jumpToRoom")
+    if (jump == null) return
+
+    const idx = parseInt(jump, 10)
+
+    if (
+      Number.isNaN(idx) ||
+      idx < 0 ||
+      idx >= ALL_ROOMS.length ||
+      !ALL_ROOMS[idx]?.video
+    ) {
+      return
+    }
+
+    markExperienceAsEntered()
+    setPhaseOverride("rooms")
+    setActiveIndex(idx)
+
+    requestAnimationFrame(() => {
+      const el = document.getElementById(ROOMS_ANCHOR_ID)
+      if (!el) return
+
+      const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
+      window.scrollTo({ top, behavior: "smooth" })
+    })
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("jumpToRoom")
+    const next = params.toString()
+
+    router.replace(next ? `/?${next}` : "/", { scroll: false })
+  }, [searchParams, router])
 
   useEffect(() => {
     window.dispatchEvent(
