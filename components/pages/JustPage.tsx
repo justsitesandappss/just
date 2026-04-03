@@ -22,7 +22,7 @@ const JC = {
 const white = (o: number) => `rgba(255,255,255,${o})`
 const clampNumber = (min: number, v: number, max: number) => Math.max(min, Math.min(v, max))
 const fluidPx = (w: number, minPx: number, maxPx: number, ref = 1440) => clampNumber(minPx, Math.round(maxPx * (w / ref)), maxPx)
-function mo(reduced: boolean, active: object, fallback: object = {}) { return reduced ? fallback : active }
+function mo(reduced: boolean, active: any, fallback: any = {}) { return reduced ? fallback : active }
 function tr(reduced: boolean, duration: number, delay = 0) { return reduced ? { duration: 0 } : { duration, delay, ease: EASE } }
 function isValidEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()) }
 function onImgError(e: SyntheticEvent<HTMLImageElement>) { e.currentTarget.style.display = "none" }
