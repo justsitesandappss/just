@@ -26,6 +26,16 @@ const navItems: NavItem[] = [
   { label: "Just Prod", page: "nav5", room: 5 },
 ]
 
+const PATHNAME_TO_PAGE: Record<string, string> = {
+  "/just": "nav1",
+  "/just-impact": "nav2",
+  "/nosponsors": "nav3",
+  "/just-agency": "nav4",
+  "/nos-talents": "nav6",
+  "/media": "nav5",
+  "/podcast": "nav5",
+}
+
 export default function HeaderDesktop() {
   const pathname = usePathname()
   const router = useRouter()
@@ -36,6 +46,7 @@ export default function HeaderDesktop() {
   const navRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
+  const pendingPageRef = useRef<string | null>(null)
 
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
@@ -65,52 +76,64 @@ export default function HeaderDesktop() {
       return
     }
 
-    // Vient d'une autre page (ex: /just-agency) → passe par l'URL
+    pendingPageRef.current = item.page
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
-  // Bouton logo JUST — retour à l'accueil en précisant la room 0
   function handleLogoClick() {
     if (pathname === "/") {
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
+    pendingPageRef.current = "nav1"
     router.push("/?jumpToRoom=0")
   }
 
   useEffect(() => {
-    if (pathname === "/just-agency") {
-      setCurrent("nav4")
+    const mapped = PATHNAME_TO_PAGE[pathname]
+    if (mapped) {
+      setCurrent(mapped)
+      pendingPageRef.current = null
       return
     }
 
-    const jump = searchParams.get("jumpToRoom")
+    if (pathname === "/") {
+      const jump = searchParams.get("jumpToRoom")
 
-    if (pathname === "/" && jump !== null) {
-      const roomIndex = parseInt(jump, 10)
-      if (!Number.isNaN(roomIndex)) {
-        const match = navItems.find((item) => item.room === roomIndex + 1)
-        if (match) {
-          setCurrent(match.page)
-          return
+      if (jump !== null) {
+        const roomIndex = parseInt(jump, 10)
+        if (!Number.isNaN(roomIndex)) {
+          const match = navItems.find((item) => item.room === roomIndex + 1)
+          if (match) {
+            setCurrent(match.page)
+            pendingPageRef.current = null
+            return
+          }
         }
       }
-    }
 
-    if (pathname === "/") {
+      // "/" sans jumpToRoom
+      if (pendingPageRef.current !== null) {
+        setCurrent(pendingPageRef.current)
+        pendingPageRef.current = null
+        return
+      }
+
       setCurrent("nav1")
     }
   }, [pathname, searchParams])
 
+  // ✅ Garde uniquement just-room-changed pour la navigation INTERNE aux rooms
+  // (quand on clique les flèches entre salles depuis la home)
   useEffect(() => {
     function onRoomChanged(e: Event) {
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
-
+      // ✅ Ignore si on a un pending (transition inter-pages en cours)
+      if (pendingPageRef.current !== null) return
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
     }
-
     window.addEventListener("just-room-changed", onRoomChanged)
     return () => window.removeEventListener("just-room-changed", onRoomChanged)
   }, [])
@@ -122,21 +145,16 @@ export default function HeaderDesktop() {
       const el = itemRefs.current[targetPage]
       const nav = navRef.current
       if (!el || !nav) return
-
       const navRect = nav.getBoundingClientRect()
       const elRect = el.getBoundingClientRect()
-
       const next = {
         left: elRect.left - navRect.left,
         width: elRect.width,
       }
-
       if (next.width > 0) setPillStyle(next)
     }
-
     const t = window.setTimeout(update, 50)
     window.addEventListener("resize", update)
-
     return () => {
       window.clearTimeout(t)
       window.removeEventListener("resize", update)

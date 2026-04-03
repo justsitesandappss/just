@@ -46,8 +46,6 @@ export default function HeaderDesktop() {
   const navRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
-
-  // ✅ Stocke le page désiré pendant les transitions inter-pages → /
   const pendingPageRef = useRef<string | null>(null)
 
   function scrollToRooms() {
@@ -78,7 +76,6 @@ export default function HeaderDesktop() {
       return
     }
 
-    // ✅ Mémorise quel item doit rester actif après la navigation
     pendingPageRef.current = item.page
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
@@ -115,23 +112,25 @@ export default function HeaderDesktop() {
         }
       }
 
-      // "/" sans jumpToRoom — RoomsExperience vient de nettoyer l'URL
+      // "/" sans jumpToRoom
       if (pendingPageRef.current !== null) {
-        // ✅ Restaure l'item désiré au lieu de reset sur nav1
         setCurrent(pendingPageRef.current)
         pendingPageRef.current = null
         return
       }
 
-      // Arrivée initiale sur /
       setCurrent("nav1")
     }
   }, [pathname, searchParams])
 
+  // ✅ Garde uniquement just-room-changed pour la navigation INTERNE aux rooms
+  // (quand on clique les flèches entre salles depuis la home)
   useEffect(() => {
     function onRoomChanged(e: Event) {
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
+      // ✅ Ignore si on a un pending (transition inter-pages en cours)
+      if (pendingPageRef.current !== null) return
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
     }
