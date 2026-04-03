@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
@@ -29,10 +29,9 @@ const navItems: NavItem[] = [
 export default function HeaderDesktop() {
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [current, setCurrent] = useState(
-    pathname === "/just-agency" ? "nav4" : "nav1"
-  )
+  const [current, setCurrent] = useState("nav1")
   const [hovered, setHovered] = useState<string | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
@@ -46,18 +45,20 @@ export default function HeaderDesktop() {
   }
 
   function handleClick(item: NavItem) {
-    setCurrent(item.page)
-
     if (item.href) {
+      setCurrent(item.page)
       router.push(item.href)
       return
     }
 
     if (typeof item.room !== "number") return
 
+    setCurrent(item.page)
+
     const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
+
     if (!roomsEl) {
-      window.location.href = `/?jumpToRoom=${item.room - 1}`
+      router.push(`/?jumpToRoom=${item.room - 1}`)
       return
     }
 
@@ -73,17 +74,45 @@ export default function HeaderDesktop() {
       return
     }
 
-    if (pathname === "/" || pathname === "") {
-      if (current === "nav4") {
-        setCurrent("nav1")
+    const jump = searchParams.get("jumpToRoom")
+
+    if (jump !== null) {
+      const roomIndex = parseInt(jump, 10)
+      if (!Number.isNaN(roomIndex)) {
+        const match = navItems.find((item) => item.room === roomIndex + 1)
+        if (match) {
+          setCurrent(match.page)
+
+          const tryJump = (attempt: number) => {
+            const el = document.getElementById(ROOMS_ANCHOR_ID)
+            if (el) {
+              window.dispatchEvent(
+                new CustomEvent("just-nav-change", { detail: { roomIndex } })
+              )
+              setTimeout(scrollToRooms, 100)
+
+              const params = new URLSearchParams(searchParams.toString())
+              params.delete("jumpToRoom")
+              const next = params.toString()
+              router.replace(next ? `/?${next}` : "/", { scroll: false })
+            } else if (attempt < 20) {
+              setTimeout(() => tryJump(attempt + 1), 150)
+            }
+          }
+
+          tryJump(0)
+          return
+        }
       }
     }
-  }, [pathname, current])
+
+    if (pathname === "/") {
+      setCurrent("nav1")
+    }
+  }, [pathname, searchParams, router])
 
   useEffect(() => {
     function onRoomChanged(e: Event) {
-      if (pathname === "/just-agency") return
-
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
 
@@ -93,42 +122,7 @@ export default function HeaderDesktop() {
 
     window.addEventListener("just-room-changed", onRoomChanged)
     return () => window.removeEventListener("just-room-changed", onRoomChanged)
-  }, [pathname])
-
-  useEffect(() => {
-    if (pathname !== "/") return
-
-    const params = new URLSearchParams(window.location.search)
-    const jump = params.get("jumpToRoom")
-    if (jump == null) return
-
-    const roomIndex = parseInt(jump, 10)
-    if (Number.isNaN(roomIndex)) return
-
-    params.delete("jumpToRoom")
-    const clean = params.toString()
-    window.history.replaceState(
-      null,
-      "",
-      window.location.pathname + (clean ? `?${clean}` : "") + window.location.hash
-    )
-
-    const tryJump = (attempt: number) => {
-      const el = document.getElementById(ROOMS_ANCHOR_ID)
-      if (el) {
-        window.dispatchEvent(
-          new CustomEvent("just-nav-change", { detail: { roomIndex } })
-        )
-        const match = navItems.find((item) => item.room === roomIndex + 1)
-        if (match) setCurrent(match.page)
-        setTimeout(scrollToRooms, 100)
-      } else if (attempt < 20) {
-        setTimeout(() => tryJump(attempt + 1), 150)
-      }
-    }
-
-    tryJump(0)
-  }, [pathname])
+  }, [])
 
   const targetPage = hovered ?? current
 
