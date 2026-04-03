@@ -1,6 +1,5 @@
-// app/nos-talents/ines-hmz/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import TalentInesHmz from "@/components/pages/TalentInesHmz"
 
 export default function InesHmzPage() {
-  return <TalentKarimLipton />
+  return <TalentInesHmz />
 }
