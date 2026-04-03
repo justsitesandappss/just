@@ -396,7 +396,7 @@ export default function TalentKarimLipton() {
           style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}
         >
           <Image
-            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80"
+            src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg"
             alt="Portrait de Karim Lipton"
             fill priority
             sizes="(max-width: 1024px) 100vw, 50vw"

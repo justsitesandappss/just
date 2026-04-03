@@ -181,7 +181,7 @@ function safeExternalHref(url: string) {
 }
 
 export default function TalentRilesFreestyle() {
-    const heroImage = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=1200&q=80"
+    const heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-riles.jpg"
     const heroImageAlt = "Portrait de Riles Freestyle"
     const name = "Riles Freestyle"
     const alias = "Sensei"
