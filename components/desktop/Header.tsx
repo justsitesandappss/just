@@ -41,6 +41,9 @@ export default function HeaderDesktop() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  // ✅ FIX : extraire la valeur primitive pour que useEffect se déclenche correctement
+  const jumpToRoom = searchParams.get("jumpToRoom")
+
   const [current, setCurrent] = useState("nav1")
   const [hovered, setHovered] = useState<string | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
@@ -89,6 +92,8 @@ export default function HeaderDesktop() {
     router.push("/?jumpToRoom=0")
   }
 
+  // ✅ FIX : dépendance sur `jumpToRoom` (string | null) au lieu de `searchParams` (objet)
+  // Cela garantit que l'effet se re-déclenche à chaque changement de room dans l'URL
   useEffect(() => {
     const mapped = PATHNAME_TO_PAGE[pathname]
     if (mapped) {
@@ -98,10 +103,8 @@ export default function HeaderDesktop() {
     }
 
     if (pathname === "/") {
-      const jump = searchParams.get("jumpToRoom")
-
-      if (jump !== null) {
-        const roomIndex = parseInt(jump, 10)
+      if (jumpToRoom !== null) {
+        const roomIndex = parseInt(jumpToRoom, 10)
         if (!Number.isNaN(roomIndex)) {
           const match = navItems.find((item) => item.room === roomIndex + 1)
           if (match) {
@@ -121,15 +124,15 @@ export default function HeaderDesktop() {
 
       setCurrent("nav1")
     }
-  }, [pathname, searchParams])
+  }, [pathname, jumpToRoom]) // ✅ string primitive, pas l'objet searchParams
 
-  // ✅ Garde uniquement just-room-changed pour la navigation INTERNE aux rooms
+  // Garde uniquement just-room-changed pour la navigation INTERNE aux rooms
   // (quand on clique les flèches entre salles depuis la home)
   useEffect(() => {
     function onRoomChanged(e: Event) {
       const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
-      // ✅ Ignore si on a un pending (transition inter-pages en cours)
+      // Ignore si on a un pending (transition inter-pages en cours)
       if (pendingPageRef.current !== null) return
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
