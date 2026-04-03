@@ -20,10 +20,10 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: "Just", page: "nav1", room: 1 },
   { label: "Just Impact", page: "nav2", room: 2 },
-  { label: "Just Prod", page: "nav5", room: 5 },
-  { label: "Just Agency", page: "nav4", href: "/just-agency" },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
+  { label: "Just Agency", page: "nav4", href: "/just-agency" },
   { label: "Nos Talents", page: "nav6", room: 4 },
+  { label: "Just Prod", page: "nav5", room: 5 },
 ]
 
 export default function HeaderDesktop() {
@@ -55,17 +55,13 @@ export default function HeaderDesktop() {
 
     setCurrent(item.page)
 
-    // Si on n'est pas sur la home, on renvoie vers la home
-    // avec la room voulue dans l'URL.
+    // Hors home => on laisse uniquement l'URL piloter RoomsExperience
     if (pathname !== "/") {
       router.push(`/?jumpToRoom=${item.room - 1}`)
       return
     }
 
-    // Si on est déjà sur la home, on pilote directement l'expérience.
-    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
-    if (!roomsEl) return
-
+    // Sur la home => pilotage direct des rooms
     window.dispatchEvent(
       new CustomEvent("just-nav-change", {
         detail: { roomIndex: item.room - 1 },
@@ -83,48 +79,24 @@ export default function HeaderDesktop() {
 
     const jump = searchParams.get("jumpToRoom")
 
+    // Ici on ne déclenche AUCUN event.
+    // On synchronise juste l'état visuel du menu.
     if (pathname === "/" && jump !== null) {
       const roomIndex = parseInt(jump, 10)
 
       if (!Number.isNaN(roomIndex)) {
         const match = navItems.find((item) => item.room === roomIndex + 1)
-
         if (match) {
           setCurrent(match.page)
-
-          const tryJump = (attempt: number) => {
-            const el = document.getElementById(ROOMS_ANCHOR_ID)
-
-            if (el) {
-              window.dispatchEvent(
-                new CustomEvent("just-nav-change", {
-                  detail: { roomIndex },
-                })
-              )
-
-              setTimeout(scrollToRooms, 100)
-
-              const params = new URLSearchParams(searchParams.toString())
-              params.delete("jumpToRoom")
-              const next = params.toString()
-
-              router.replace(next ? `/?${next}` : "/", { scroll: false })
-            } else if (attempt < 20) {
-              setTimeout(() => tryJump(attempt + 1), 150)
-            }
-          }
-
-          tryJump(0)
           return
         }
       }
     }
 
-    // Seulement sur la home sans jumpToRoom
-    if (pathname === "/" && searchParams.get("jumpToRoom") === null) {
+    if (pathname === "/") {
       setCurrent("nav1")
     }
-  }, [pathname, searchParams, router])
+  }, [pathname, searchParams])
 
   useEffect(() => {
     function onRoomChanged(e: Event) {
@@ -138,10 +110,7 @@ export default function HeaderDesktop() {
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
-
-    return () => {
-      window.removeEventListener("just-room-changed", onRoomChanged)
-    }
+    return () => window.removeEventListener("just-room-changed", onRoomChanged)
   }, [])
 
   const targetPage = hovered ?? current
@@ -160,9 +129,7 @@ export default function HeaderDesktop() {
         width: elRect.width,
       }
 
-      if (next.width > 0) {
-        setPillStyle(next)
-      }
+      if (next.width > 0) setPillStyle(next)
     }
 
     const t = window.setTimeout(update, 50)
