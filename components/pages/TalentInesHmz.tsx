@@ -578,7 +578,7 @@ interface TalentInesHmzProps {
 
 export default function TalentInesHmz(props: TalentInesHmzProps) {
     const {
-        heroImage = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&q=80",
+        heroImage = "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-ineshmz.jpg",
         name = "Ines Hmz",
         alias = "La Queen",
         handle = "@ineshmz",
