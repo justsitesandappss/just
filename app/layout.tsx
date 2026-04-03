@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   },
   description:
     "Agence d'influence, production et conciergerie premium, Just crée des campagnes, contenus et expériences sur mesure pour les marques.",
-  metadataBase: new URL("https://just.com"),
+  metadataBase: new URL("https://justagency-inc.com"),
 
   alternates: {
     canonical: "/",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Just — Agence d'influence, production & conciergerie",
     description:
       "Just crée des campagnes, contenus et expériences sur mesure pour les marques.",
-    url: "https://just.com",
+    url: "https://justagency-inc.com",
     siteName: "Just",
     locale: "fr_FR",
     type: "website",
@@ -79,9 +79,10 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Just",
-    url: "https://just.com",
+    url: "https://justagency-inc.com",
     description:
       "Agence d'influence, production et conciergerie premium.",
+    logo: "https://justagency-inc.com/icon.svg",
   }
 
   return (
@@ -89,14 +90,14 @@ export default function RootLayout({
       <body>
         <a
           href="#contenu-principal"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded-md"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-9999 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded-md"
         >
           Aller au contenu principal
         </a>
 
         <Header />
 
-        <main id="contenu-principal">
+        <main id="contenu-principal" role="main">
           {children}
         </main>
 
