@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, useCallback, useId } from "react"
+import { useEffect, useRef, useState, useCallback, useId } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 
 const DISPLAY = "'Syne', sans-serif"
@@ -320,13 +320,13 @@ export default function JustAgencyPage() {
         </p>
         <div style={{ maxWidth: Math.min(1280, vw - (mobile ? 48 : tablet ? 80 : 144)), position: "relative", zIndex: 1 }}>
           <h1 style={{ fontFamily: DISPLAY, fontWeight: 800, lineHeight: 0.94, color: COLORS.text, margin: 0, letterSpacing: mobile ? -1 : -4, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>
-  <span style={{ display: "block", fontSize: heroTitle1Size, overflowWrap: "break-word", wordBreak: "break-word" }}>L'impossible</span>
-  <span style={{ display: "block", color: "rgba(255,255,255,0.52)", fontSize: heroTitle2Size, overflowWrap: "break-word", wordBreak: "break-word" }}>n'est qu'une</span>
-  <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.78)", fontSize: heroTitle3Size, overflowWrap: "break-word", wordBreak: "break-word" }}>question de temps.</span>
-</h1>
+            <span style={{ display: "block", fontSize: heroTitle1Size, overflowWrap: "break-word", wordBreak: "break-word" }}>L&apos;impossible</span>
+            <span style={{ display: "block", color: "rgba(255,255,255,0.52)", fontSize: heroTitle2Size, overflowWrap: "break-word", wordBreak: "break-word" }}>n&apos;est qu&apos;une</span>
+            <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.78)", fontSize: heroTitle3Size, overflowWrap: "break-word", wordBreak: "break-word" }}>question de temps.</span>
+          </h1>
         </div>
         <p style={{ margin: "36px 0 0 0", fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: COLORS.textBody, fontWeight: 300, position: "relative", zIndex: 1 }}>
-          Just Agency est la conciergerie de luxe de JUST. Nous orchestrons l'inaccessible, des jets privés aux villas d'exception, pour transformer chaque demande en expérience sur mesure.
+          Just Agency est la conciergerie de luxe de JUST. Nous orchestrons l&apos;inaccessible, des jets privés aux villas d&apos;exception, pour transformer chaque demande en expérience sur mesure.
         </p>
       </header>
 
@@ -336,7 +336,7 @@ export default function JustAgencyPage() {
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.34) 30%, transparent 50%)", pointerEvents: "none" }} />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.34) 42%, rgba(0,0,0,0.14) 100%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: mobile ? 28 : 56, left: mobile ? 24 : tablet ? 40 : 72, right: mobile ? 24 : tablet ? 40 : 72 }}>
-            <p style={{ margin: "0 0 10px 0", fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textMuted, fontFamily: BODY }}>L'art du sur mesure</p>
+            <p style={{ margin: "0 0 10px 0", fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textMuted, fontFamily: BODY }}>L&apos;art du sur mesure</p>
             <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(28px,4vw,52px)", color: COLORS.text, lineHeight: 1, letterSpacing: -2 }}>Chaque détail compte.</h2>
           </div>
         </section>
@@ -372,7 +372,7 @@ export default function JustAgencyPage() {
                   <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.88)", letterSpacing: mobile ? -1 : -3 }}>de votre projet.</span>
                 </h2>
                 <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: COLORS.textBody, fontWeight: 300 }}>
-                  Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l'entité et l'expertise qu'il vous faut. Remplissez le formulaire, on revient vers vous sous 24h.
+                  Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l&apos;entité et l&apos;expertise qu&apos;il vous faut. Remplissez le formulaire, on revient vers vous sous 24h.
                 </p>
               </div>
             </Reveal>
@@ -395,7 +395,7 @@ export default function JustAgencyPage() {
                     <section style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 14px" }}>Formulaire</p>
                       <h3 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(32px,4vw,48px)", color: "#fff", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>Dites-nous tout.</h3>
-                      <p style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: COLORS.textBody, maxWidth: 620 }}>Les champs marqués d'un astérisque sont obligatoires.</p>
+                      <p style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: COLORS.textBody, maxWidth: 620 }}>Les champs marqués d&apos;un astérisque sont obligatoires.</p>
                       <form onSubmit={handleSubmit} noValidate>
                         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
                           <div className="jag-two-cols" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 44 }}>
@@ -435,7 +435,7 @@ export default function JustAgencyPage() {
                   <div style={{ padding: mobile ? "24px" : "28px", borderRadius: 20, background: "rgba(255,255,255,0.02)", border: `1px solid ${COLORS.borderSoft}` }}>
                     <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: COLORS.textMuted, marginBottom: 16, marginTop: 0 }}>Note</p>
                     <blockquote style={{ margin: 0, fontFamily: DISPLAY, fontSize: mobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: "rgba(255,255,255,0.75)", fontStyle: "italic", letterSpacing: -0.8 }}>
-                      "Chaque projet commence par une conversation. La vôtre commence ici."
+                      &ldquo;Chaque projet commence par une conversation. La vôtre commence ici.&rdquo;
                     </blockquote>
                   </div>
                 </aside>
