@@ -788,6 +788,7 @@ export default function RoomsExperience() {
     [router]
   )
 
+  // ✅ Fix: setTimeout pour éviter les cascading renders
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ roomIndex?: number }>).detail
@@ -801,8 +802,10 @@ export default function RoomsExperience() {
         return
       }
       markExperienceAsEntered()
-      setPhaseOverride("rooms")
-      setActiveIndex(idx)
+      setTimeout(() => {
+        setPhaseOverride("rooms")
+        setActiveIndex(idx)
+      }, 0)
     }
     window.addEventListener("just-nav-change", handler)
     return () => {
@@ -810,6 +813,7 @@ export default function RoomsExperience() {
     }
   }, [])
 
+  // ✅ Fix: setTimeout pour éviter les cascading renders
   useEffect(() => {
     const jump = searchParams.get("jumpToRoom")
     if (jump == null) {
@@ -829,8 +833,10 @@ export default function RoomsExperience() {
       return
     }
     markExperienceAsEntered()
-    setPhaseOverride("rooms")
-    setActiveIndex(idx)
+    setTimeout(() => {
+      setPhaseOverride("rooms")
+      setActiveIndex(idx)
+    }, 0)
     requestAnimationFrame(() => {
       const el = document.getElementById(ROOMS_ANCHOR_ID)
       if (!el) return

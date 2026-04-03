@@ -22,8 +22,8 @@ const navItems: NavItem[] = [
   { label: "Just Impact", page: "nav2", room: 2 },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
   { label: "Just Agency", page: "nav4", href: "/just-agency" },
-  { label: "Nos Talents", page: "nav5", room: 4 }, // ✅ corrigé: nav5 au lieu de nav6
-  { label: "Just Prod", page: "nav6", room: 5 },   // ✅ corrigé: nav6 au lieu de nav5
+  { label: "Nos Talents", page: "nav5", room: 4 },
+  { label: "Just Prod", page: "nav6", room: 5 },
 ]
 
 const PATHNAME_TO_PAGE: Record<string, string> = {
@@ -31,8 +31,8 @@ const PATHNAME_TO_PAGE: Record<string, string> = {
   "/just-impact": "nav2",
   "/nosponsors": "nav3",
   "/just-agency": "nav4",
-  "/nos-talents": "nav5", // ✅ corrigé: nav5
-  "/just-prod": "nav6",   // ✅ ajouté
+  "/nos-talents": "nav5",
+  "/just-prod": "nav6",
   "/media": "nav6",
   "/podcast": "nav6",
 }
@@ -94,8 +94,9 @@ export default function HeaderDesktop() {
 
   useEffect(() => {
     const mapped = PATHNAME_TO_PAGE[pathname]
+
     if (mapped) {
-      setCurrent(mapped)
+      setTimeout(() => setCurrent(mapped), 0)
       pendingPageRef.current = null
       return
     }
@@ -106,7 +107,7 @@ export default function HeaderDesktop() {
         if (!Number.isNaN(roomIndex)) {
           const match = navItems.find((item) => item.room === roomIndex + 1)
           if (match) {
-            setCurrent(match.page)
+            setTimeout(() => setCurrent(match.page), 0)
             pendingPageRef.current = null
             return
           }
@@ -114,12 +115,13 @@ export default function HeaderDesktop() {
       }
 
       if (pendingPageRef.current !== null) {
-        setCurrent(pendingPageRef.current)
+        const pending = pendingPageRef.current
+        setTimeout(() => setCurrent(pending), 0)
         pendingPageRef.current = null
         return
       }
 
-      setCurrent("nav1")
+      setTimeout(() => setCurrent("nav1"), 0)
     }
   }, [pathname, jumpToRoom])
 
