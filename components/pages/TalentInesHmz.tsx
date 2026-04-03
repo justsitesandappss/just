@@ -321,7 +321,7 @@ function Counter({
     const suffix = match?.groups?.suffix ?? value
     const decimals =
         match?.groups?.num?.includes(".") ?? false
-            ? (match.groups.num.split(".")[1] || "").length
+            ? ((match.groups.num ?? "").split(".")[1] || "").length
             : 0
 
     const [count, setCount] = useState(0)
