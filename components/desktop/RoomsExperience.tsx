@@ -77,28 +77,23 @@ const ARROW_INSET = 20
 const ALL_ROOMS: Room[] = [
   {
     label: "Just",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just.mp4",
   },
   {
     label: "Just Impact",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Impact.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Impact.mp4",
   },
   {
     label: "Sponsors",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-SPONSORS.jpg",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-SPONSORS.jpg",
   },
   {
     label: "Nos Talents",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-NOSTALENTS.jpg",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/SALLE-NOSTALENTS.jpg",
   },
   {
     label: "Just Prod",
-    video:
-      "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4",
+    video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4",
   },
 ]
 
@@ -115,12 +110,7 @@ const HOTSPOTS: Hotspot[][] = [
 
 const EDGES: Record<number, Record<Side, EdgeConfig>> = {
   0: {
-    left: {
-      show: true,
-      target: 1,
-      pageUrl: "/just-agency",
-      pageLabel: "Just Agency",
-    },
+    left: { show: true, target: 1, pageUrl: "/just-agency", pageLabel: "Just Agency" },
     top: { show: false, target: 1, pageUrl: "", pageLabel: "" },
     right: { show: true, target: 2, pageUrl: "", pageLabel: "Just Impact" },
     bottom: { show: true, target: 5, pageUrl: "", pageLabel: "Just Prod" },
@@ -152,38 +142,10 @@ const EDGES: Record<number, Record<Side, EdgeConfig>> = {
 }
 
 const EDGE_POS: Record<Side, CSSProperties> = {
-  left: {
-    position: "absolute",
-    zIndex: 8,
-    pointerEvents: "all",
-    left: ARROW_INSET,
-    top: "50%",
-    transform: "translateY(-50%)",
-  },
-  right: {
-    position: "absolute",
-    zIndex: 8,
-    pointerEvents: "all",
-    right: ARROW_INSET,
-    top: "50%",
-    transform: "translateY(-50%)",
-  },
-  top: {
-    position: "absolute",
-    zIndex: 8,
-    pointerEvents: "all",
-    top: ARROW_INSET,
-    left: "50%",
-    transform: "translateX(-50%)",
-  },
-  bottom: {
-    position: "absolute",
-    zIndex: 8,
-    pointerEvents: "all",
-    bottom: ARROW_INSET,
-    left: "50%",
-    transform: "translateX(-50%)",
-  },
+  left: { position: "absolute", zIndex: 8, pointerEvents: "all", left: ARROW_INSET, top: "50%", transform: "translateY(-50%)" },
+  right: { position: "absolute", zIndex: 8, pointerEvents: "all", right: ARROW_INSET, top: "50%", transform: "translateY(-50%)" },
+  top: { position: "absolute", zIndex: 8, pointerEvents: "all", top: ARROW_INSET, left: "50%", transform: "translateX(-50%)" },
+  bottom: { position: "absolute", zIndex: 8, pointerEvents: "all", bottom: ARROW_INSET, left: "50%", transform: "translateX(-50%)" },
 }
 
 function isImage(url: string): boolean {
@@ -208,9 +170,7 @@ function markExperienceAsEntered(): void {
   if (typeof window === "undefined") return
   try {
     window.sessionStorage.setItem(EXPERIENCE_DONE_KEY, "1")
-  } catch {
-    //
-  }
+  } catch {}
 }
 
 let stylesInjected = false
@@ -266,10 +226,7 @@ function useParallaxRAF(
       if (!node) return
       const currentX = x.get()
       const currentY = y.get()
-      if (
-        Math.abs(currentX - lastX) > 0.01 ||
-        Math.abs(currentY - lastY) > 0.01
-      ) {
+      if (Math.abs(currentX - lastX) > 0.01 || Math.abs(currentY - lastY) > 0.01) {
         node.style.transform = `scale(${zoom}) translate3d(${currentX}px, ${currentY}px, 0)`
         lastX = currentX
         lastY = currentY
@@ -286,164 +243,58 @@ function useParallaxRAF(
 
 const ArrowIcon = memo(function ArrowIcon({ side }: { side: Side }) {
   return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      style={{
-        display: "block",
-        flexShrink: 0,
-        transform: `rotate(${ARROW_ROT[side]}deg)`,
-      }}
-    >
-      <path
-        d="M5 12H19M19 12L13 6M19 12L13 18"
-        stroke="#fff"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "block", flexShrink: 0, transform: `rotate(${ARROW_ROT[side]}deg)` }}>
+      <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 })
 
-type EdgeArrowButtonProps = {
-  side: Side
-  label: string
-  onClick: () => void
-}
-
-const EdgeArrowButton = memo(function EdgeArrowButton({
-  side,
-  label,
-  onClick,
-}: EdgeArrowButtonProps) {
+const EdgeArrowButton = memo(function EdgeArrowButton({ side, label, onClick }: { side: Side; label: string; onClick: () => void }) {
   const [pressed, setPressed] = useState(false)
   const arrowFirst = side === "left" || side === "top"
   return (
     <div style={EDGE_POS[side]}>
       <div
-        role="button"
-        tabIndex={0}
-        aria-label={label}
-        onClick={onClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault()
-            onClick()
-          }
-        }}
-        onPointerDown={() => setPressed(true)}
-        onPointerUp={() => setPressed(false)}
-        onPointerLeave={() => setPressed(false)}
+        role="button" tabIndex={0} aria-label={label} onClick={onClick}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick() } }}
+        onPointerDown={() => setPressed(true)} onPointerUp={() => setPressed(false)} onPointerLeave={() => setPressed(false)}
         style={{
-          height: ARROW_SIZE,
-          borderRadius: ARROW_SIZE / 2,
-          border: "1px solid rgba(255,255,255,0.14)",
-          background: "rgba(18,18,18,0.82)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          color: "#fff",
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          pointerEvents: "all",
-          touchAction: "manipulation",
-          padding: label ? "0 16px" : "0",
-          gap: label ? 8 : 0,
-          minWidth: ARROW_SIZE,
-          whiteSpace: "nowrap",
-          transform: pressed ? "scale(0.94)" : "scale(1)",
-          opacity: pressed ? 0.82 : 1,
-          transition: "transform 0.15s ease, opacity 0.15s ease",
-          willChange: "transform",
+          height: ARROW_SIZE, borderRadius: ARROW_SIZE / 2, border: "1px solid rgba(255,255,255,0.14)",
+          background: "rgba(18,18,18,0.82)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+          color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer", pointerEvents: "all", touchAction: "manipulation",
+          padding: label ? "0 16px" : "0", gap: label ? 8 : 0, minWidth: ARROW_SIZE, whiteSpace: "nowrap",
+          transform: pressed ? "scale(0.94)" : "scale(1)", opacity: pressed ? 0.82 : 1,
+          transition: "transform 0.15s ease, opacity 0.15s ease", willChange: "transform",
         }}
       >
         {arrowFirst && <ArrowIcon side={side} />}
-        {label ? (
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              fontFamily: "'Outfit', system-ui, sans-serif",
-              letterSpacing: "0.12em",
-              lineHeight: 1,
-              userSelect: "none",
-              textTransform: "uppercase",
-            }}
-          >
-            {label}
-          </span>
-        ) : null}
+        {label ? <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'Outfit', system-ui, sans-serif", letterSpacing: "0.12em", lineHeight: 1, userSelect: "none", textTransform: "uppercase" }}>{label}</span> : null}
         {!arrowFirst && <ArrowIcon side={side} />}
       </div>
     </div>
   )
 })
 
-type HotspotBtnProps = Hotspot & {
-  onNavigate: (url: string) => void
-}
-
-const HotspotBtn = memo(function HotspotBtn({
-  label,
-  x,
-  y,
-  url,
-  onNavigate,
-}: HotspotBtnProps) {
+const HotspotBtn = memo(function HotspotBtn({ label, x, y, url, onNavigate }: Hotspot & { onNavigate: (url: string) => void }) {
   const [hovered, setHovered] = useState(false)
   if (!label) return null
-  const goToUrl = () => {
-    if (!url) return
-    markExperienceAsEntered()
-    onNavigate(url)
-  }
+  const goToUrl = () => { if (!url) return; markExperienceAsEntered(); onNavigate(url) }
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      onClick={goToUrl}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
-          goToUrl()
-        }
-      }}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      role="button" tabIndex={0} aria-label={label} onClick={goToUrl}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToUrl() } }}
+      onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
       style={{
-        position: "absolute",
-        left: `${x}%`,
-        top: `${y}%`,
-        transform: hovered
-          ? "translate(-50%,-50%) scale(1.04)"
-          : "translate(-50%,-50%) scale(1)",
-        zIndex: 9,
-        cursor: url ? "pointer" : "default",
-        display: "flex",
-        alignItems: "center",
-        background: "rgba(18,18,18,0.82)",
-        border: "1px solid rgba(255,255,255,0.14)",
-        borderRadius: 100,
-        padding: "8px 16px",
-        color: "#fff",
-        fontSize: 12,
-        fontFamily: "'Outfit', system-ui, sans-serif",
-        fontWeight: 600,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        whiteSpace: "nowrap",
-        backdropFilter: "blur(10px)",
-        userSelect: "none",
-        pointerEvents: "all",
+        position: "absolute", left: `${x}%`, top: `${y}%`,
+        transform: hovered ? "translate(-50%,-50%) scale(1.04)" : "translate(-50%,-50%) scale(1)",
+        zIndex: 9, cursor: url ? "pointer" : "default", display: "flex", alignItems: "center",
+        background: "rgba(18,18,18,0.82)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 100,
+        padding: "8px 16px", color: "#fff", fontSize: 12, fontFamily: "'Outfit', system-ui, sans-serif",
+        fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", whiteSpace: "nowrap",
+        backdropFilter: "blur(10px)", userSelect: "none", pointerEvents: "all",
         animation: "jr-fade-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
-        transition: "transform 0.15s ease",
-        willChange: "transform",
+        transition: "transform 0.15s ease", willChange: "transform",
       }}
     >
       {label}
@@ -451,55 +302,17 @@ const HotspotBtn = memo(function HotspotBtn({
   )
 })
 
-type ParallaxLayerProps = {
-  zoom: number
-  x: MotionValue<number>
-  y: MotionValue<number>
-  children: ReactNode
-}
-
-const ParallaxLayer = memo(function ParallaxLayer({
-  zoom,
-  x,
-  y,
-  children,
-}: ParallaxLayerProps) {
+const ParallaxLayer = memo(function ParallaxLayer({ zoom, x, y, children }: { zoom: number; x: MotionValue<number>; y: MotionValue<number>; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   useParallaxRAF(ref, true, zoom, x, y)
   return (
-    <div
-      ref={ref}
-      style={{
-        position: "absolute",
-        inset: 0,
-        transformOrigin: "center",
-        willChange: "transform",
-        zIndex: 5,
-        pointerEvents: "auto",
-      }}
-    >
+    <div ref={ref} style={{ position: "absolute", inset: 0, transformOrigin: "center", willChange: "transform", zIndex: 5, pointerEvents: "auto" }}>
       {children}
     </div>
   )
 })
 
-type VideoSlotProps = {
-  room: Room
-  isActive: boolean
-  isNeighbor: boolean
-  zoom: number
-  x: MotionValue<number>
-  y: MotionValue<number>
-}
-
-const VideoSlot = memo(function VideoSlot({
-  room,
-  isActive,
-  isNeighbor,
-  zoom,
-  x,
-  y,
-}: VideoSlotProps) {
+const VideoSlot = memo(function VideoSlot({ room, isActive, isNeighbor, zoom, x, y }: VideoSlotProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const isImg = isImage(room.video)
@@ -523,86 +336,27 @@ const VideoSlot = memo(function VideoSlot({
       return
     }
     if (playPromiseRef.current) {
-      playPromiseRef.current
-        .then(() => { el.pause() })
-        .catch(() => { el.pause() })
+      playPromiseRef.current.then(() => { el.pause() }).catch(() => { el.pause() })
       playPromiseRef.current = null
     } else {
       el.pause()
     }
   }, [isActive, isImg])
   if (!isActive && !isNeighbor) return null
-  const mediaStyle: CSSProperties = {
-    objectFit: "cover",
-    pointerEvents: "none",
-  }
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        opacity: isActive ? 1 : 0,
-        transition: "opacity 0.35s ease",
-        zIndex: isActive ? 1 : 0,
-        pointerEvents: "none",
-        visibility: isActive ? "visible" : "hidden",
-      }}
-    >
-      <div
-        ref={wrapRef}
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          transform: `scale(${zoom})`,
-          transformOrigin: "center",
-          willChange: isActive ? "transform" : "auto",
-          overflow: "hidden",
-        }}
-      >
+    <div style={{ position: "absolute", inset: 0, opacity: isActive ? 1 : 0, transition: "opacity 0.35s ease", zIndex: isActive ? 1 : 0, pointerEvents: "none", visibility: isActive ? "visible" : "hidden" }}>
+      <div ref={wrapRef} style={{ position: "relative", width: "100%", height: "100%", transform: `scale(${zoom})`, transformOrigin: "center", willChange: isActive ? "transform" : "auto", overflow: "hidden" }}>
         {isImg ? (
-          <Image
-            src={room.video}
-            alt={room.label}
-            fill
-            unoptimized
-            priority={isActive}
-            sizes="65vw"
-            draggable={false}
-            style={mediaStyle}
-          />
+          <Image src={room.video} alt={room.label} fill unoptimized priority={isActive} sizes="65vw" draggable={false} style={{ objectFit: "cover", pointerEvents: "none" }} />
         ) : (
-          <video
-            ref={videoRef}
-            src={room.video}
-            muted
-            loop
-            playsInline
-            preload={isActive ? "auto" : "metadata"}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-              pointerEvents: "none",
-            }}
-            aria-label={room.label}
-          />
+          <video ref={videoRef} src={room.video} muted loop playsInline preload={isActive ? "auto" : "metadata"} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} aria-label={room.label} />
         )}
       </div>
     </div>
   )
 })
 
-type TransitionVideoProps = {
-  src: string
-  onEnd: () => void
-}
-
-const TransitionVideo = memo(function TransitionVideo({
-  src,
-  onEnd,
-}: TransitionVideoProps) {
+const TransitionVideo = memo(function TransitionVideo({ src, onEnd }: { src: string; onEnd: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [fadeOut, setFadeOut] = useState(false)
   useEffect(() => {
@@ -611,57 +365,18 @@ const TransitionVideo = memo(function TransitionVideo({
     let timeoutId: ReturnType<typeof setTimeout> | undefined
     el.currentTime = 0
     el.play().catch(() => {})
-    const handleEnded = () => {
-      setFadeOut(true)
-      timeoutId = setTimeout(() => { onEnd() }, 700)
-    }
+    const handleEnded = () => { setFadeOut(true); timeoutId = setTimeout(() => { onEnd() }, 700) }
     el.addEventListener("ended", handleEnded)
-    return () => {
-      el.removeEventListener("ended", handleEnded)
-      if (timeoutId) clearTimeout(timeoutId)
-    }
+    return () => { el.removeEventListener("ended", handleEnded); if (timeoutId) clearTimeout(timeoutId) }
   }, [onEnd])
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 25,
-        background: "#000",
-        pointerEvents: "none",
-        opacity: fadeOut ? 0 : 1,
-        transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1)",
-      }}
-    >
-      <video
-        ref={videoRef}
-        src={src}
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          display: "block",
-        }}
-      />
+    <div style={{ position: "absolute", inset: 0, zIndex: 25, background: "#000", pointerEvents: "none", opacity: fadeOut ? 0 : 1, transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1)" }}>
+      <video ref={videoRef} src={src} muted playsInline preload="auto" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
     </div>
   )
 })
 
-type IntroVideoProps = {
-  src: string
-  onExplore: () => void
-}
-
-const IntroVideo = memo(function IntroVideo({
-  src,
-  onExplore,
-}: IntroVideoProps) {
+const IntroVideo = memo(function IntroVideo({ src, onExplore }: { src: string; onExplore: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(false)
   const [btnHovered, setBtnHovered] = useState(false)
@@ -672,81 +387,26 @@ const IntroVideo = memo(function IntroVideo({
   }, [src])
   return (
     <div style={{ position: "absolute", inset: 0, zIndex: 30, background: "#000" }}>
-      <video
-        ref={videoRef}
-        src={src}
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.22)",
-          pointerEvents: "none",
-        }}
-      />
+      <video ref={videoRef} src={src} muted loop playsInline preload="auto" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.22)", pointerEvents: "none" }} />
       {visible ? (
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "80%",
-            transform: "translate(-50%,-50%)",
-            zIndex: 2,
-            animation: "jr-btn-in 0.65s cubic-bezier(0.22,1,0.36,1) both",
-          }}
-        >
+        <div style={{ position: "absolute", left: "50%", top: "80%", transform: "translate(-50%,-50%)", zIndex: 2, animation: "jr-btn-in 0.65s cubic-bezier(0.22,1,0.36,1) both" }}>
           <button
-            onClick={onExplore}
-            onPointerOver={() => setBtnHovered(true)}
-            onPointerOut={() => setBtnHovered(false)}
+            onClick={onExplore} onPointerOver={() => setBtnHovered(true)} onPointerOut={() => setBtnHovered(false)}
             aria-label="Explorer l'expérience"
             style={{
-              fontFamily: "'Outfit', system-ui, sans-serif",
-              fontSize: 18,
-              fontWeight: 800,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "#fff",
-              background: "rgba(0,0,0,0.35)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              borderRadius: 999,
-              padding: "12px 28px",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 16,
-              backdropFilter: "blur(10px)",
-              transform: btnHovered ? "scale(1.06)" : "scale(1)",
-              opacity: btnHovered ? 0.8 : 1,
-              transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s",
-              whiteSpace: "nowrap",
+              fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 18, fontWeight: 800, letterSpacing: "0.18em",
+              textTransform: "uppercase", color: "#fff", background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: 999, padding: "12px 28px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 16,
+              backdropFilter: "blur(10px)", transform: btnHovered ? "scale(1.06)" : "scale(1)", opacity: btnHovered ? 0.8 : 1,
+              transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s", whiteSpace: "nowrap",
               textShadow: "0 0 20px rgba(255,255,255,0.9), 0 4px 20px rgba(0,0,0,0.6)",
               boxShadow: "0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
             }}
           >
             Explorer
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-              style={{ filter: "drop-shadow(0 0 12px rgba(255,255,255,0.7))" }}
-            >
-              <path
-                d="M5 12H19M19 12L13 6M19 12L13 18"
-                stroke="#fff"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ filter: "drop-shadow(0 0 12px rgba(255,255,255,0.7))" }}>
+              <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
@@ -759,98 +419,56 @@ export default function RoomsExperience() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  useEffect(() => {
-    injectStyles()
-  }, [])
+  useEffect(() => { injectStyles() }, [])
 
   const hydrated = useHydrated()
-
   const [phaseOverride, setPhaseOverride] = useState<Phase | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
-
   const jumpHandled = useRef(false)
-
-  // ✅ Ignore le dispatch au premier mount
+  // ✅ Ignore le dispatch just-room-changed au premier mount
   const hasMountedRef = useRef(false)
 
   const phase: Phase = phaseOverride
     ? phaseOverride
     : hydrated
-      ? hasEnteredExperience()
-        ? "rooms"
-        : INTRO_VIDEO
-          ? "intro"
-          : "rooms"
+      ? hasEnteredExperience() ? "rooms" : INTRO_VIDEO ? "intro" : "rooms"
       : "intro"
 
   const containerRef = useRef<HTMLDivElement>(null)
   const rafMove = useRef<number>(0)
-
   const mouseX = useMotionValue(0.5)
   const mouseY = useMotionValue(0.5)
-
   const rawX = useTransform(mouseX, [0, 1], [STRENGTH, -STRENGTH])
   const rawY = useTransform(mouseY, [0, 1], [STRENGTH, -STRENGTH])
-
   const x = useSpring(rawX, { stiffness: 40, damping: 25, mass: 1.2 })
   const y = useSpring(rawY, { stiffness: 40, damping: 25, mass: 1.2 })
 
-  const navigate = useCallback(
-    (url: string) => {
-      router.push(url)
-    },
-    [router]
-  )
+  const navigate = useCallback((url: string) => { router.push(url) }, [router])
 
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ roomIndex?: number }>).detail
       const idx = detail?.roomIndex
-      if (
-        typeof idx !== "number" ||
-        idx < 0 ||
-        idx >= ALL_ROOMS.length ||
-        !ALL_ROOMS[idx]?.video
-      ) {
-        return
-      }
+      if (typeof idx !== "number" || idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return
       markExperienceAsEntered()
       setPhaseOverride("rooms")
       setActiveIndex(idx)
     }
     window.addEventListener("just-nav-change", handler)
-    return () => {
-      window.removeEventListener("just-nav-change", handler)
-    }
+    return () => { window.removeEventListener("just-nav-change", handler) }
   }, [])
 
   useEffect(() => {
     const jump = searchParams.get("jumpToRoom")
-
-    if (jump == null) {
-      jumpHandled.current = false
-      return
-    }
-
+    if (jump == null) { jumpHandled.current = false; return }
     if (jumpHandled.current) return
-
     const idx = parseInt(jump, 10)
     jumpHandled.current = true
     router.replace("/", { scroll: false })
-
-    if (
-      Number.isNaN(idx) ||
-      idx < 0 ||
-      idx >= ALL_ROOMS.length ||
-      !ALL_ROOMS[idx]?.video
-    ) {
-      return
-    }
-
+    if (Number.isNaN(idx) || idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return
     markExperienceAsEntered()
     setPhaseOverride("rooms")
     setActiveIndex(idx)
-
     requestAnimationFrame(() => {
       const el = document.getElementById(ROOMS_ANCHOR_ID)
       if (!el) return
@@ -859,12 +477,19 @@ export default function RoomsExperience() {
     })
   }, [searchParams, router])
 
-  // ✅ Ne dispatch PAS au premier render — laisse le header gérer via pendingPageRef
+  // ✅ Ne dispatch PAS au premier render pour ne pas écraser pendingPageRef du header
   useEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true
       return
     }
+    window.dispatchEvent(
+      new CustomEvent("just-room-changed", {
+        detail: { roomIndex: activeIndex },
+      })
+    )
+  }, [activeIndex])
+
   const handleMouseMove = useCallback(
     (e: ReactMouseEvent<HTMLDivElement>) => {
       if (rafMove.current) return
@@ -884,10 +509,7 @@ export default function RoomsExperience() {
   )
 
   const handleMouseLeave = useCallback(() => {
-    if (rafMove.current) {
-      window.cancelAnimationFrame(rafMove.current)
-      rafMove.current = 0
-    }
+    if (rafMove.current) { window.cancelAnimationFrame(rafMove.current); rafMove.current = 0 }
     mouseX.set(0.5)
     mouseY.set(0.5)
   }, [mouseX, mouseY])
@@ -895,10 +517,7 @@ export default function RoomsExperience() {
   const handleEdgeClick = useCallback(
     (edge: EdgeConfig) => {
       markExperienceAsEntered()
-      if (edge.pageUrl) {
-        navigate(edge.pageUrl)
-        return
-      }
+      if (edge.pageUrl) { navigate(edge.pageUrl); return }
       const idx = edge.target - 1
       if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
         setPhaseOverride("rooms")
@@ -911,7 +530,6 @@ export default function RoomsExperience() {
   const currentRoom = ALL_ROOMS[activeIndex]
   const currentEdges = EDGES[activeIndex] ?? EMPTY_EDGE
   const currentHotspots = HOTSPOTS[activeIndex] ?? []
-
   const roomsVisible = phase === "rooms"
   const showTransition = phase === "transitionPlaying"
   const showIntro = phase === "intro"
@@ -921,130 +539,45 @@ export default function RoomsExperience() {
     const edge = currentEdges[side]
     if (edge.show && !edge.pageUrl) {
       const idx = edge.target - 1
-      if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
-        neighborIndices.add(idx)
-      }
+      if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) neighborIndices.add(idx)
     }
   }
 
   if (!hydrated) {
     return (
-      <div
-        aria-hidden="true"
-        style={{
-          width: "65%",
-          margin: "0 auto",
-          aspectRatio: "16/9",
-          background: "#000",
-          borderRadius: RADIUS,
-        }}
-      />
+      <div aria-hidden="true" style={{ width: "65%", margin: "0 auto", aspectRatio: "16/9", background: "#000", borderRadius: RADIUS }} />
     )
   }
 
   return (
-    <section
-      aria-label="Expérience immersive Just"
-      style={{
-        width: "100%",
-        background: "#000",
-        padding: "0 0 48px",
-      }}
-    >
+    <section aria-label="Expérience immersive Just" style={{ width: "100%", background: "#000", padding: "0 0 48px" }}>
       <div
-        id={ROOMS_ANCHOR_ID}
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          width: "65%",
-          margin: "0 auto",
-          aspectRatio: "16/9",
-          position: "relative",
-          borderRadius: RADIUS,
-          background: "#000",
-          overflow: "hidden",
-          contain: "layout style paint",
-        }}
+        id={ROOMS_ANCHOR_ID} ref={containerRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}
+        style={{ width: "65%", margin: "0 auto", aspectRatio: "16/9", position: "relative", borderRadius: RADIUS, background: "#000", overflow: "hidden", contain: "layout style paint" }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "hidden",
-            borderRadius: RADIUS,
-            zIndex: 1,
-          }}
-        >
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: RADIUS, zIndex: 1 }}>
           {ALL_ROOMS.map((room, index) =>
             room.video ? (
-              <VideoSlot
-                key={room.label}
-                room={room}
-                isActive={index === activeIndex}
-                isNeighbor={neighborIndices.has(index)}
-                zoom={ZOOM}
-                x={x}
-                y={y}
-              />
+              <VideoSlot key={room.label} room={room} isActive={index === activeIndex} isNeighbor={neighborIndices.has(index)} zoom={ZOOM} x={x} y={y} />
             ) : null
           )}
-
           <ParallaxLayer zoom={ZOOM} x={x} y={y}>
             {currentHotspots.map((spot, index) =>
-              spot.label ? (
-                <HotspotBtn
-                  key={`${activeIndex}-h${index}`}
-                  {...spot}
-                  onNavigate={navigate}
-                />
-              ) : null
+              spot.label ? <HotspotBtn key={`${activeIndex}-h${index}`} {...spot} onNavigate={navigate} /> : null
             )}
           </ParallaxLayer>
-
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 6,
-              pointerEvents: "none",
-              background:
-                "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)",
-            }}
-          />
+          <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none", background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)" }} />
         </div>
 
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 10,
-            pointerEvents: "none",
-            opacity: roomsVisible ? 1 : 0,
-            transition: "opacity 0.5s ease",
-          }}
-        >
+        <div style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none", opacity: roomsVisible ? 1 : 0, transition: "opacity 0.5s ease" }}>
           <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
             <div
               key={`label-${activeIndex}`}
               style={{
-                position: "absolute",
-                top: 16,
-                left: 16,
-                pointerEvents: "none",
-                padding: "8px 14px",
-                borderRadius: 999,
-                background: "rgba(18,18,18,0.82)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                backdropFilter: "blur(10px)",
-                color: "#fff",
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                fontFamily: "'Outfit', system-ui, sans-serif",
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
+                position: "absolute", top: 16, left: 16, pointerEvents: "none", padding: "8px 14px", borderRadius: 999,
+                background: "rgba(18,18,18,0.82)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(10px)",
+                color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em",
+                fontFamily: "'Outfit', system-ui, sans-serif", textTransform: "uppercase", whiteSpace: "nowrap",
                 animation: "jr-label-in 0.4s cubic-bezier(0.22,1,0.36,1) both",
               }}
             >
@@ -1057,38 +590,17 @@ export default function RoomsExperience() {
                   if (!edge.show) return null
                   if (!edge.pageUrl) {
                     const idx = edge.target - 1
-                    if (
-                      idx < 0 ||
-                      idx >= ALL_ROOMS.length ||
-                      !ALL_ROOMS[idx]?.video
-                    ) {
-                      return null
-                    }
+                    if (idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return null
                   }
-                  const label = edge.pageUrl
-                    ? edge.pageLabel || "Page"
-                    : ALL_ROOMS[edge.target - 1]?.label || ""
-                  return (
-                    <EdgeArrowButton
-                      key={side}
-                      side={side}
-                      label={label}
-                      onClick={() => handleEdgeClick(edge)}
-                    />
-                  )
+                  const label = edge.pageUrl ? edge.pageLabel || "Page" : ALL_ROOMS[edge.target - 1]?.label || ""
+                  return <EdgeArrowButton key={side} side={side} label={label} onClick={() => handleEdgeClick(edge)} />
                 })
               : null}
           </div>
         </div>
 
         {showTransition ? (
-          <TransitionVideo
-            src={TRANSITION_VIDEO}
-            onEnd={() => {
-              markExperienceAsEntered()
-              setPhaseOverride("rooms")
-            }}
-          />
+          <TransitionVideo src={TRANSITION_VIDEO} onEnd={() => { markExperienceAsEntered(); setPhaseOverride("rooms") }} />
         ) : null}
 
         {showIntro ? (
@@ -1096,11 +608,7 @@ export default function RoomsExperience() {
             src={INTRO_VIDEO}
             onExplore={() => {
               markExperienceAsEntered()
-              if (TRANSITION_VIDEO) {
-                setPhaseOverride("transitionPlaying")
-              } else {
-                setPhaseOverride("rooms")
-              }
+              if (TRANSITION_VIDEO) { setPhaseOverride("transitionPlaying") } else { setPhaseOverride("rooms") }
             }}
           />
         ) : null}
