@@ -55,15 +55,21 @@ export default function HeaderDesktop() {
 
     setCurrent(item.page)
 
-    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
-
-    if (!roomsEl) {
+    // Si on n'est pas sur la home, on renvoie vers la home
+    // avec la room voulue dans l'URL.
+    if (pathname !== "/") {
       router.push(`/?jumpToRoom=${item.room - 1}`)
       return
     }
 
+    // Si on est déjà sur la home, on pilote directement l'expérience.
+    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
+    if (!roomsEl) return
+
     window.dispatchEvent(
-      new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } })
+      new CustomEvent("just-nav-change", {
+        detail: { roomIndex: item.room - 1 },
+      })
     )
 
     scrollToRooms()
@@ -77,7 +83,7 @@ export default function HeaderDesktop() {
 
     const jump = searchParams.get("jumpToRoom")
 
-    if (jump !== null) {
+    if (pathname === "/" && jump !== null) {
       const roomIndex = parseInt(jump, 10)
 
       if (!Number.isNaN(roomIndex)) {
@@ -91,7 +97,9 @@ export default function HeaderDesktop() {
 
             if (el) {
               window.dispatchEvent(
-                new CustomEvent("just-nav-change", { detail: { roomIndex } })
+                new CustomEvent("just-nav-change", {
+                  detail: { roomIndex },
+                })
               )
 
               setTimeout(scrollToRooms, 100)
@@ -112,7 +120,8 @@ export default function HeaderDesktop() {
       }
     }
 
-    if (pathname === "/") {
+    // Seulement sur la home sans jumpToRoom
+    if (pathname === "/" && searchParams.get("jumpToRoom") === null) {
       setCurrent("nav1")
     }
   }, [pathname, searchParams, router])
@@ -123,7 +132,9 @@ export default function HeaderDesktop() {
       if (roomIndex == null) return
 
       const match = navItems.find((item) => item.room === roomIndex + 1)
-      if (match) setCurrent(match.page)
+      if (match) {
+        setCurrent(match.page)
+      }
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
@@ -149,7 +160,9 @@ export default function HeaderDesktop() {
         width: elRect.width,
       }
 
-      if (next.width > 0) setPillStyle(next)
+      if (next.width > 0) {
+        setPillStyle(next)
+      }
     }
 
     const t = window.setTimeout(update, 50)
