@@ -26,7 +26,6 @@ const navItems: NavItem[] = [
   { label: "Just Prod", page: "nav5", room: 5 },
 ]
 
-// ✅ Map pathname → page active
 const PATHNAME_TO_PAGE: Record<string, string> = {
   "/just": "nav1",
   "/just-impact": "nav2",
@@ -47,6 +46,9 @@ export default function HeaderDesktop() {
   const navRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
+
+  // ✅ Track si on vient d'une navigation inter-pages vers /
+  const comingFromPageRef = useRef(false)
 
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
@@ -76,6 +78,8 @@ export default function HeaderDesktop() {
       return
     }
 
+    // Vient d'une autre page → marque la transition
+    comingFromPageRef.current = true
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
@@ -84,32 +88,44 @@ export default function HeaderDesktop() {
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
+    comingFromPageRef.current = true
     router.push("/?jumpToRoom=0")
   }
 
   useEffect(() => {
-    // ✅ Vérifie d'abord si le pathname correspond à une page connue
+    // Pages connues hors accueil
     const mapped = PATHNAME_TO_PAGE[pathname]
     if (mapped) {
       setCurrent(mapped)
+      comingFromPageRef.current = false
       return
     }
 
-    // Page d'accueil avec jumpToRoom
-    const jump = searchParams.get("jumpToRoom")
-    if (pathname === "/" && jump !== null) {
-      const roomIndex = parseInt(jump, 10)
-      if (!Number.isNaN(roomIndex)) {
-        const match = navItems.find((item) => item.room === roomIndex + 1)
-        if (match) {
-          setCurrent(match.page)
-          return
+    if (pathname === "/") {
+      const jump = searchParams.get("jumpToRoom")
+
+      if (jump !== null) {
+        // jumpToRoom présent → set l'item correspondant
+        const roomIndex = parseInt(jump, 10)
+        if (!Number.isNaN(roomIndex)) {
+          const match = navItems.find((item) => item.room === roomIndex + 1)
+          if (match) {
+            setCurrent(match.page)
+            comingFromPageRef.current = false
+            return
+          }
         }
       }
-    }
 
-    // Page d'accueil sans paramètre → nav1 par défaut
-    if (pathname === "/") {
+      // "/" sans jumpToRoom
+      if (comingFromPageRef.current) {
+        // On vient d'une page et l'URL a été nettoyée par RoomsExperience
+        // Ne pas reset — just-room-changed va arriver et mettre à jour l'actif
+        comingFromPageRef.current = false
+        return
+      }
+
+      // Vraie arrivée initiale sur /
       setCurrent("nav1")
     }
   }, [pathname, searchParams])
