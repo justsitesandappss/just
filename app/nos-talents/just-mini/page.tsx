@@ -1,6 +1,5 @@
-// app/nos-talents/just-mini/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import TalentJustMini from "@/components/pages/TalentJustMini"
 
 export default function JustMiniPage() {
-  return <TalentKarimLipton />
+  return <TalentJustMini />
 }
