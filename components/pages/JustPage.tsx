@@ -363,12 +363,12 @@ export default function JustPage() {
   }, [heroSlides.length, reduced, heroPaused])
 
   const galleryImages: GalleryImage[] = useMemo(() => [
-    { src: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80", label: "L'équipe", caption: "Just Life" },
-    { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80", label: "Événements", caption: "Just Events" },
-    { src: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=800&q=80", label: "En tournage", caption: "Just Prod" },
-    { src: "https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=800&q=80", label: "Backstage", caption: "Behind the scenes" },
-    { src: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80", label: "Créateurs", caption: "Just Impact" },
-    { src: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80", label: "Voyages", caption: "Just Agency" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-just.jpg", label: "L'équipe", caption: "Just Life" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-events.jpg", label: "Événements", caption: "Just Events" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod2.jpg", label: "En tournage", caption: "Just Prod" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justindustries.jpg", label: "Backstage", caption: "Behind the scenes" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-talents.jpg", label: "Créateurs", caption: "Just Impact" },
+    { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-voyage.jpg", label: "Voyages", caption: "Just Agency" },
   ], [])
 
   const parse = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean)
@@ -510,9 +510,9 @@ export default function JustPage() {
       <main id="just-main" style={{ minWidth: 0 }}>
         <Marquee items={["Just", "Just Impact", "Just Prod", "Just Agency", "Influence", "Production", "Conciergerie", "Luxe"]} speed={40} fontSize={marqueeSize} />
 
-        <Entity number="01" name="Just Impact" tagline="Agence d'influence" description="JUST IMPACT connecte les marques aux voix qui comptent. Stratégie data-driven, créateurs triés sur le volet, exécution sans faille." services={parse("Influence Marketing, Casting Créateurs, Social Media, Brand Content, KPI & Reporting")} imageUrl="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80" responsive={responsive} />
-        <Entity number="02" name="Just Prod" tagline="Studio de production" description="JUST PROD donne vie à vos idées. Du concept créatif au livrable final, on produit du contenu qui performe." services={parse("Direction Artistique, Réalisation Vidéo, Photo, Post-Production, Motion Design")} imageUrl="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80" reverse responsive={responsive} />
-        <Entity number="03" name="Just Agency" tagline="Conciergerie de luxe" description="JUST AGENCY orchestre l'exceptionnel. Biens de luxe, jets privés, yachts — l'impossible n'est qu'une question de temps." services={parse("Conciergerie Privée, Biens de Luxe, Véhicules, Jets Privés, Yachts")} imageUrl="https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800&q=80" responsive={responsive} />
+        <Entity number="01" name="Just Impact" tagline="Agence d'influence" description="JUST IMPACT connecte les marques aux voix qui comptent. Stratégie data-driven, créateurs triés sur le volet, exécution sans faille." services={parse("Influence Marketing, Casting Créateurs, Social Media, Brand Content, KPI & Reporting")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-tennis.jpg" responsive={responsive} />
+        <Entity number="02" name="Just Prod" tagline="Studio de production" description="JUST PROD donne vie à vos idées. Du concept créatif au livrable final, on produit du contenu qui performe." services={parse("Direction Artistique, Réalisation Vidéo, Photo, Post-Production, Motion Design")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod.jpg" reverse responsive={responsive} />
+        <Entity number="03" name="Just Agency" tagline="Conciergerie de luxe" description="JUST AGENCY orchestre l'exceptionnel. Biens de luxe, jets privés, yachts — l'impossible n'est qu'une question de temps." services={parse("Conciergerie Privée, Biens de Luxe, Véhicules, Jets Privés, Yachts")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justagency.jpg" responsive={responsive} />
 
         <div style={{ padding: mobile ? "24px 0" : "40px 0" }}>
           <Marquee items={["Authenticité", "Précision", "Audace", "Impact", "Excellence", "Créativité"]} speed={30} fontSize={mobile ? 36 : tablet ? 48 : marqueeSize} />
