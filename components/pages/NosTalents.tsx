@@ -416,7 +416,7 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
     )
 }
 
-function ContactInputField({ id, label, name, type = "text", autoComplete, inputMode, placeholder, required = false, value, error, hint, onChange }: { id: string; label: string; name: string; type?: string; autoComplete?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; placeholder?: string; required?: boolean; value: string; error?: string; hint?: string; onChange: (v: string) => void }) {
+function ContactInputField({ id, label, name, type = "text", autoComplete, placeholder, required = false, value, error, hint, onChange }: { id: string; label: string; name: string; type?: string; autoComplete?: string; placeholder?: string; required?: boolean; value: string; error?: string; hint?: string; onChange: (v: string) => void }) {
     const [focused, setFocused] = useState(false)
     const active = focused || value.length > 0
     const errorId = cxErrorId(id)
@@ -482,6 +482,9 @@ function parseTalent(name: string, handle: string, imageUrl: string, cats: strin
     return { name: sanitizeText(name), handle: sanitizeText(handle), imageUrl: safeImageSrc(imageUrl), categories, followers, views: sanitizeText(views), bio: sanitizeText(bio), number: sanitizeText(number), link: safeHref(link) }
 }
 
+// Type for social links
+type SocialLink = { href: string; label: string; icon: React.ReactNode }
+
 export default function NosTalents() {
     useGlobalStyles()
     const reducedMotion = useReducedMotion()
@@ -490,7 +493,8 @@ export default function NosTalents() {
     const isMobile = bp === "mobile"
     const isTablet = bp === "tablet"
 
-    const p = {
+    // useMemo for the config object to prevent re-renders
+    const p = useMemo(() => ({
         heroTagline: "Influence · Créativité · Authenticité · Résultats",
         heroTitle1: "Nos talents", heroTitle2: "font la différence.",
         heroDesc: "Un réseau de créateurs triés sur le volet, alignés avec vos valeurs. Des voix authentiques, des communautés engagées, des résultats mesurables, c'est la force de Just Impact.",
@@ -518,7 +522,7 @@ export default function NosTalents() {
         formResponseNote: "Réponse sous 24h",
         footerInstagram: "https://instagram.com/justgroup", footerTikTok: "https://tiktok.com/@justgroup",
         footerLinkedIn: "https://linkedin.com/company/justgroup", footerEmail: "contact@justgroup.fr",
-    }
+    }), [])
 
     const WEB3FORMS_ACCESS_KEY = "b891692e-8148-4785-856a-e1c43f4816dc"
 
@@ -596,11 +600,12 @@ export default function NosTalents() {
         return allTalents.filter((talent) => talent.categories.includes(activeFilter))
     }, [activeFilter, allTalents])
 
-    const socials = useMemo(() => [
+    // Fixed: Properly typed socials array
+    const socials = useMemo((): SocialLink[] => [
         p.footerInstagram ? { href: p.footerInstagram, label: "Instagram", icon: ICONS.instagram } : null,
         p.footerTikTok ? { href: p.footerTikTok, label: "TikTok", icon: ICONS.tiktok } : null,
         p.footerLinkedIn ? { href: p.footerLinkedIn, label: "LinkedIn", icon: ICONS.linkedin } : null,
-    ].filter(Boolean) as any[], [p.footerInstagram, p.footerTikTok, p.footerLinkedIn])
+    ].filter((item): item is SocialLink => item !== null), [p.footerInstagram, p.footerTikTok, p.footerLinkedIn])
 
     return (
         <div className="just-merged-root" style={{ width: "100%", minWidth: 0, background: COLORS.bg, color: COLORS.textSoft, fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
@@ -749,10 +754,10 @@ export default function NosTalents() {
                                                 <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
                                                     <div className="jm2-contact-two-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
                                                         <ContactInputField id={contactNameId} label={p.formLabelName} name="name" required autoComplete="name" value={contactFormData.name} error={contactErrors.name} placeholder="Jean Dupont" onChange={updateContactField("name")} />
-                                                        <ContactInputField id={contactEmailId} label={p.formLabelEmail} name="email" type="email" required autoComplete="email" inputMode="email" value={contactFormData.email} error={contactErrors.email} placeholder="jean@marque.com" onChange={updateContactField("email")} />
+                                                        <ContactInputField id={contactEmailId} label={p.formLabelEmail} name="email" type="email" required autoComplete="email" value={contactFormData.email} error={contactErrors.email} placeholder="jean@marque.com" onChange={updateContactField("email")} />
                                                     </div>
                                                     <div className="jm2-contact-two-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
-                                                        <ContactInputField id={contactPhoneId} label={p.formLabelPhone} name="phone" type="tel" autoComplete="tel" inputMode="tel" value={contactFormData.phone} placeholder="+33 6 12 34 56 78" hint="Optionnel" onChange={updateContactField("phone")} />
+                                                        <ContactInputField id={contactPhoneId} label={p.formLabelPhone} name="phone" type="tel" autoComplete="tel" value={contactFormData.phone} placeholder="+33 6 12 34 56 78" hint="Optionnel" onChange={updateContactField("phone")} />
                                                         <ContactInputField id={contactCompanyId} label={p.formLabelCompany} name="company" autoComplete="organization" value={contactFormData.company} placeholder="Votre marque" hint="Optionnel" onChange={updateContactField("company")} />
                                                     </div>
                                                     <ContactPillSelect label={p.formLabelEntity} name="entity" options={contactEntityList} value={contactFormData.entity} onChange={updateContactField("entity")} />
@@ -782,7 +787,7 @@ export default function NosTalents() {
                                     </div>
                                     <div style={{ padding: isMobile ? "24px" : "28px", borderRadius: 20, background: white(0.02), border: `1px solid ${white(0.08)}` }}>
                                         <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(OP.label), marginBottom: 16, marginTop: 0 }}>Note</p>
-                                        <blockquote style={{ margin: 0, fontFamily: DISPLAY, fontSize: isMobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: white(OP.quote), fontStyle: "italic", letterSpacing: -0.8 }}>"{p.formManifesto}"</blockquote>
+                                        <blockquote style={{ margin: 0, fontFamily: DISPLAY, fontSize: isMobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: white(OP.quote), fontStyle: "italic", letterSpacing: -0.8 }}>&ldquo;{p.formManifesto}&rdquo;</blockquote>
                                     </div>
                                 </aside>
                             </Reveal>
@@ -809,7 +814,7 @@ export default function NosTalents() {
                     </nav>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: isMobile ? "flex-start" : isTablet ? "flex-start" : "flex-end", minWidth: 0 }}>
                         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                            {socials.map((s: any) => (
+                            {socials.map((s: SocialLink) => (
                                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} style={{ color: white(0.55), textDecoration: "none", transition: "color 0.2s ease" }} onPointerOver={(e) => { e.currentTarget.style.color = white(0.9) }} onPointerOut={(e) => { e.currentTarget.style.color = white(0.55) }}>{s.icon}</a>
                             ))}
                         </div>
