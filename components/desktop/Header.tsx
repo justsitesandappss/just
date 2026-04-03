@@ -47,8 +47,8 @@ export default function HeaderDesktop() {
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
 
-  // ✅ Track si on vient d'une navigation inter-pages vers /
-  const comingFromPageRef = useRef(false)
+  // ✅ Stocke le page désiré pendant les transitions inter-pages → /
+  const pendingPageRef = useRef<string | null>(null)
 
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
@@ -78,8 +78,8 @@ export default function HeaderDesktop() {
       return
     }
 
-    // Vient d'une autre page → marque la transition
-    comingFromPageRef.current = true
+    // ✅ Mémorise quel item doit rester actif après la navigation
+    pendingPageRef.current = item.page
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
@@ -88,16 +88,15 @@ export default function HeaderDesktop() {
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
-    comingFromPageRef.current = true
+    pendingPageRef.current = "nav1"
     router.push("/?jumpToRoom=0")
   }
 
   useEffect(() => {
-    // Pages connues hors accueil
     const mapped = PATHNAME_TO_PAGE[pathname]
     if (mapped) {
       setCurrent(mapped)
-      comingFromPageRef.current = false
+      pendingPageRef.current = null
       return
     }
 
@@ -105,27 +104,26 @@ export default function HeaderDesktop() {
       const jump = searchParams.get("jumpToRoom")
 
       if (jump !== null) {
-        // jumpToRoom présent → set l'item correspondant
         const roomIndex = parseInt(jump, 10)
         if (!Number.isNaN(roomIndex)) {
           const match = navItems.find((item) => item.room === roomIndex + 1)
           if (match) {
             setCurrent(match.page)
-            comingFromPageRef.current = false
+            pendingPageRef.current = null
             return
           }
         }
       }
 
-      // "/" sans jumpToRoom
-      if (comingFromPageRef.current) {
-        // On vient d'une page et l'URL a été nettoyée par RoomsExperience
-        // Ne pas reset — just-room-changed va arriver et mettre à jour l'actif
-        comingFromPageRef.current = false
+      // "/" sans jumpToRoom — RoomsExperience vient de nettoyer l'URL
+      if (pendingPageRef.current !== null) {
+        // ✅ Restaure l'item désiré au lieu de reset sur nav1
+        setCurrent(pendingPageRef.current)
+        pendingPageRef.current = null
         return
       }
 
-      // Vraie arrivée initiale sur /
+      // Arrivée initiale sur /
       setCurrent("nav1")
     }
   }, [pathname, searchParams])
