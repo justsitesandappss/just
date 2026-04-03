@@ -1,5 +1,4 @@
-// app/nos-talents/page.tsx
-import NosTalents from "@/components/NosTalents"
+import NosTalents from "@/components/pages/NosTalents"
 
 export default function NosTalentsPage() {
   return <NosTalents />
