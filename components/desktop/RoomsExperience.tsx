@@ -865,13 +865,6 @@ export default function RoomsExperience() {
       hasMountedRef.current = true
       return
     }
-    window.dispatchEvent(
-      new CustomEvent("just-room-changed", {
-        detail: { roomIndex: activeIndex },
-      })
-    )
-  }, [activeIndex])
-
   const handleMouseMove = useCallback(
     (e: ReactMouseEvent<HTMLDivElement>) => {
       if (rafMove.current) return
