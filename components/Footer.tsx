@@ -49,12 +49,6 @@ const socials = [
   },
 ]
 
-const legalLinks = [
-  { label: "CONDITIONS",      href: "/mentions-legales" },
-  { label: "CONFIDENTIALITÉ", href: "/confidentialite"  },
-  { label: "COOKIES",         href: "/cookies"          },
-]
-
 export default function Footer() {
   const year = new Date().getFullYear()
 
@@ -146,16 +140,10 @@ export default function Footer() {
             <div className="footer-legal" style={{
               display: "flex", flexWrap: "wrap",
               alignItems: "center", justifyContent: "center",
-              gap: 18, rowGap: 8,
             }}>
-              {legalLinks.map((link, i) => (
-                <span key={link.label} style={{ display: "inline-flex", alignItems: "center", gap: 18 }}>
-                  <Link href={link.href} className="footer-legal-link">{link.label}</Link>
-                  {i < legalLinks.length - 1 && (
-                    <span style={{ color: white(0.12), fontSize: 10 }} aria-hidden="true">•</span>
-                  )}
-                </span>
-              ))}
+              <Link href="/mentions-legales" className="footer-legal-link">
+                MENTIONS LÉGALES
+              </Link>
             </div>
           </nav>
         </div>
