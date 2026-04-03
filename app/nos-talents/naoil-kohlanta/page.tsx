@@ -1,6 +1,5 @@
-// app/nos-talents/naoil-kohlanta/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import TalentNaoilTita from "@/components/pages/TalentNaoilTita"
 
 export default function NaoilKohlantaPage() {
-  return <TalentKarimLipton />
+  return <TalentNaoilTita />
 }
