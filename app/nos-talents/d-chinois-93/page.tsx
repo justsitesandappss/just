@@ -1,6 +1,5 @@
-// app/nos-talents/d-chinois-93/page.tsx
-import TalentKarimLipton from "@/components/pages/TalentKarimLipton"
+import TalentDchinois93 from "@/components/pages/TalentDchinois93"
 
-export default function DChinois93Page() {
-  return <TalentKarimLipton />
+export default function Dchinois93Page() {
+  return <TalentDchinois93 />
 }
