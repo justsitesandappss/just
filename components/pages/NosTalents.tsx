@@ -482,7 +482,6 @@ function parseTalent(name: string, handle: string, imageUrl: string, cats: strin
     return { name: sanitizeText(name), handle: sanitizeText(handle), imageUrl: safeImageSrc(imageUrl), categories, followers, views: sanitizeText(views), bio: sanitizeText(bio), number: sanitizeText(number), link: safeHref(link) }
 }
 
-// Type for social links
 type SocialLink = { href: string; label: string; icon: React.ReactNode }
 
 export default function NosTalents() {
@@ -493,7 +492,6 @@ export default function NosTalents() {
     const isMobile = bp === "mobile"
     const isTablet = bp === "tablet"
 
-    // useMemo for the config object to prevent re-renders
     const p = useMemo(() => ({
         heroTagline: "Influence · Créativité · Authenticité · Résultats",
         heroTitle1: "Nos talents", heroTitle2: "font la différence.",
@@ -600,19 +598,41 @@ export default function NosTalents() {
         return allTalents.filter((talent) => talent.categories.includes(activeFilter))
     }, [activeFilter, allTalents])
 
-    // Fixed: Properly typed socials array
-    const socials = useMemo((): SocialLink[] => [
-        p.footerInstagram ? { href: p.footerInstagram, label: "Instagram", icon: ICONS.instagram } : null,
-        p.footerTikTok ? { href: p.footerTikTok, label: "TikTok", icon: ICONS.tiktok } : null,
-        p.footerLinkedIn ? { href: p.footerLinkedIn, label: "LinkedIn", icon: ICONS.linkedin } : null,
-    ].filter((item): item is SocialLink => item !== null), [p.footerInstagram, p.footerTikTok, p.footerLinkedIn])
+    const socials = useMemo<SocialLink[]>(() => {
+        const items: SocialLink[] = []
+
+        if (p.footerInstagram) {
+            items.push({
+                href: p.footerInstagram,
+                label: "Instagram",
+                icon: ICONS.instagram,
+            })
+        }
+
+        if (p.footerTikTok) {
+            items.push({
+                href: p.footerTikTok,
+                label: "TikTok",
+                icon: ICONS.tiktok,
+            })
+        }
+
+        if (p.footerLinkedIn) {
+            items.push({
+                href: p.footerLinkedIn,
+                label: "LinkedIn",
+                icon: ICONS.linkedin,
+            })
+        }
+
+        return items
+    }, [p.footerInstagram, p.footerTikTok, p.footerLinkedIn])
 
     return (
         <div className="just-merged-root" style={{ width: "100%", minWidth: 0, background: COLORS.bg, color: COLORS.textSoft, fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
 
             <main id="main-content" aria-label="Présentation des talents Just Impact" style={{ width: "100%", minWidth: 0 }}>
 
-                {/* HERO */}
                 <section className="jm-section jm-hero" aria-labelledby="jm-main-title" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 72px 80px", position: "relative", width: "100%", minWidth: 0 }}>
                     <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
                     {sanitizeText(p.heroTagline) && (
@@ -640,7 +660,6 @@ export default function NosTalents() {
 
                 <Marquee items={["Influenceurs", "Artistes", "Créateurs", "Talents", "Authenticité", "Engagement", "Impact", "Communauté"]} speed={40} label="Mots-clés de l'univers Just Impact" />
 
-                {/* STATS */}
                 <section className="jm-section" aria-labelledby="jm-stats-title" style={{ padding: "100px 72px", position: "relative" }}>
                     <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)", pointerEvents: "none" }} />
                     <Reveal>
@@ -656,7 +675,6 @@ export default function NosTalents() {
                     </Reveal>
                 </section>
 
-                {/* ROSTER */}
                 <section className="jm-section" aria-labelledby="jm-roster-title" style={{ padding: "40px 72px 100px" }}>
                     <div className="jm-section-inner">
                         <Reveal>
@@ -683,7 +701,6 @@ export default function NosTalents() {
                     </div>
                 </section>
 
-                {/* WHY */}
                 <section className="jm-section" aria-labelledby="jm-why-title" style={{ padding: "80px 72px" }}>
                     <div className="jm-section-inner">
                         <Reveal>
@@ -715,7 +732,6 @@ export default function NosTalents() {
 
                 <Marquee items={["Humour", "Sport", "Musique", "Fitness", "Voyage", "Lifestyle", "Boxe", "Foot"]} speed={30} label="Catégories des talents" />
 
-                {/* FORMULAIRE */}
                 <section className="jm2-contact-root jm2-contact-pad" aria-labelledby={contactSectionTitleId} aria-describedby={contactSectionDescId} style={{ padding: isMobile ? "80px 20px 100px" : isTablet ? "100px 40px 120px" : "110px 72px 140px", borderTop: `1px solid ${white(0.06)}`, position: "relative" }}>
                     <div aria-live="polite" aria-atomic="true" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>{contactLiveMessage}</div>
                     <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center top,rgba(255,255,255,0.03) 0%,transparent 65%)", pointerEvents: "none" }} />
@@ -796,7 +812,6 @@ export default function NosTalents() {
                 </section>
             </main>
 
-            {/* FOOTER */}
             <footer style={{ padding: isMobile ? "32px 20px" : "40px 72px", borderTop: `1px solid ${white(0.06)}` }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "minmax(0,1fr)" : isTablet ? "minmax(0,1fr) minmax(0,1fr)" : "minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)", gap: isMobile ? 32 : 24, alignItems: "start", minWidth: 0 }}>
                     <div style={{ minWidth: 0 }}>
@@ -814,7 +829,7 @@ export default function NosTalents() {
                     </nav>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: isMobile ? "flex-start" : isTablet ? "flex-start" : "flex-end", minWidth: 0 }}>
                         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                            {socials.map((s: SocialLink) => (
+                            {socials.map((s) => (
                                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} style={{ color: white(0.55), textDecoration: "none", transition: "color 0.2s ease" }} onPointerOver={(e) => { e.currentTarget.style.color = white(0.9) }} onPointerOut={(e) => { e.currentTarget.style.color = white(0.55) }}>{s.icon}</a>
                             ))}
                         </div>
