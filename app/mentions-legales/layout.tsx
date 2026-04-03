@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import type { ReactNode } from "react"
 
 export const metadata: Metadata = {
   title: "Mentions Légales | Just Agency",
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 export default function MentionsLegalesLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
-  return children
+  return <>{children}</>
 }
