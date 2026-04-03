@@ -5,19 +5,18 @@ import Desktop from "@/components/desktop/IntroStats"
 import Mobile from "@/components/mobile/IntroStats"
 
 export default function IntroStats() {
-  const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024)
-    check()
-    setMounted(true)
-    const handler = () => setIsMobile(window.innerWidth < 1024)
-    window.addEventListener("resize", handler)
-    return () => window.removeEventListener("resize", handler)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const media = window.matchMedia("(max-width: 1023px)")
+
+    const listener = () => setIsMobile(media.matches)
+
+    listener() // init propre
+    media.addEventListener("change", listener)
+
+    return () => media.removeEventListener("change", listener)
   }, [])
 
-  if (!mounted) return null
   return isMobile ? <Mobile /> : <Desktop />
 }
