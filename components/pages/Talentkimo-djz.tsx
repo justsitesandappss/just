@@ -214,7 +214,7 @@ function Reveal({
 }) {
     const ref = useRef<HTMLDivElement | null>(null)
     const visible = useInView(ref, { once: true, margin: "-60px" })
-    const reduced = useReducedMotion()
+    const reduced = useReducedMotion() ?? false
 
     return (
         <motion.div
@@ -235,7 +235,7 @@ function Reveal({
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
-    const reduced = useReducedMotion()
+    const reduced = useReducedMotion() ?? false
     const tripled = useMemo(() => [...items, ...items, ...items], [items])
 
     return (
@@ -315,7 +315,8 @@ function Counter({
 }) {
     const ref = useRef<HTMLLIElement | null>(null)
     const visible = useInView(ref, { once: true })
-    const reduced = useReducedMotion()
+    const reduced = useReducedMotion() ?? false
+
 
     const match = value.match(/^(?:([+\-]?)(\d+\.?\d*)(.*))$/)
     const prefix = match ? match[1] : ""
@@ -661,7 +662,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
         ctaUrl = "#",
     } = props
 
-    const reduced = useReducedMotion()
+    const reduced = useReducedMotion() ?? false
     const { mobile, tablet } = useViewport()
     useGlobalStyles()
 
