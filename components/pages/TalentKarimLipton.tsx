@@ -3,7 +3,6 @@
 import * as React from "react"
 import { useEffect, useId, useRef, useState } from "react"
 import { motion, useInView, useReducedMotion, type Transition } from "framer-motion"
-import Image from "next/image"
 import Link from "next/link"
 
 const DISPLAY = "'Syne', sans-serif"
@@ -95,26 +94,11 @@ function Marquee({ items, speed = 35, ariaLabel }: { items: string[]; speed?: nu
   const reducedMotion = useReducedMotion()
   const repeatedItems = [...items, ...items, ...items]
   return (
-    <div
-      aria-label={ariaLabel}
-      role="presentation"
-      style={{
-        overflow: "hidden", width: "100%",
-        maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-        WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-      }}
-    >
-      <motion.div
-        aria-hidden="true"
-        animate={reducedMotion ? undefined : { x: ["0%", "-33.333%"] }}
-        transition={reducedMotion ? undefined : { duration: speed, repeat: Infinity, ease: "linear" }}
-        style={{ display: "flex", gap: 40, alignItems: "center", width: "max-content" }}
-      >
+    <div aria-label={ariaLabel} role="presentation" style={{ overflow: "hidden", width: "100%", maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
+      <motion.div aria-hidden="true" animate={reducedMotion ? undefined : { x: ["0%", "-33.333%"] }} transition={reducedMotion ? undefined : { duration: speed, repeat: Infinity, ease: "linear" }} style={{ display: "flex", gap: 40, alignItems: "center", width: "max-content" }}>
         {repeatedItems.map((item, index) => (
           <React.Fragment key={`${item}-${index}`}>
-            <span style={{ whiteSpace: "nowrap", textTransform: "uppercase", fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(38px, 7vw, 72px)", color: "rgba(255,255,255,0.06)", letterSpacing: -2, lineHeight: 1 }}>
-              {item}
-            </span>
+            <span style={{ whiteSpace: "nowrap", textTransform: "uppercase", fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(38px, 7vw, 72px)", color: "rgba(255,255,255,0.06)", letterSpacing: -2, lineHeight: 1 }}>{item}</span>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.14)", display: "inline-block", flexShrink: 0 }} />
           </React.Fragment>
         ))}
@@ -127,22 +111,17 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-40px" })
   const reducedMotion = useReducedMotion()
-
   const match = value.match(/^([+\-]?)(\d+\.?\d*)(.*)$/)
   const prefix = match?.[1] ?? ""
   const rawNumber = match ? parseFloat(match[2]) : 0
   const suffix = match?.[3] ?? value
   const decimalPlaces = match?.[2].includes(".") ? (match[2].split(".")[1] || "").length : 0
-
   const [count, setCount] = useState(0)
 
   useEffect(() => {
     if (!isInView) return
     const timeout = setTimeout(() => {
-      if (reducedMotion) {
-        setCount(rawNumber)
-        return
-      }
+      if (reducedMotion) { setCount(rawNumber); return }
       const duration = 2200
       const start = performance.now()
       let frame: number
@@ -159,18 +138,12 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
     return () => clearTimeout(timeout)
   }, [isInView, reducedMotion, rawNumber, delay, decimalPlaces])
 
-  const displayValue = isInView
-    ? `${prefix}${decimalPlaces > 0 ? count.toFixed(decimalPlaces) : count}${suffix}`
-    : `${prefix}0${suffix}`
+  const displayValue = isInView ? `${prefix}${decimalPlaces > 0 ? count.toFixed(decimalPlaces) : count}${suffix}` : `${prefix}0${suffix}`
 
   return (
     <div ref={ref} style={{ textAlign: "center", padding: "8px 6px" }}>
-      <p aria-label={`${label} : ${value}`} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(36px, 6vw, 56px)", color: C.text, letterSpacing: -2, lineHeight: 1, margin: "0 0 10px 0", fontVariantNumeric: "tabular-nums" }}>
-        {displayValue}
-      </p>
-      <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: C.textMuted, fontFamily: BODY, margin: 0 }}>
-        {label}
-      </p>
+      <p aria-label={`${label} : ${value}`} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(36px, 6vw, 56px)", color: C.text, letterSpacing: -2, lineHeight: 1, margin: "0 0 10px 0", fontVariantNumeric: "tabular-nums" }}>{displayValue}</p>
+      <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: C.textMuted, fontFamily: BODY, margin: 0 }}>{label}</p>
     </div>
   )
 }
@@ -201,15 +174,8 @@ export default function TalentKarimLipton() {
   const reducedMotion = useReducedMotion()
 
   const ids = {
-    main: useId(),
-    stats: useId(),
-    platforms: useId(),
-    ascension: useId(),
-    pillars: useId(),
-    collabs: useId(),
-    sectors: useId(),
-    manifesto: useId(),
-    cta: useId(),
+    main: useId(), stats: useId(), platforms: useId(), ascension: useId(),
+    pillars: useId(), collabs: useId(), sectors: useId(), manifesto: useId(), cta: useId(),
   }
 
   const catList = ["Humour", "Voyage", "Lifestyle", "Storytelling"]
@@ -293,8 +259,13 @@ export default function TalentKarimLipton() {
           </div>
         </div>
 
+        {/* ✅ img standard au lieu de next/image — pas besoin de config domaine */}
         <motion.div className="talent-karim-hero-media" initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.03 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }} transition={makeTransition(reducedMotion ?? false, 1, 0.2)} style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}>
-          <Image src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg" alt="Portrait de Karim Lipton" fill priority sizes="(max-width: 1024px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+          <img
+            src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg"
+            alt="Portrait de Karim Lipton"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.15) 34%, transparent 55%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 32%)", pointerEvents: "none" }} />
         </motion.div>
