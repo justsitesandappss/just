@@ -1027,7 +1027,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
                         order: mobile ? 0 : 2,
                     }}
                 >
-                    <Image
+                    <img
                         src={heroImage}
                         alt={`Portrait de ${name}, artiste et créateur de contenus musicaux`}
                         fill
