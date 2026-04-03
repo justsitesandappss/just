@@ -1,8 +1,6 @@
-// components/pages/talents/RilesFreestyle.tsx
-"use client"
-
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState, useId, useCallback } from "react"
+import { addPropertyControls, ControlType } from "framer"
 import {
     motion,
     useInView,
@@ -11,9 +9,20 @@ import {
 } from "framer-motion"
 
 /**
- * TalentRilesFreestyle - Version Next.js
+ * TalentRilesFreestyle
  *
- * Converti depuis Framer pour intégration dans le projet Just Impact
+ *
+ * fait :
+ * - structure sémantique plus propre
+ * - 1 seul vrai h1
+ * - hiérarchie de titres cohérente
+ * - focus visible conservé
+ * - réduction des animations si l'utilisateur l'a demandé
+ * - contrastes texte / fond remontés
+ * - icônes décoratives masquées aux lecteurs d'écran
+ * - images lazy quand c'est pertinent
+ * - CTA plus propre au clavier
+ * - responsive plus solide
  */
 
 const DISPLAY = "'Syne', sans-serif"
@@ -496,7 +505,6 @@ function Counter({
                     marginBottom: 8,
                     letterSpacing: -3,
                     fontVariantNumeric: "tabular-nums",
-                    fontFamilyFallback: NUMERIC,
                 }}
             >
                 {visibleValue}
@@ -1844,3 +1852,288 @@ export default function TalentRilesFreestyle(props: TalentRilesFreestyleProps) {
         </main>
     )
 }
+
+addPropertyControls(TalentRilesFreestyle, {
+    heroImage: {
+        type: ControlType.String,
+        title: "Photo hero",
+        defaultValue:
+            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=1200&q=80",
+    },
+    heroImageAlt: {
+        type: ControlType.String,
+        title: "Alt image",
+        defaultValue: "Portrait de Riles Freestyle",
+    },
+
+    name: {
+        type: ControlType.String,
+        title: "Nom",
+        defaultValue: "Riles Freestyle",
+    },
+    alias: {
+        type: ControlType.String,
+        title: "Alias",
+        defaultValue: "Sensei",
+    },
+    handle: {
+        type: ControlType.String,
+        title: "Handle",
+        defaultValue: "@rilesfreestyle",
+    },
+    tagline: {
+        type: ControlType.String,
+        title: "Tagline",
+        defaultValue: "Football · Freestyle · Futsal · Analyse · Culture",
+    },
+    bio: {
+        type: ControlType.String,
+        title: "Bio",
+        defaultValue: "Le nouveau visage du freestyle français.",
+    },
+    location: {
+        type: ControlType.String,
+        title: "Localisation",
+        defaultValue: "Bondy, Seine-Saint-Denis (93)",
+    },
+
+    stat1: { type: ControlType.String, title: "Stat 1", defaultValue: "1.2M+" },
+    stat1Label: {
+        type: ControlType.String,
+        title: "Stat 1 label",
+        defaultValue: "Abonnés YouTube",
+    },
+    stat2: { type: ControlType.String, title: "Stat 2", defaultValue: "200K" },
+    stat2Label: {
+        type: ControlType.String,
+        title: "Stat 2 label",
+        defaultValue: "Abonnés Instagram",
+    },
+    stat3: { type: ControlType.String, title: "Stat 3", defaultValue: "1.3M" },
+    stat3Label: {
+        type: ControlType.String,
+        title: "Stat 3 label",
+        defaultValue: "Abonnés TikTok",
+    },
+    stat4: { type: ControlType.String, title: "Stat 4", defaultValue: "139M+" },
+    stat4Label: {
+        type: ControlType.String,
+        title: "Stat 4 label",
+        defaultValue: "Vues totales",
+    },
+    stat5: { type: ControlType.String, title: "Stat 5", defaultValue: "61K" },
+    stat5Label: {
+        type: ControlType.String,
+        title: "Stat 5 label",
+        defaultValue: "Abonnés Snap",
+    },
+    stat6: { type: ControlType.String, title: "Stat 6", defaultValue: "6.1%" },
+    stat6Label: {
+        type: ControlType.String,
+        title: "Stat 6 label",
+        defaultValue: "Taux d'engagement",
+    },
+
+    ytFollowers: {
+        type: ControlType.String,
+        title: "YT followers",
+        defaultValue: "1.2M+",
+    },
+    ytDesc: {
+        type: ControlType.String,
+        title: "YT desc",
+        defaultValue: "Empire principal : futsal, tutoriels, débriefs.",
+    },
+    tiktokFollowers: {
+        type: ControlType.String,
+        title: "TikTok followers",
+        defaultValue: "1.3M",
+    },
+    tiktokDesc: {
+        type: ControlType.String,
+        title: "TikTok desc",
+        defaultValue: "Vitrine virale : dribbles, gestes techniques.",
+    },
+    instaFollowers: {
+        type: ControlType.String,
+        title: "Insta followers",
+        defaultValue: "200.9K",
+    },
+    instaDesc: {
+        type: ControlType.String,
+        title: "Insta desc",
+        defaultValue: "Highlights, coulisses, prises de position.",
+    },
+    snapFollowers: {
+        type: ControlType.String,
+        title: "Snap followers",
+        defaultValue: "61.9K",
+    },
+    snapDesc: {
+        type: ControlType.String,
+        title: "Snap desc",
+        defaultValue: "Coulisses de sa vie de freestyler.",
+    },
+
+    pillar1Title: {
+        type: ControlType.String,
+        title: "Pilier 1",
+        defaultValue: "Le Terrain",
+    },
+    pillar1Desc: {
+        type: ControlType.String,
+        title: "Pilier 1 desc",
+        defaultValue: "Futsal immersif, tutoriels, défis techniques.",
+    },
+    pillar1Icon: {
+        type: ControlType.String,
+        title: "Pilier 1 icon",
+        defaultValue: "⚽",
+    },
+
+    pillar2Title: {
+        type: ControlType.String,
+        title: "Pilier 2",
+        defaultValue: "L'Analyse Sportive",
+    },
+    pillar2Desc: {
+        type: ControlType.String,
+        title: "Pilier 2 desc",
+        defaultValue: "Débriefs foot, analyses, opinion assumée.",
+    },
+    pillar2Icon: {
+        type: ControlType.String,
+        title: "Pilier 2 icon",
+        defaultValue: "🎙️",
+    },
+
+    pillar3Title: {
+        type: ControlType.String,
+        title: "Pilier 3",
+        defaultValue: "La Pop Culture",
+    },
+    pillar3Desc: {
+        type: ControlType.String,
+        title: "Pilier 3 desc",
+        defaultValue: "Références manga et culture jeune.",
+    },
+    pillar3Icon: {
+        type: ControlType.String,
+        title: "Pilier 3 icon",
+        defaultValue: "🎌",
+    },
+
+    pillar4Title: {
+        type: ControlType.String,
+        title: "Pilier 4",
+        defaultValue: "L'Engagement Solidaire",
+    },
+    pillar4Desc: {
+        type: ControlType.String,
+        title: "Pilier 4 desc",
+        defaultValue: "Initiatives solidaires et inclusion par le sport.",
+    },
+    pillar4Icon: {
+        type: ControlType.String,
+        title: "Pilier 4 icon",
+        defaultValue: "💛",
+    },
+
+    ascensionText: {
+        type: ControlType.String,
+        title: "Ascension",
+        defaultValue: "Riles est le nouveau visage du freestyle français.",
+    },
+    categories: {
+        type: ControlType.String,
+        title: "Catégories",
+        defaultValue:
+            "Football, Freestyle, Futsal, Analyse Sportive, Manga, Engagement",
+    },
+
+    collab1: {
+        type: ControlType.String,
+        title: "Collab 1",
+        defaultValue: "Placement de produit",
+    },
+    collab1Desc: {
+        type: ControlType.String,
+        title: "Collab 1 desc",
+        defaultValue: "Intégration naturelle dans ses vidéos.",
+    },
+    collab2: {
+        type: ControlType.String,
+        title: "Collab 2",
+        defaultValue: "Défi / Challenge sponsorisé",
+    },
+    collab2Desc: {
+        type: ControlType.String,
+        title: "Collab 2 desc",
+        defaultValue: "Défi technique viral autour de votre marque.",
+    },
+    collab3: {
+        type: ControlType.String,
+        title: "Collab 3",
+        defaultValue: "Ambassadeur de marque",
+    },
+    collab3Desc: {
+        type: ControlType.String,
+        title: "Collab 3 desc",
+        defaultValue: "Partenariat long terme avec contenus réguliers.",
+    },
+    collab4: {
+        type: ControlType.String,
+        title: "Collab 4",
+        defaultValue: "Activation terrain",
+    },
+    collab4Desc: {
+        type: ControlType.String,
+        title: "Collab 4 desc",
+        defaultValue: "Tournoi, clinic ou événement sponsorisé.",
+    },
+
+    brandsWorked: {
+        type: ControlType.String,
+        title: "Secteurs",
+        defaultValue:
+            "PSG, Canal+, SNCF, Sport, Équipementiers, Tech, Food, Formation",
+    },
+    manifesto: {
+        type: ControlType.String,
+        title: "Manifesto",
+        defaultValue: "Riles ne fait pas que jongler. Il inspire.",
+    },
+
+    ctaTitle: {
+        type: ControlType.String,
+        title: "CTA titre",
+        defaultValue: "Collaborer avec Riles.",
+    },
+    ctaDesc: {
+        type: ControlType.String,
+        title: "CTA desc",
+        defaultValue: "Placement, challenge, ambassadeur, activation terrain.",
+    },
+    ctaUrl: {
+        type: ControlType.String,
+        title: "CTA lien",
+        defaultValue: "#",
+    },
+    ctaLabel: {
+        type: ControlType.String,
+        title: "CTA aria",
+        defaultValue: "Proposer une collaboration avec Riles Freestyle",
+    },
+
+    seoTitle: {
+        type: ControlType.String,
+        title: "SEO title",
+        defaultValue: "Riles Freestyle | Talent, audience et collaborations",
+    },
+    seoDescription: {
+        type: ControlType.String,
+        title: "SEO desc",
+        defaultValue:
+            "Découvrez l'univers de Riles Freestyle : audience, plateformes, contenus et collaborations.",
+    },
+})
