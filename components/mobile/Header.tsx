@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
@@ -26,16 +25,13 @@ const navItems: NavItem[] = [
   { label: "Just Prod", page: "nav5", room: 5 },
 ]
 
-export default function HeaderDesktop() {
+export default function HeaderMobile() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const [current, setCurrent] = useState("nav1")
-  const [hovered, setHovered] = useState<string | null>(null)
-  const navRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
+  const [open, setOpen] = useState(false)
 
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
@@ -45,6 +41,8 @@ export default function HeaderDesktop() {
   }
 
   function handleClick(item: NavItem) {
+    setOpen(false)
+
     if (item.href) {
       setCurrent(item.page)
       router.push(item.href)
@@ -55,13 +53,11 @@ export default function HeaderDesktop() {
 
     setCurrent(item.page)
 
-    // Hors home => on laisse uniquement l'URL piloter RoomsExperience
     if (pathname !== "/") {
       router.push(`/?jumpToRoom=${item.room - 1}`)
       return
     }
 
-    // Sur la home => pilotage direct des rooms
     window.dispatchEvent(
       new CustomEvent("just-nav-change", {
         detail: { roomIndex: item.room - 1 },
@@ -79,11 +75,8 @@ export default function HeaderDesktop() {
 
     const jump = searchParams.get("jumpToRoom")
 
-    // Ici on ne déclenche AUCUN event.
-    // On synchronise juste l'état visuel du menu.
     if (pathname === "/" && jump !== null) {
       const roomIndex = parseInt(jump, 10)
-
       if (!Number.isNaN(roomIndex)) {
         const match = navItems.find((item) => item.room === roomIndex + 1)
         if (match) {
@@ -104,230 +97,155 @@ export default function HeaderDesktop() {
       if (roomIndex == null) return
 
       const match = navItems.find((item) => item.room === roomIndex + 1)
-      if (match) {
-        setCurrent(match.page)
-      }
+      if (match) setCurrent(match.page)
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
     return () => window.removeEventListener("just-room-changed", onRoomChanged)
   }, [])
 
-  const targetPage = hovered ?? current
-
-  useEffect(() => {
-    const update = () => {
-      const el = itemRefs.current[targetPage]
-      const nav = navRef.current
-      if (!el || !nav) return
-
-      const navRect = nav.getBoundingClientRect()
-      const elRect = el.getBoundingClientRect()
-
-      const next = {
-        left: elRect.left - navRect.left,
-        width: elRect.width,
-      }
-
-      if (next.width > 0) setPillStyle(next)
-    }
-
-    const t = window.setTimeout(update, 50)
-    window.addEventListener("resize", update)
-
-    return () => {
-      window.clearTimeout(t)
-      window.removeEventListener("resize", update)
-    }
-  }, [targetPage, current, pathname])
-
-  const dot = (
-    <span
-      style={{
-        width: 4,
-        height: 4,
-        borderRadius: "50%",
-        background: "#ff3b3b",
-        marginRight: 8,
-        flexShrink: 0,
-        boxShadow: "0 0 8px rgba(255,59,59,0.5)",
-      }}
-    />
-  )
-
   return (
-    <header
-      role="banner"
-      style={{
-        width: "100%",
-        background: "rgba(0,0,0,0.88)",
-        backdropFilter: "blur(10px)",
-        WebkitBackdropFilter: "blur(10px)",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-        padding: "0 48px",
-        height: 64,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        boxSizing: "border-box",
-      }}
-    >
-      <button
-        onClick={() => router.push("/")}
-        aria-label="Just — retour à l'accueil"
+    <>
+      <header
         style={{
-          fontFamily: DISPLAY,
-          fontWeight: 800,
-          fontSize: 22,
-          color: "#fff",
-          letterSpacing: -1,
-          cursor: "pointer",
-          background: "transparent",
-          border: "none",
-          padding: 0,
-          flexShrink: 0,
-          transition: "opacity 0.25s ease",
-        }}
-        onPointerOver={(e) => {
-          e.currentTarget.style.opacity = "0.7"
-        }}
-        onPointerOut={(e) => {
-          e.currentTarget.style.opacity = "1"
-        }}
-      >
-        JUST
-      </button>
-
-      <nav
-        ref={navRef}
-        aria-label="Navigation principale"
-        style={{
+          width: "100%",
+          height: 64,
+          padding: "0 18px",
           display: "flex",
           alignItems: "center",
-          gap: 2,
-          position: "relative",
-          marginLeft: 48,
-          marginRight: "auto",
-          paddingLeft: 48,
-          borderLeft: "1px solid rgba(255,255,255,0.06)",
-          height: 32,
+          justifyContent: "space-between",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 110,
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          boxSizing: "border-box",
         }}
       >
-        <motion.div
-          aria-hidden="true"
-          animate={{ left: pillStyle.left, width: pillStyle.width }}
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
+        <button
+          onClick={() => router.push("/")}
+          aria-label="Just — retour à l'accueil"
           style={{
-            position: "absolute",
-            top: 0,
-            height: 32,
-            borderRadius: 100,
-            background:
-              current === targetPage
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            pointerEvents: "none",
-            zIndex: 0,
+            fontFamily: DISPLAY,
+            fontWeight: 800,
+            fontSize: 22,
+            color: "#fff",
+            letterSpacing: -1,
+            cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            padding: 0,
           }}
-        />
-
-        {navItems.map((item) => {
-          const isActive = current === item.page
-          const isHov = hovered === item.page
-
-          return (
-            <button
-              key={item.page}
-              ref={(el) => {
-                itemRefs.current[item.page] = el
-              }}
-              onClick={() => handleClick(item)}
-              onMouseEnter={() => setHovered(item.page)}
-              onMouseLeave={() => setHovered(null)}
-              aria-current={isActive ? "page" : undefined}
-              style={{
-                position: "relative",
-                zIndex: 1,
-                padding: "0 18px",
-                height: 32,
-                cursor: "pointer",
-                fontFamily: BODY,
-                fontSize: 11,
-                fontWeight: isActive ? 600 : 400,
-                letterSpacing: 1.5,
-                textTransform: "uppercase",
-                color: isActive || isHov ? "#fff" : "rgba(255,255,255,0.7)",
-                textShadow: isHov
-                  ? "0 0 12px rgba(255,255,255,0.8), 0 0 24px rgba(255,255,255,0.4)"
-                  : "none",
-                transition: "color 0.3s ease, text-shadow 0.3s ease",
-                whiteSpace: "nowrap",
-                display: "flex",
-                alignItems: "center",
-                userSelect: "none",
-                background: "transparent",
-                border: "none",
-              }}
-            >
-              {isActive && dot}
-              {item.label}
-            </button>
-          )
-        })}
-      </nav>
-
-      <Link
-        href="/contact"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "10px 24px",
-          background: "transparent",
-          color: "#e82828",
-          fontFamily: BODY,
-          fontWeight: 600,
-          fontSize: 10,
-          letterSpacing: 2.5,
-          textTransform: "uppercase",
-          textDecoration: "none",
-          borderRadius: 100,
-          border: "none",
-          cursor: "pointer",
-          flexShrink: 0,
-          transition: "transform 0.2s ease, opacity 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.03)"
-          e.currentTarget.style.opacity = "0.7"
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)"
-          e.currentTarget.style.opacity = "1"
-        }}
-      >
-        Nous contacter
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
         >
-          <path d="M5 12h14" />
-          <path d="m12 5 7 7-7 7" />
-        </svg>
-      </Link>
-    </header>
+          JUST
+        </button>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link
+            href="/contact"
+            style={{
+              color: "#e82828",
+              fontFamily: BODY,
+              fontWeight: 600,
+              fontSize: 10,
+              letterSpacing: 2.2,
+              textTransform: "uppercase",
+              textDecoration: "none",
+            }}
+          >
+            Contact
+          </Link>
+
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.10)",
+              background: "rgba(255,255,255,0.03)",
+              color: "#fff",
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+            }}
+          >
+            <span
+              style={{
+                display: "block",
+                width: 16,
+                height: 2,
+                background: "#fff",
+                boxShadow: open
+                  ? "none"
+                  : "0 5px 0 #fff, 0 -5px 0 #fff",
+                transform: open ? "rotate(45deg)" : "none",
+                transition: "all 0.2s ease",
+              }}
+            />
+          </button>
+        </div>
+      </header>
+
+      {open && (
+        <div
+          style={{
+            position: "fixed",
+            top: 64,
+            left: 0,
+            right: 0,
+            zIndex: 109,
+            background: "rgba(0,0,0,0.96)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            padding: "14px 18px 20px",
+          }}
+        >
+          <nav
+            aria-label="Navigation mobile"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            {navItems.map((item) => {
+              const isActive = current === item.page
+
+              return (
+                <button
+                  key={item.page}
+                  onClick={() => handleClick(item)}
+                  style={{
+                    width: "100%",
+                    minHeight: 46,
+                    borderRadius: 14,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: isActive
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(255,255,255,0.03)",
+                    color: "#fff",
+                    textAlign: "left",
+                    padding: "0 14px",
+                    fontFamily: BODY,
+                    fontSize: 12,
+                    fontWeight: isActive ? 700 : 500,
+                    letterSpacing: 1.6,
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+      )}
+    </>
   )
 }

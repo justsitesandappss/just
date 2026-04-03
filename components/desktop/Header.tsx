@@ -55,13 +55,11 @@ export default function HeaderDesktop() {
 
     setCurrent(item.page)
 
-    // Hors home => on laisse uniquement l'URL piloter RoomsExperience
     if (pathname !== "/") {
       router.push(`/?jumpToRoom=${item.room - 1}`)
       return
     }
 
-    // Sur la home => pilotage direct des rooms
     window.dispatchEvent(
       new CustomEvent("just-nav-change", {
         detail: { roomIndex: item.room - 1 },
@@ -79,11 +77,8 @@ export default function HeaderDesktop() {
 
     const jump = searchParams.get("jumpToRoom")
 
-    // Ici on ne déclenche AUCUN event.
-    // On synchronise juste l'état visuel du menu.
     if (pathname === "/" && jump !== null) {
       const roomIndex = parseInt(jump, 10)
-
       if (!Number.isNaN(roomIndex)) {
         const match = navItems.find((item) => item.room === roomIndex + 1)
         if (match) {
@@ -104,9 +99,7 @@ export default function HeaderDesktop() {
       if (roomIndex == null) return
 
       const match = navItems.find((item) => item.room === roomIndex + 1)
-      if (match) {
-        setCurrent(match.page)
-      }
+      if (match) setCurrent(match.page)
     }
 
     window.addEventListener("just-room-changed", onRoomChanged)
@@ -191,13 +184,6 @@ export default function HeaderDesktop() {
           border: "none",
           padding: 0,
           flexShrink: 0,
-          transition: "opacity 0.25s ease",
-        }}
-        onPointerOver={(e) => {
-          e.currentTarget.style.opacity = "0.7"
-        }}
-        onPointerOut={(e) => {
-          e.currentTarget.style.opacity = "1"
         }}
       >
         JUST
@@ -301,15 +287,6 @@ export default function HeaderDesktop() {
           border: "none",
           cursor: "pointer",
           flexShrink: 0,
-          transition: "transform 0.2s ease, opacity 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.03)"
-          e.currentTarget.style.opacity = "0.7"
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)"
-          e.currentTarget.style.opacity = "1"
         }}
       >
         Nous contacter
