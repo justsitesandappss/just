@@ -185,13 +185,77 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   )
 }
 
-function SponsorTextCard({ name, delay = 0 }: { name: string; delay?: number }) {
+function SponsorTextCard({ name, imageUrl, delay = 0 }: { name: string; imageUrl?: string; delay?: number }) {
   const ref = useRef<HTMLLIElement | null>(null)
   const isInView = useInView(ref, { once: true, margin: "-30px" })
   const reducedMotion = useReducedMotion()
   return (
-    <motion.li ref={ref} initial={reducedMotion ? false : { opacity: 0, scale: 0.96, y: 12 }} animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}} transition={getTransition(delay, !!reducedMotion)} style={{ listStyle: "none", background: COLORS.surface, border: `1px solid ${COLORS.borderSoft}`, borderRadius: 16, padding: "clamp(18px, 2vw, 28px) clamp(16px, 1.8vw, 24px)", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "clamp(104px, 12vw, 132px)", minWidth: 0, width: "100%", overflow: "hidden" }}>
-      <p style={{ margin: 0, fontFamily: DISPLAY, fontSize: "clamp(16px, 1.6vw, 18px)", fontWeight: 700, color: COLORS.textSoft, letterSpacing: -0.3, textAlign: "center", lineHeight: 1.3, overflowWrap: "anywhere", wordBreak: "break-word", maxWidth: "100%" }}>{name}</p>
+    <motion.li 
+      ref={ref} 
+      initial={reducedMotion ? false : { opacity: 0, scale: 0.96, y: 12 }} 
+      animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}} 
+      transition={getTransition(delay, !!reducedMotion)} 
+      style={{ 
+        listStyle: "none", 
+        background: COLORS.surface, 
+        border: `1px solid ${COLORS.borderSoft}`, 
+        borderRadius: 16, 
+        padding: "clamp(18px, 2vw, 28px) clamp(16px, 1.8vw, 24px)", 
+        display: "flex", 
+        flexDirection: "column",
+        alignItems: "center", 
+        justifyContent: "center", 
+        gap: 12,
+        minHeight: "clamp(140px, 16vw, 180px)", 
+        minWidth: 0, 
+        width: "100%", 
+        overflow: "hidden" 
+      }}
+    >
+      {imageUrl ? (
+        <img 
+          src={imageUrl} 
+          alt="" 
+          loading="lazy" 
+          decoding="async" 
+          style={{ 
+            maxWidth: "70%", 
+            maxHeight: "clamp(50px, 6vw, 70px)", 
+            objectFit: "contain", 
+            opacity: 0.9, 
+            display: "block"
+          }} 
+        />
+      ) : (
+        <div style={{ 
+          width: "clamp(50px, 6vw, 70px)", 
+          height: "clamp(50px, 6vw, 70px)", 
+          borderRadius: "50%", 
+          background: COLORS.surfaceHover,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <span style={{ fontFamily: DISPLAY, fontSize: "clamp(18px, 2vw, 24px)", fontWeight: 700, color: COLORS.textMuted }}>
+            {name.charAt(0)}
+          </span>
+        </div>
+      )}
+      <p style={{ 
+        margin: 0, 
+        fontFamily: DISPLAY, 
+        fontSize: "clamp(13px, 1.3vw, 15px)", 
+        fontWeight: 700, 
+        color: COLORS.textSoft, 
+        letterSpacing: -0.3, 
+        textAlign: "center", 
+        lineHeight: 1.3, 
+        overflowWrap: "anywhere", 
+        wordBreak: "break-word", 
+        maxWidth: "100%" 
+      }}>
+        {name}
+      </p>
     </motion.li>
   )
 }
@@ -232,7 +296,12 @@ function CategorySection({ title, sponsors, delay = 0 }: { title: string; sponso
       </div>
       <ul style={{ margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12, minWidth: 0 }}>
         {sponsors.map((sponsor, index) => (
-          <SponsorTextCard key={`${title}-${sponsor.name}-${index}`} name={sponsor.name} delay={index * 0.03} />
+          <SponsorTextCard 
+            key={`${title}-${sponsor.name}-${index}`} 
+            name={sponsor.name} 
+            imageUrl={sponsor.imageUrl}
+            delay={index * 0.03} 
+          />
         ))}
       </ul>
     </motion.section>
