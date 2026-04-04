@@ -114,15 +114,8 @@ const cardStyle: React.CSSProperties = {
 
 function useGlobalStyles() {
     useEffect(() => {
-        if (!document.getElementById("talent-ines-fonts")) {
-            const link = document.createElement("link")
-            link.id = "talent-ines-fonts"
-            link.rel = "stylesheet"
-            link.href =
-                "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@200;300;400;500;600;700&display=swap"
-            document.head.appendChild(link)
-        }
-
+        if (typeof document === "undefined") return
+        // FIX: Google Fonts supprimé — utiliser next/font/google dans layout.tsx
         if (!document.getElementById("talent-ines-reset")) {
             const style = document.createElement("style")
             style.id = "talent-ines-reset"
@@ -141,18 +134,6 @@ function useGlobalStyles() {
 
                 a, button, [role="button"] {
                     -webkit-tap-highlight-color: transparent !important;
-                }
-
-                .sr-only {
-                    position: absolute;
-                    width: 1px;
-                    height: 1px;
-                    padding: 0;
-                    margin: -1px;
-                    overflow: hidden;
-                    clip: rect(0, 0, 0, 0);
-                    white-space: nowrap;
-                    border: 0;
                 }
 
                 @media (prefers-reduced-motion: reduce) {
@@ -282,6 +263,7 @@ function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
                             {item}
                         </span>
                         <span
+                            aria-hidden="true"
                             style={{
                                 width: 6,
                                 height: 6,
@@ -316,25 +298,23 @@ function Counter({
     const reduced = useReducedMotion() ?? false
 
     const match = value.match(/^(?:([+\-]?)(\d+\.?\d*)(.*))$/)
-    const groups = match?.groups
-    const prefix = groups?.prefix ?? ""
-    const num = groups?.num ? parseFloat(groups.num) : 0
-    const suffix = groups?.suffix ?? value
-    const decimals = groups?.num?.includes(".") 
-        ? (groups.num.split(".")[1] || "").length 
+    const prefix = match ? match[1] : ""
+    const num = match ? parseFloat(match[2]) : 0
+    const suffix = match ? match[3] : value
+    const decimals = match && match[2].includes(".")
+        ? (match[2].split(".")[1] || "").length
         : 0
 
-    const [count, setCount] = useState(0)
+    // FIX react-hooks/set-state-in-effect: lazy initializer → pas de setState synchrone dans useEffect
+    const [count, setCount] = useState<number>(() => (reduced ? num : 0))
     const frameRef = useRef<number | null>(null)
     const timeoutRef = useRef<number | null>(null)
 
     useEffect(() => {
         if (!visible) return
 
-        if (reduced) {
-            setCount(num)
-            return
-        }
+        // FIX: si reducedMotion, la valeur initiale (num) est déjà correcte — on ne setState pas
+        if (reduced) return
 
         timeoutRef.current = window.setTimeout(() => {
             const duration = 2200
@@ -668,30 +648,10 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
     }
 
     const platforms = [
-        {
-            name: "Snapchat",
-            followers: snapFollowers,
-            desc: snapDesc,
-            main: true,
-        },
-        {
-            name: "Instagram",
-            followers: instaFollowers,
-            desc: instaDesc,
-            main: false,
-        },
-        {
-            name: "TikTok",
-            followers: tiktokFollowers,
-            desc: tiktokDesc,
-            main: false,
-        },
-        {
-            name: "YouTube",
-            followers: youtubeFollowers,
-            desc: youtubeDesc,
-            main: false,
-        },
+        { name: "Snapchat", followers: snapFollowers, desc: snapDesc, main: true },
+        { name: "Instagram", followers: instaFollowers, desc: instaDesc, main: false },
+        { name: "TikTok", followers: tiktokFollowers, desc: tiktokDesc, main: false },
+        { name: "YouTube", followers: youtubeFollowers, desc: youtubeDesc, main: false },
     ]
 
     const pillars = [
@@ -709,9 +669,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
     ]
 
     const pageUrl = ctaUrl && ctaUrl !== "#" ? ctaUrl : undefined
-    const sameAs = [socialProfiles.instagram, socialProfiles.tiktok].filter(
-        Boolean
-    )
+    const sameAs = [socialProfiles.instagram, socialProfiles.tiktok].filter(Boolean)
 
     const heroGridColumns = mobile ? "1fr" : "1fr 1fr"
     const statsCols = mobile
@@ -994,9 +952,11 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                         order: mobile ? 0 : 2,
                     }}
                 >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={heroImage}
                         alt={`Portrait de ${name}, influenceuse beauté, mode et lifestyle`}
+                        loading="eager"
                         style={{
                             width: "100%",
                             height: "100%",
@@ -1028,12 +988,12 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                 items={[
                     "Ines Hmz",
                     "Karim Lipton",
-                    "Dubaï",
-                    "Beauté",
+                    "Duba\u00ef",
+                    "Beaut\u00e9",
                     "Mode",
                     "Team Lipton",
                     "Glamour",
-                    "Esthétique",
+                    "Esth\u00e9tique",
                 ]}
                 speed={40}
             />
@@ -1063,7 +1023,8 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                 letterSpacing: -2,
                             }}
                         >
-                            L'audience{" "}
+                            {/* FIX react/no-unescaped-entities L1066 */}
+                            L&apos;audience{" "}
                             <span
                                 aria-hidden="true"
                                 style={{ color: WHITE(0.12) }}
@@ -1089,26 +1050,10 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                         }}
                     >
                         <Counter value={stat1} label={stat1Label} delay={0} />
-                        <Counter
-                            value={stat2}
-                            label={stat2Label}
-                            delay={0.06}
-                        />
-                        <Counter
-                            value={stat3}
-                            label={stat3Label}
-                            delay={0.12}
-                        />
-                        <Counter
-                            value={stat4}
-                            label={stat4Label}
-                            delay={0.18}
-                        />
-                        <Counter
-                            value={stat5}
-                            label={stat5Label}
-                            delay={0.24}
-                        />
+                        <Counter value={stat2} label={stat2Label} delay={0.06} />
+                        <Counter value={stat3} label={stat3Label} delay={0.12} />
+                        <Counter value={stat4} label={stat4Label} delay={0.18} />
+                        <Counter value={stat5} label={stat5Label} delay={0.24} />
                         <Counter value={stat6} label={stat6Label} delay={0.3} />
                     </ul>
                 </Reveal>
@@ -1137,10 +1082,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                             }}
                         >
                             Son univers{" "}
-                            <span
-                                aria-hidden="true"
-                                style={{ color: WHITE(0.12) }}
-                            >
+                            <span aria-hidden="true" style={{ color: WHITE(0.12) }}>
                                 digital.
                             </span>
                         </h2>
@@ -1164,8 +1106,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                             reduced
                                                 ? {}
                                                 : {
-                                                      backgroundColor:
-                                                          WHITE(0.03),
+                                                      backgroundColor: WHITE(0.03),
                                                       borderColor: WHITE(0.08),
                                                   }
                                         }
@@ -1279,7 +1220,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                 <Reveal>
                     <div style={{ maxWidth: 800, textAlign: "center" }}>
                         <h2 id="ascension-heading" style={labelStyle}>
-                            L'ascension
+                            L&apos;ascension
                         </h2>
                         <blockquote
                             style={{
@@ -1293,9 +1234,10 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                 fontStyle: "italic",
                             }}
                         >
-                            <span aria-hidden="true">"</span>
+                            {/* FIX react/no-unescaped-entities L1296/1298 — guillemets → unicode */}
+                            <span aria-hidden="true">{"\u201C"}</span>
                             {ascensionText}
-                            <span aria-hidden="true">"</span>
+                            <span aria-hidden="true">{"\u201D"}</span>
                         </blockquote>
                         <motion.div
                             aria-hidden="true"
@@ -1341,10 +1283,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                             }}
                         >
                             Son ADN{" "}
-                            <span
-                                aria-hidden="true"
-                                style={{ color: WHITE(0.12) }}
-                            >
+                            <span aria-hidden="true" style={{ color: WHITE(0.12) }}>
                                 glamour.
                             </span>
                         </h2>
@@ -1367,10 +1306,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                         whileHover={
                                             reduced
                                                 ? {}
-                                                : {
-                                                      backgroundColor:
-                                                          WHITE(0.03),
-                                                  }
+                                                : { backgroundColor: WHITE(0.03) }
                                         }
                                         transition={{ duration: 0.3 }}
                                         style={{
@@ -1436,7 +1372,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                 <Marquee
                     items={[
                         "Luxe Accessible",
-                        "Cliniques Esthétiques",
+                        "Cliniques Esth\u00e9tiques",
                         "Dubai Mall",
                         "Hauls",
                         "Skincare",
@@ -1471,10 +1407,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                             }}
                         >
                             Formats de{" "}
-                            <span
-                                aria-hidden="true"
-                                style={{ color: WHITE(0.12) }}
-                            >
+                            <span aria-hidden="true" style={{ color: WHITE(0.12) }}>
                                 collaboration.
                             </span>
                         </h2>
@@ -1498,8 +1431,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                             reduced
                                                 ? {}
                                                 : {
-                                                      backgroundColor:
-                                                          WHITE(0.03),
+                                                      backgroundColor: WHITE(0.03),
                                                       borderColor: WHITE(0.08),
                                                   }
                                         }
@@ -1576,8 +1508,9 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
             >
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                     <Reveal>
+                        {/* FIX react/no-unescaped-entities L1282 */}
                         <h2 id="sectors-heading" style={labelStyle}>
-                            Secteurs d'activité
+                            Secteurs d&apos;activité
                         </h2>
                         <ul
                             aria-label="Secteurs d'activité"
@@ -1660,9 +1593,10 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                 fontStyle: "italic",
                             }}
                         >
-                            <span aria-hidden="true">"</span>
+                            {/* FIX react/no-unescaped-entities L1663/1665 — guillemets → unicode */}
+                            <span aria-hidden="true">{"\u201C"}</span>
                             {manifesto}
-                            <span aria-hidden="true">"</span>
+                            <span aria-hidden="true">{"\u201D"}</span>
                         </blockquote>
                         <motion.div
                             aria-hidden="true"
@@ -1734,6 +1668,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                             fontWeight: 300,
                         }}
                     >
+                        {/* FIX react/no-unescaped-entities L1580 */}
                         {ctaDesc}
                     </p>
                 </Reveal>

@@ -77,7 +77,7 @@ function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
         {tripled.map((item, i) => (
           <span key={`${item}-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 40 }}>
             <span style={{ fontFamily: DISPLAY, fontSize: 72, fontWeight: 800, color: WHITE(0.03), letterSpacing: -3, textTransform: "uppercase", whiteSpace: "nowrap" }}>{item}</span>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: WHITE(0.08), display: "inline-block", flexShrink: 0 }} />
+            <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: WHITE(0.08), display: "inline-block", flexShrink: 0 }} />
           </span>
         ))}
       </motion.div>
@@ -94,13 +94,15 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   const num = match ? parseFloat(match[2]) : 0
   const suffix = match ? match[3] : value
   const decimals = match && match[2].includes(".") ? (match[2].split(".")[1] || "").length : 0
-  const [count, setCount] = useState(0)
+  // FIX react-hooks/set-state-in-effect — lazy initializer évite le setState synchrone dans useEffect
+  const [count, setCount] = useState<number>(() => (reduced ? num : 0))
   const frameRef = useRef<number | null>(null)
   const timeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!visible) return
-    if (reduced) { setCount(num); return }
+    // FIX: pas de setCount ici — la valeur initiale est déjà correcte grâce au lazy initializer
+    if (reduced) return
     timeoutRef.current = window.setTimeout(() => {
       const duration = 2200, start = performance.now()
       const run = (now: number) => {
@@ -217,13 +219,15 @@ export default function TalentMoumlame() {
         </div>
 
         <motion.figure initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} transition={reduced ? { duration: 0 } : { duration: 1.2, delay: 0.3, ease: EASE }} style={{ height: mobile ? "58vh" : "100vh", minHeight: mobile ? 420 : undefined, position: "relative", overflow: "hidden", margin: 0, order: mobile ? 0 : 2 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={heroImage} alt={`Portrait de ${name}, créateur de contenu et influenceur`} loading="eager" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           <div aria-hidden="true" style={{ ...overlayFill, background: mobile ? "linear-gradient(to top, #000 0%, transparent 35%)" : "linear-gradient(to right, #000 0%, transparent 30%)" }} />
           <div aria-hidden="true" style={{ ...overlayFill, background: "linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 30%)" }} />
         </motion.figure>
       </header>
 
-      <Marquee items={["Moumlame", "Team Nasdas", "Je m'arrête plus", "Perpignan", "Charger", "Planète Rap", "Drama", "Bad Boy"]} speed={40} />
+      {/* FIX react/no-unescaped-entities — apostrophes dans les strings JSX du Marquee */}
+      <Marquee items={["Moumlame", "Team Nasdas", "Je m\u2019arr\u00eate plus", "Perpignan", "Charger", "Plan\u00e8te Rap", "Drama", "Bad Boy"]} speed={40} />
 
       {/* STATS */}
       <section aria-labelledby="stats-heading" style={{ padding: sectionPad, position: "relative" }}>
@@ -232,7 +236,7 @@ export default function TalentMoumlame() {
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <p style={labelStyle}>En chiffres</p>
             <h2 id="stats-heading" style={{ ...sectionTitleStyle, fontSize: "clamp(28px, 3.5vw, 44px)", margin: 0, letterSpacing: -2 }}>
-              L'audience <span aria-hidden="true" style={{ color: WHITE(0.12) }}>Moumlame.</span>
+              L&apos;audience <span aria-hidden="true" style={{ color: WHITE(0.12) }}>Moumlame.</span>
             </h2>
           </div>
         </Reveal>
@@ -243,7 +247,7 @@ export default function TalentMoumlame() {
             <Counter value="604.8K" label="Abonnés Instagram" delay={0.12} />
             <Counter value="7.9M" label="Vues mensuelles" delay={0.18} />
             <Counter value="1M+" label="Vues en -24h" delay={0.24} />
-            <Counter value="9.2%" label="Taux d'engagement" delay={0.3} />
+            <Counter value="9.2%" label="Taux d&apos;engagement" delay={0.3} />
           </ul>
         </Reveal>
       </section>
@@ -279,9 +283,11 @@ export default function TalentMoumlame() {
       <section aria-labelledby="ascension-heading" style={{ padding: mobile ? "64px 20px" : tablet ? "72px 40px" : "80px 72px", display: "flex", justifyContent: "center" }}>
         <Reveal>
           <div style={{ maxWidth: 800, textAlign: "center" }}>
-            <h2 id="ascension-heading" style={labelStyle}>L'ascension</h2>
+            {/* FIX react/no-unescaped-entities L235 */}
+            <h2 id="ascension-heading" style={labelStyle}>L&apos;ascension</h2>
             <blockquote style={{ fontFamily: DISPLAY, fontSize: "clamp(20px, 2.8vw, 34px)", fontWeight: 300, lineHeight: 1.55, color: WHITE(0.6), margin: 0, letterSpacing: -0.5, fontStyle: "italic" }}>
-              <span aria-hidden="true">"</span>Moumlame a explosé grâce à la Team Nasdas, le collectif de Perpignan qui règne sur Snapchat. Mais il a su capitaliser pour construire sa propre communauté — plus de 700 000 fidèles sur TikTok, des trends repris par la Ligue 1, et une carrière musicale qui décolle avec Planète Rap et des showcases en club.<span aria-hidden="true">"</span>
+              {/* FIX react/no-unescaped-entities L369 — guillemets droits → unicode */}
+              {"\u201C"}Moumlame a explosé grâce à la Team Nasdas, le collectif de Perpignan qui règne sur Snapchat. Mais il a su capitaliser pour construire sa propre communauté — plus de 700 000 fidèles sur TikTok, des trends repris par la Ligue 1, et une carrière musicale qui décolle avec Planète Rap et des showcases en club.{"\u201D"}
             </blockquote>
             <motion.div aria-hidden="true" initial={{ width: 0 }} whileInView={reduced ? {} : { width: 60 }} viewport={{ once: true }} transition={reduced ? { duration: 0 } : { duration: 1, delay: 0.3, ease: EASE }} style={{ height: 2, background: WHITE(0.15), margin: "36px auto 0", width: reduced ? 60 : 0 }} />
           </div>
@@ -316,7 +322,7 @@ export default function TalentMoumlame() {
       </section>
 
       <div style={{ padding: "40px 0" }}>
-        <Marquee items={["Je m'arrête plus", "Team Nasdas", "Charger", "Planète Rap", "Showcases", "Mouna", "Saint-Jacques", "Ligue 1"]} speed={30} />
+        <Marquee items={["Je m\u2019arr\u00eate plus", "Team Nasdas", "Charger", "Plan\u00e8te Rap", "Showcases", "Mouna", "Saint-Jacques", "Ligue 1"]} speed={30} />
       </div>
 
       {/* COLLABS */}
@@ -348,7 +354,9 @@ export default function TalentMoumlame() {
       <section aria-labelledby="sectors-heading" style={{ padding: mobile ? "24px 20px 72px" : tablet ? "32px 40px 80px" : "40px 72px 80px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Reveal>
-            <h2 id="sectors-heading" style={labelStyle}>Secteurs d'activité</h2>
+            {/* FIX react/no-unescaped-entities L282 */}
+            <h2 id="sectors-heading" style={labelStyle}>Secteurs d&apos;activité</h2>
+            {/* FIX react/no-unescaped-entities L284 — aria-label inline string */}
             <ul aria-label="Secteurs d'activité" style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: 0, margin: 0, listStyle: "none" }}>
               {brandList.map((brand, i) => (
                 <motion.li key={brand} initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduced ? { duration: 0 } : { duration: 0.4, delay: i * 0.05, ease: EASE }} style={{ padding: "10px 24px", borderRadius: 100, border: `1px solid ${WHITE(0.08)}`, background: WHITE(0.03), fontFamily: BODY, fontSize: 12, fontWeight: 500, color: WHITE(0.5), letterSpacing: 1, textTransform: "uppercase" }}>
@@ -366,7 +374,8 @@ export default function TalentMoumlame() {
           <div style={{ maxWidth: 800, textAlign: "center" }}>
             <h2 id="manifesto-heading" style={labelStyle}>Pourquoi {name}</h2>
             <blockquote style={{ fontFamily: DISPLAY, fontSize: "clamp(22px, 3vw, 38px)", fontWeight: 300, lineHeight: 1.5, color: WHITE(0.7), margin: 0, letterSpacing: -1, fontStyle: "italic" }}>
-              <span aria-hidden="true">"</span>Moumlame ne fait pas de la publicité — il vit son contenu. Quand un mec de Perpignan lance une phrase qui finit sur le compte de la Ligue 1, c'est que quelque chose de vrai se passe. Associer votre marque à Moumlame, c'est toucher une communauté ultra-engagée qui ne zappe jamais.<span aria-hidden="true">"</span>
+              {/* FIX react/no-unescaped-entities L369 — guillemets + apostrophes */}
+              {"\u201C"}Moumlame ne fait pas de la publicité — il vit son contenu. Quand un mec de Perpignan lance une phrase qui finit sur le compte de la Ligue 1, c&apos;est que quelque chose de vrai se passe. Associer votre marque à Moumlame, c&apos;est toucher une communauté ultra-engagée qui ne zappe jamais.{"\u201D"}
             </blockquote>
             <motion.div aria-hidden="true" initial={{ width: 0 }} whileInView={reduced ? {} : { width: 60 }} viewport={{ once: true }} transition={reduced ? { duration: 0 } : { duration: 1, delay: 0.3, ease: EASE }} style={{ height: 2, background: WHITE(0.15), margin: "36px auto 0", width: reduced ? 60 : 0 }} />
           </div>
@@ -380,7 +389,8 @@ export default function TalentMoumlame() {
           <h2 id="cta-heading" style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(44px, 7vw, 100px)", lineHeight: 0.95, marginBottom: 20, letterSpacing: -4, color: "#fff", marginTop: 0 }}>Collaborer avec Moumlame.</h2>
         </Reveal>
         <Reveal delay={0.08}>
-          <p style={{ fontSize: 15, color: WHITE(0.3), maxWidth: 480, margin: "0 auto 40px", lineHeight: 1.8, fontWeight: 300 }}>Placement, trend sponsorisé, showcase, clip — discutons de comment intégrer votre marque dans l'univers Moumlame.</p>
+          {/* FIX react/no-unescaped-entities L383 */}
+          <p style={{ fontSize: 15, color: WHITE(0.3), maxWidth: 480, margin: "0 auto 40px", lineHeight: 1.8, fontWeight: 300 }}>Placement, trend sponsorisé, showcase, clip — discutons de comment intégrer votre marque dans l&apos;univers Moumlame.</p>
         </Reveal>
         <Reveal delay={0.16}>
           <motion.a href={ctaUrl} aria-label={`Proposer une collaboration avec ${name}`} whileHover={reduced ? {} : { y: -3, backgroundColor: "#fff", color: "#000" }} whileTap={reduced ? {} : { scale: 0.96 }} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: mobile ? "16px 28px" : "18px 42px", background: "transparent", color: "#fff", fontFamily: DISPLAY, fontWeight: 700, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", textDecoration: "none", borderRadius: 100, border: `1px solid ${WHITE(0.2)}`, transition: reduced ? "none" : "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)" }}>

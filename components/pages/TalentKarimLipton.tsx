@@ -4,6 +4,7 @@ import * as React from "react"
 import { useEffect, useId, useRef, useState } from "react"
 import { motion, useInView, useReducedMotion, type Transition } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
@@ -259,12 +260,14 @@ export default function TalentKarimLipton() {
           </div>
         </div>
 
-        {/* ✅ img standard au lieu de next/image — pas besoin de config domaine */}
         <motion.div className="talent-karim-hero-media" initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.03 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }} transition={makeTransition(reducedMotion ?? false, 1, 0.2)} style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}>
-          <img
+          <Image
             src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg"
             alt="Portrait de Karim Lipton"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            style={{ objectFit: "cover" }}
           />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.15) 34%, transparent 55%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 32%)", pointerEvents: "none" }} />

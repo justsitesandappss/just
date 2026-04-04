@@ -8,6 +8,7 @@ import {
     useInView,
     useReducedMotion,
 } from "framer-motion"
+import Image from "next/image"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
@@ -338,7 +339,13 @@ function TalentCard({ imageUrl, name, handle, categories, followers, views, bio,
             <div style={{ position: "relative", aspectRatio: "1 / 1", overflow: "hidden", background: COLORS.panel, width: "100%", minWidth: 0 }}>
                 <motion.div animate={reducedMotion ? { scale: 1.01 } : { scale: hovered ? 1.04 : 1.01 }} transition={reducedMotion ? { duration: 0 } : { duration: 0.6, ease: EASE }} style={{ width: "100%", height: "100%", transformOrigin: "center center" }}>
                     {safeImage ? (
-                        <img src={safeImage} alt={`Portrait de ${safeName}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", backfaceVisibility: "hidden", transform: "translateZ(0)" }} />
+                        <Image
+                            src={safeImage}
+                            alt={`Portrait de ${safeName}`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            style={{ objectFit: "cover", backfaceVisibility: "hidden", transform: "translateZ(0)" }}
+                        />
                     ) : (
                         <div role="img" aria-label={`Illustration indisponible pour ${safeName}`} style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))", color: COLORS.textLow, fontFamily: DISPLAY, fontWeight: 700, fontSize: 18, textTransform: "uppercase", letterSpacing: 1, textAlign: "center", padding: 20 }}>Image indisponible</div>
                     )}
