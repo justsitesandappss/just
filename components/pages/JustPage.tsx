@@ -22,7 +22,6 @@ import {
   motion,
   useInView,
   useMotionValue,
-  useTransform,
   animate,
 } from "framer-motion"
 
@@ -240,9 +239,14 @@ function subscribeReducedMotion(callback: () => void) {
 
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
   const handler = () => callback()
-  mq.addEventListener("change", handler)
 
-  return () => mq.removeEventListener("change", handler)
+  if (typeof mq.addEventListener === "function") {
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }
+
+  mq.addListener(handler)
+  return () => mq.removeListener(handler)
 }
 
 function getReducedMotionSnapshot() {
@@ -729,7 +733,11 @@ function Entity({
             {services.map((service, i) => (
               <motion.li
                 key={service}
-                initial={mo(reduced, { opacity: 0, y: 12 }, { opacity: 1, y: 0 })}
+                initial={mo(
+                  reduced,
+                  { opacity: 0, y: 12 },
+                  { opacity: 1, y: 0 }
+                )}
                 animate={isVisible ? { opacity: 1, y: 0 } : {}}
                 transition={tr(reduced, 0.5, 0.3 + i * 0.06)}
                 style={S.pill}
@@ -750,7 +758,11 @@ function Entity({
           overflow: "hidden",
           minWidth: 0,
         }}
-        initial={mo(reduced, { opacity: 0, scale: 1.05 }, { opacity: 1, scale: 1 })}
+        initial={mo(
+          reduced,
+          { opacity: 0, scale: 1.05 },
+          { opacity: 1, scale: 1 }
+        )}
         animate={isVisible ? { opacity: 1, scale: 1 } : {}}
         transition={tr(reduced, 1.2)}
       >
@@ -791,8 +803,16 @@ function Counter({
   const numericValue = parseInt(value.replace(/[^0-9]/g, ""), 10) || 0
   const suffix = value.replace(/[0-9]/g, "")
   const motionValue = useMotionValue(0)
-  const rounded = useTransform(() => Math.floor(motionValue.get()))
   const hasAnimatedRef = useRef(false)
+  const [displayValue, setDisplayValue] = useState("0")
+
+  useEffect(() => {
+    const unsubscribe = motionValue.on("change", (latest) => {
+      setDisplayValue(String(Math.floor(latest)))
+    })
+
+    return () => unsubscribe()
+  }, [motionValue])
 
   useEffect(() => {
     if (!isVisible || hasAnimatedRef.current) return
@@ -801,6 +821,7 @@ function Counter({
 
     if (reduced) {
       motionValue.set(numericValue)
+      setDisplayValue(String(numericValue))
       return
     }
 
@@ -832,7 +853,7 @@ function Counter({
         }}
       >
         <span aria-hidden="true">
-          {isVisible ? <motion.span>{rounded}</motion.span> : 0}
+          {isVisible ? displayValue : "0"}
           {suffix}
         </span>
       </div>
@@ -1537,9 +1558,17 @@ export default function JustPage() {
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={heroSlides[heroIndex].title}
-                    initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })}
+                    initial={mo(
+                      reduced,
+                      { opacity: 0, y: 40 },
+                      { opacity: 1, y: 0 }
+                    )}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })}
+                    exit={mo(
+                      reduced,
+                      { opacity: 0, y: -40 },
+                      { opacity: 1, y: 0 }
+                    )}
                     transition={tr(reduced, 0.6)}
                     style={{
                       ...heroRotatingBase,
@@ -1576,9 +1605,17 @@ export default function JustPage() {
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={heroSlides[heroIndex].subtitle}
-                    initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })}
+                    initial={mo(
+                      reduced,
+                      { opacity: 0, y: 40 },
+                      { opacity: 1, y: 0 }
+                    )}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })}
+                    exit={mo(
+                      reduced,
+                      { opacity: 0, y: -40 },
+                      { opacity: 1, y: 0 }
+                    )}
                     transition={tr(reduced, 0.6)}
                     style={{
                       ...heroRotatingBase,
@@ -2327,7 +2364,11 @@ export default function JustPage() {
                             aria-disabled={isSubmitDisabled}
                             whileHover={
                               !isSubmitDisabled && !reduced
-                                ? { y: -2, backgroundColor: "#ffffff", color: "#000000" }
+                                ? {
+                                    y: -2,
+                                    backgroundColor: "#ffffff",
+                                    color: "#000000",
+                                  }
                                 : undefined
                             }
                             whileTap={
