@@ -1,5 +1,6 @@
 "use client"
 
+import NextImage from "next/image"
 import {
   useEffect,
   useMemo,
@@ -211,14 +212,17 @@ function AccessibleImage({ src, alt, style }: { src: string; alt: string; style?
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-      onError={() => setErr(true)}
-      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", ...style }}
-    />
+    <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 260 }}>
+      <NextImage
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        loading="lazy"
+        onError={() => setErr(true)}
+        style={{ objectFit: "cover", display: "block" }}
+      />
+    </div>
   )
 }
 
@@ -995,7 +999,7 @@ export default function JustPodcastPage() {
               <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 14px" }}>Le podcast en chiffres</p>
               <h2 id="stats-title" style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 46px)", color: COLORS.text, letterSpacing: responsive.mobile ? -1.5 : -2, margin: 0, lineHeight: 1.1 }}>
                 Pourquoi les marques investissent{" "}
-                <span style={{ color: "rgba(255,255,255,0.66)" }}>dans l'audio</span>
+                <span style={{ color: "rgba(255,255,255,0.66)" }}>dans l&apos;audio</span>
               </h2>
             </div>
           </Reveal>
@@ -1079,7 +1083,7 @@ export default function JustPodcastPage() {
             <Reveal>
               <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 14px" }}>Notre offre</p>
               <h2 id="services-title" style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(34px, 4.5vw, 58px)", color: COLORS.text, lineHeight: 1, letterSpacing: responsive.mobile ? -2 : -3, margin: "0 0 48px" }}>
-                De l'idée à l'écoute.
+                De l&apos;idée à l&apos;écoute.
               </h2>
             </Reveal>
             <div style={{ display: "grid", gridTemplateColumns: threeCols, gap: 14, alignItems: "stretch" }}>
@@ -1125,7 +1129,7 @@ export default function JustPodcastPage() {
                 <div>
                   <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 14px" }}>Témoignages</p>
                   <h2 id="testimonials-title" style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(28px, 3vw, 42px)", color: COLORS.text, lineHeight: 1, letterSpacing: -2, margin: 0 }}>
-                    Ce qu'ils<br />en disent.
+                    Ce qu&apos;ils<br />en disent.
                   </h2>
                 </div>
                 <div style={{ background: COLORS.surface, border: `1px solid ${COLORS.borderSoft}`, borderRadius: 20, padding: responsive.mobile ? "28px 22px" : "48px", minWidth: 0 }}>
@@ -1156,7 +1160,7 @@ export default function JustPodcastPage() {
               </p>
               {/* FIX: guillemets typographiques Unicode directs au lieu de " " (ASCII) */}
               <blockquote style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 3vw, 38px)", fontWeight: 400, lineHeight: 1.5, color: COLORS.textBody, margin: 0, letterSpacing: -1, fontStyle: "italic" }}>
-                {"\u201C"}Le podcast n'est pas un canal de plus. C'est un territoire de
+                {"\u201C"}Le podcast n&apos;est pas un canal de plus. C&apos;est un territoire de
                 confiance. Une voix bien utilisée devient une arme de
                 positionnement redoutable.{"\u201D"}
               </blockquote>
@@ -1187,7 +1191,7 @@ export default function JustPodcastPage() {
                 </h2>
                 <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: COLORS.textBody, fontWeight: 300 }}>
                   Podcast de marque, interview, format interne ou événementiel —
-                  on a l'expertise et le studio qu'il vous faut. Remplissez le
+                  on a l&apos;expertise et le studio qu&apos;il vous faut. Remplissez le
                   formulaire, on revient vers vous sous 24h.
                 </p>
               </div>
@@ -1218,7 +1222,7 @@ export default function JustPodcastPage() {
                       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: COLORS.textMuted, margin: "0 0 14px" }}>Formulaire</p>
                       <h3 id={contactSectionTitleId} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 48px)", color: "#FFFFFF", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>Dites-nous tout.</h3>
                       <p id={contactSectionDescId} style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: COLORS.textBody, maxWidth: 620 }}>
-                        Les champs marqués d'un astérisque sont obligatoires.
+                        Les champs marqués d&apos;un astérisque sont obligatoires.
                       </p>
 
                       <form onSubmit={handleContactSubmit} noValidate>
@@ -1237,7 +1241,7 @@ export default function JustPodcastPage() {
                           <div style={{ padding: responsive.mobile ? "28px 20px" : "36px 32px", borderRadius: 20, background: "rgba(255,255,255,0.015)", border: `1px solid ${COLORS.borderSoft}` }}>
                             <div style={{ marginBottom: 20 }}>
                               <p style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 20, color: COLORS.text, letterSpacing: -0.5, margin: "0 0 8px" }}>Réservez une séance</p>
-                              <p style={{ fontFamily: BODY, fontSize: 13, color: COLORS.textMuted, margin: 0, lineHeight: 1.7 }}>Choisissez un créneau pour discuter de votre projet podcast ou réserver une session d'enregistrement.</p>
+                              <p style={{ fontFamily: BODY, fontSize: 13, color: COLORS.textMuted, margin: 0, lineHeight: 1.7 }}>Choisissez un créneau pour discuter de votre projet podcast ou réserver une session d&apos;enregistrement.</p>
                             </div>
                             <BookingCalendar selectedDate={contactFormData.bookingDate} selectedSlot={contactFormData.bookingSlot} onSelectDate={updateContactField("bookingDate")} onSelectSlot={updateContactField("bookingSlot")} mobile={responsive.mobile} />
                             {contactFormData.bookingDate && contactFormData.bookingSlot && (
