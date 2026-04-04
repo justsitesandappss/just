@@ -9,43 +9,21 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react"
-import type {
-  CSSProperties,
-  FormEvent,
-  HTMLAttributes,
-  ReactNode,
-} from "react"
-import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useMotionValue,
-  useTransform,
-  animate as framerAnimate,
-} from "framer-motion"
+import type { CSSProperties, FormEvent, HTMLAttributes, ReactNode } from "react"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
-const WEB3FORMS_ACCESS_KEY =
-  process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
 
 const BP = { mobile: 640, tablet: 1024 } as const
 const OP = {
-  label: 0.55,
-  tag: 0.58,
-  desc: 0.6,
-  heroDesc: 0.62,
-  caption: 0.62,
-  entityDesc: 0.65,
-  quote: 0.75,
+  label: 0.55, tag: 0.58, desc: 0.6, heroDesc: 0.62,
+  caption: 0.62, entityDesc: 0.65, quote: 0.75,
 } as const
 
 const JC = {
-  bg: "#000000",
   text: "#ffffff",
   border: "rgba(255,255,255,0.16)",
   borderFocus: "#ffffff",
@@ -59,177 +37,67 @@ const JC = {
 } as const
 
 const white = (o: number) => `rgba(255,255,255,${o})`
-const clampNumber = (min: number, v: number, max: number) =>
-  Math.max(min, Math.min(v, max))
+const clampN = (min: number, v: number, max: number) => Math.max(min, Math.min(v, max))
 const fluidPx = (w: number, minPx: number, maxPx: number, ref = 1440) =>
-  clampNumber(minPx, Math.round(maxPx * (w / ref)), maxPx)
-
-function mo<T extends CSSProperties | Record<string, unknown>>(
-  reduced: boolean,
-  active: T,
-  fallback: T
-): T {
-  return reduced ? fallback : active
-}
-
-function tr(reduced: boolean, duration: number, delay = 0) {
-  return reduced ? { duration: 0 } : { duration, delay, ease: EASE }
-}
-
-function isValidEmail(e: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim())
-}
-
+  clampN(minPx, Math.round(maxPx * (w / ref)), maxPx)
+function isValidEmail(e: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()) }
 function handleImageError() {}
 
 const S = {
   label: {
-    fontSize: 9,
-    fontWeight: 700,
-    letterSpacing: 6,
-    textTransform: "uppercase" as const,
-    color: white(OP.label),
-    fontFamily: BODY,
-    marginBottom: 14,
-    marginTop: 0,
+    fontSize: 9, fontWeight: 700, letterSpacing: 6,
+    textTransform: "uppercase" as const, color: white(OP.label),
+    fontFamily: BODY, marginBottom: 14, marginTop: 0,
   },
-  title: {
-    fontFamily: DISPLAY,
-    fontWeight: 800,
-    color: "#fff",
-    lineHeight: 1,
-    letterSpacing: -3,
-    marginTop: 0,
-  },
+  title: { fontFamily: DISPLAY, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0 },
   pill: {
-    padding: "8px 18px",
-    borderRadius: 100,
-    border: `1px solid ${white(0.08)}`,
-    background: white(0.03),
-    fontFamily: BODY,
-    fontSize: 11,
-    fontWeight: 500,
-    color: white(OP.entityDesc),
-    letterSpacing: 1,
-    textTransform: "uppercase" as const,
+    padding: "8px 18px", borderRadius: 100, border: `1px solid ${white(0.08)}`,
+    background: white(0.03), fontFamily: BODY, fontSize: 11, fontWeight: 500,
+    color: white(OP.entityDesc), letterSpacing: 1, textTransform: "uppercase" as const,
   },
-  ghost: (size: number): CSSProperties => ({
-    fontFamily: DISPLAY,
-    fontSize: size,
-    fontWeight: 800,
-    color: white(0.03),
-    lineHeight: 1,
-  }),
-  overlay: {
-    position: "absolute" as const,
-    inset: 0,
-    pointerEvents: "none" as const,
-  },
-  coverImg: {
-    objectFit: "cover" as const,
-    display: "block" as const,
-  },
+  ghost: (size: number): CSSProperties => ({ fontFamily: DISPLAY, fontSize: size, fontWeight: 800, color: white(0.03), lineHeight: 1 }),
+  overlay: { position: "absolute" as const, inset: 0, pointerEvents: "none" as const },
+  coverImg: { objectFit: "cover" as const, display: "block" as const },
   mask: "linear-gradient(to right,transparent,black 8%,black 92%,transparent)",
-  maskWide:
-    "linear-gradient(to right,transparent,black 3%,black 97%,transparent)",
+  maskWide: "linear-gradient(to right,transparent,black 3%,black 97%,transparent)",
 } as const
 
 const VALUES = [
-  {
-    n: "01",
-    t: "Authenticité",
-    d: "Des voix vraies. Des connexions réelles. Pas de faux-semblants.",
-  },
-  {
-    n: "02",
-    t: "Précision",
-    d: "Du brief à l'exécution, chaque détail est pensé.",
-  },
-  {
-    n: "03",
-    t: "Audace",
-    d: "Repousser les limites du contenu et de l'expérience client.",
-  },
-  {
-    n: "04",
-    t: "Excellence",
-    d: "Un standard de qualité qui ne se négocie jamais.",
-  },
+  { n: "01", t: "Authenticité", d: "Des voix vraies. Des connexions réelles. Pas de faux-semblants." },
+  { n: "02", t: "Précision", d: "Du brief à l'exécution, chaque détail est pensé." },
+  { n: "03", t: "Audace", d: "Repousser les limites du contenu et de l'expérience client." },
+  { n: "04", t: "Excellence", d: "Un standard de qualité qui ne se négocie jamais." },
 ] as const
 
 const ICONS = {
-  play: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <polygon points="6,3 20,12 6,21" />
-    </svg>
-  ),
-  pause: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <rect x="5" y="3" width="5" height="18" />
-      <rect x="14" y="3" width="5" height="18" />
-    </svg>
-  ),
+  play: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,3 20,12 6,21" /></svg>,
+  pause: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="3" width="5" height="18" /><rect x="14" y="3" width="5" height="18" /></svg>,
 }
 
 type ContactStatus = "idle" | "sending" | "success" | "error"
-type ContactFormData = {
-  name: string
-  email: string
-  phone: string
-  company: string
-  entity: string
-  message: string
-}
+type ContactFormData = { name: string; email: string; phone: string; company: string; entity: string; message: string }
 type ContactErrors = Partial<Record<keyof ContactFormData, string>>
 type GalleryImage = { src: string; label: string; caption: string }
-type Responsive = {
-  width: number
-  height: number
-  mobile: boolean
-  tablet: boolean
-  px: number
-  sectionPad: string
-}
 
-function subscribeWindow(callback: () => void) {
-  if (typeof window === "undefined") return () => {}
-  window.addEventListener("resize", callback)
-  return () => window.removeEventListener("resize", callback)
-}
-function getWindowSnapshot() {
-  if (typeof window === "undefined") return { width: 1280, height: 900 }
-  return { width: Math.max(320, window.innerWidth || 1280), height: Math.max(1, window.innerHeight || 900) }
-}
-function getWindowServerSnapshot() {
-  return { width: 1280, height: 900 }
-}
-function subscribeReducedMotion(callback: () => void) {
-  if (typeof window === "undefined" || !window.matchMedia) return () => {}
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-  mq.addEventListener("change", callback)
-  return () => mq.removeEventListener("change", callback)
-}
-function getReducedMotionSnapshot() {
-  if (typeof window === "undefined" || !window.matchMedia) return false
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-}
-function getReducedMotionServerSnapshot() { return false }
+// ─── Responsive hook (useState + useEffect, pas de useSyncExternalStore) ───
+function useResponsive() {
+  const [size, setSize] = useState({ width: 1280, height: 900 })
+  const [mounted, setMounted] = useState(false)
 
-function useReducedMotion(): boolean {
-  return useSyncExternalStore(subscribeReducedMotion, getReducedMotionSnapshot, getReducedMotionServerSnapshot)
-}
+  useEffect(() => {
+    setMounted(true)
+    const update = () => setSize({ width: window.innerWidth, height: window.innerHeight })
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
 
-function useResponsive(): Responsive {
-  const size = useSyncExternalStore(subscribeWindow, getWindowSnapshot, getWindowServerSnapshot)
   const mobile = size.width <= BP.mobile
   const tablet = size.width <= BP.tablet
   const px = mobile ? 20 : tablet ? 40 : 72
   return {
-    width: size.width,
-    height: size.height,
-    mobile,
-    tablet,
-    px,
+    mounted,
+    width: size.width, height: size.height, mobile, tablet, px,
     sectionPad: mobile ? "60px 20px" : tablet ? "80px 40px" : "100px 72px",
   }
 }
@@ -240,20 +108,33 @@ function gridCols(mobile: boolean, tablet: boolean, desktop: number, tabletCols 
   return `repeat(${desktop}, minmax(0,1fr))`
 }
 
+// ─── Reveal avec Intersection Observer ───
 function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null)
-  const visible = useInView(ref, { once: true, margin: "-60px" })
-  const reduced = useReducedMotion()
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+    }, { rootMargin: "-60px" })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={mo(reduced, { opacity: 0, y: 50 }, { opacity: 1, y: 0 })}
-      animate={visible ? { opacity: 1, y: 0 } : {}}
-      transition={tr(reduced, 0.9, delay)}
-      style={{ minWidth: 0 }}
+      style={{
+        minWidth: 0,
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(40px)",
+        transition: `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -267,17 +148,13 @@ function SectionHeader({ label, title, titleSize = "clamp(28px,4vw,56px)" }: { l
 }
 
 function Marquee({ items, speed = 35, fontSize = 72 }: { items: string[]; speed?: number; fontSize?: number }) {
-  const rawId = useId()
-  const id = useMemo(() => `mq-${rawId.replace(/[:]/g, "")}`, [rawId])
-  const reduced = useReducedMotion()
+  const id = useId().replace(/[:]/g, "")
   const tripled = useMemo(() => [...items, ...items, ...items], [items])
   return (
     <>
-      {!reduced && (
-        <style>{`@keyframes ${id} { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-33.333%,0,0); } }`}</style>
-      )}
+      <style>{`@keyframes mq${id} { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-33.333%,0,0); } }`}</style>
       <div aria-hidden="true" role="presentation" style={{ overflow: "hidden", width: "100%", minWidth: 0, maskImage: S.mask, WebkitMaskImage: S.mask }}>
-        <div style={{ display: "flex", gap: 40, width: "max-content", alignItems: "center", animation: reduced ? "none" : `${id} ${speed}s linear infinite`, willChange: reduced ? "auto" : "transform" }}>
+        <div style={{ display: "flex", gap: 40, width: "max-content", alignItems: "center", animation: `mq${id} ${speed}s linear infinite`, willChange: "transform" }}>
           {tripled.map((name, i) => (
             <Fragment key={`${name}-${i}`}>
               <span style={{ ...S.ghost(fontSize), letterSpacing: -3, textTransform: "uppercase", whiteSpace: "nowrap" }}>{name}</span>
@@ -290,10 +167,10 @@ function Marquee({ items, speed = 35, fontSize = 72 }: { items: string[]; speed?
   )
 }
 
-function GalleryCard({ img, cardW, cardH, priority = false }: { img: GalleryImage; cardW: number; cardH: number; priority?: boolean }) {
+function GalleryCard({ img, cardW, cardH }: { img: GalleryImage; cardW: number; cardH: number }) {
   return (
     <figure style={{ width: cardW, minWidth: cardW, maxWidth: cardW, height: cardH, borderRadius: 16, overflow: "hidden", position: "relative", flexShrink: 0, margin: 0 }}>
-      <Image src={img.src} alt={`${img.caption} — ${img.label}`} fill unoptimized draggable={false} priority={priority} sizes={`${cardW}px`} onError={handleImageError} style={{ ...S.coverImg, pointerEvents: "none", userSelect: "none" }} />
+      <Image src={img.src} alt={`${img.caption} — ${img.label}`} fill unoptimized draggable={false} sizes={`${cardW}px`} onError={handleImageError} style={{ ...S.coverImg, pointerEvents: "none", userSelect: "none" }} />
       <div aria-hidden="true" style={{ ...S.overlay, background: "linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.1) 40%,transparent 100%)" }} />
       <figcaption style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
         <div style={{ ...S.label, fontSize: 9, color: white(OP.caption), marginBottom: 6, letterSpacing: 5 }}>{img.caption}</div>
@@ -303,93 +180,113 @@ function GalleryCard({ img, cardW, cardH, priority = false }: { img: GalleryImag
   )
 }
 
-function AutoGallery({ images, speed = 45, responsive }: { images: GalleryImage[]; speed?: number; responsive: Responsive }) {
-  const rawId = useId()
-  const id = useMemo(() => `gal-${rawId.replace(/[:]/g, "")}`, [rawId])
-  const reduced = useReducedMotion()
-  const { mobile, tablet } = responsive
+function AutoGallery({ images, speed = 45, mobile, tablet }: { images: GalleryImage[]; speed?: number; mobile: boolean; tablet: boolean }) {
+  const id = useId().replace(/[:]/g, "")
   const gap = 16
   const cardW = mobile ? 280 : tablet ? 340 : 420
   const cardH = mobile ? 380 : tablet ? 440 : 520
   const trackWidth = images.length * cardW + (images.length - 1) * gap
   return (
     <>
-      {!reduced && (
-        <style>{`@keyframes ${id} { from { transform: translate3d(0,0,0); } to { transform: translate3d(-${trackWidth + gap}px,0,0); } }`}</style>
-      )}
+      <style>{`@keyframes gal${id} { from { transform: translate3d(0,0,0); } to { transform: translate3d(-${trackWidth + gap}px,0,0); } }`}</style>
       <div role="region" aria-label="Galerie photo Just" style={{ width: "100%", minWidth: 0, overflow: "hidden", maskImage: S.maskWide, WebkitMaskImage: S.maskWide }}>
-        <div style={{ display: "flex", width: "max-content", willChange: reduced ? "auto" : "transform", animation: !reduced ? `${id} ${speed}s linear infinite` : "none" }}>
+        <div style={{ display: "flex", width: "max-content", willChange: "transform", animation: `gal${id} ${speed}s linear infinite` }}>
           <div style={{ display: "flex", gap, flexShrink: 0 }}>
             {images.map((img, i) => <GalleryCard img={img} cardW={cardW} cardH={cardH} key={`a-${i}`} />)}
           </div>
-          {!reduced && (
-            <div aria-hidden="true" style={{ display: "flex", gap, flexShrink: 0, marginLeft: gap }}>
-              {images.map((img, i) => <GalleryCard img={img} cardW={cardW} cardH={cardH} key={`b-${i}`} />)}
-            </div>
-          )}
+          <div aria-hidden="true" style={{ display: "flex", gap, flexShrink: 0, marginLeft: gap }}>
+            {images.map((img, i) => <GalleryCard img={img} cardW={cardW} cardH={cardH} key={`b-${i}`} />)}
+          </div>
         </div>
       </div>
     </>
   )
 }
 
-function Entity({ number, name, tagline, description, services, imageUrl, reverse = false, responsive }: {
-  number: string; name: string; tagline: string; description: string; services: string[]; imageUrl: string; reverse?: boolean; responsive: Responsive
+function Entity({ number, name, tagline, description, services, imageUrl, reverse = false, mobile, tablet, width }: {
+  number: string; name: string; tagline: string; description: string; services: string[]; imageUrl: string; reverse?: boolean; mobile: boolean; tablet: boolean; width: number
 }) {
   const ref = useRef<HTMLElement | null>(null)
-  const isVisible = useInView(ref, { once: true, margin: "-100px" })
-  const reduced = useReducedMotion()
-  const { mobile, tablet, width } = responsive
+  const [visible, setVisible] = useState(false)
   const stacked = tablet
   const fadeDirection = stacked ? "linear-gradient(to bottom,transparent 50%,#000 100%)" : reverse ? "linear-gradient(to left,transparent 50%,#000 100%)" : "linear-gradient(to right,transparent 50%,#000 100%)"
   const visualHeight = mobile ? 420 : tablet ? 520 : Math.max(680, Math.min(900, Math.round(width * 0.55)))
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+    }, { rootMargin: "-100px" })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   return (
     <section ref={ref} aria-label={name} style={{ minHeight: stacked ? "auto" : `${visualHeight}px`, display: "grid", gridTemplateColumns: stacked ? "minmax(0,1fr)" : "minmax(0,1fr) minmax(0,1fr)", alignItems: "stretch", minWidth: 0 }}>
       <div style={{ order: stacked ? 2 : reverse ? 2 : 1, padding: mobile ? "40px 20px" : tablet ? "56px 40px" : "80px 72px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
-        <motion.div initial={mo(reduced, { opacity: 0, x: reverse ? 40 : -40 }, { opacity: 1, x: 0 })} animate={isVisible ? { opacity: 1, x: 0 } : {}} transition={tr(reduced, 0.8)} style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : `translateX(${reverse ? 40 : -40}px)`, transition: "opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)" }}>
           <div aria-hidden="true" style={{ ...S.ghost(mobile ? 72 : 120), letterSpacing: -6, marginBottom: mobile ? -28 : -40, position: "relative", zIndex: 0 }}>{number}</div>
           <h2 style={{ ...S.title, fontSize: mobile ? 34 : tablet ? 48 : 64, lineHeight: 0.95, marginBottom: 12, position: "relative", zIndex: 1, overflowWrap: "break-word", wordBreak: "break-word" }}>{name}</h2>
           <p style={{ fontFamily: BODY, fontSize: mobile ? 11 : 13, fontWeight: 600, letterSpacing: mobile ? 3 : 5, textTransform: "uppercase", color: white(OP.tag), marginBottom: 24, overflowWrap: "break-word" }}>{tagline}</p>
           <p style={{ fontFamily: BODY, fontSize: mobile ? 15 : 16, lineHeight: 1.85, color: white(OP.entityDesc), fontWeight: 300, maxWidth: 520, marginBottom: 36, overflowWrap: "break-word" }}>{description}</p>
           <ul style={{ display: "flex", flexWrap: "wrap", gap: 8, listStyle: "none", padding: 0, margin: 0 }} aria-label={`Services ${name}`}>
             {services.map((service, i) => (
-              <motion.li key={service} initial={mo(reduced, { opacity: 0, y: 12 }, { opacity: 1, y: 0 })} animate={isVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.5, 0.3 + i * 0.06)} style={S.pill}>{service}</motion.li>
+              <li key={service} style={{ ...S.pill, opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${0.3 + i * 0.06}s, transform 0.5s cubic-bezier(0.16,1,0.3,1) ${0.3 + i * 0.06}s` }}>{service}</li>
             ))}
           </ul>
-        </motion.div>
+        </div>
       </div>
-      <motion.div style={{ order: stacked ? 1 : reverse ? 1 : 2, height: `${visualHeight}px`, minHeight: `${visualHeight}px`, position: "relative", overflow: "hidden", minWidth: 0 }} initial={mo(reduced, { opacity: 0, scale: 1.05 }, { opacity: 1, scale: 1 })} animate={isVisible ? { opacity: 1, scale: 1 } : {}} transition={tr(reduced, 1.2)}>
+      <div style={{ order: stacked ? 1 : reverse ? 1 : 2, height: `${visualHeight}px`, minHeight: `${visualHeight}px`, position: "relative", overflow: "hidden", minWidth: 0, opacity: visible ? 1 : 0, transform: visible ? "scale(1)" : "scale(1.05)", transition: "opacity 1.2s cubic-bezier(0.16,1,0.3,1), transform 1.2s cubic-bezier(0.16,1,0.3,1)" }}>
         <Image src={imageUrl} alt={`Photo illustrant ${name}`} fill unoptimized sizes={stacked ? "100vw" : "50vw"} onError={handleImageError} style={S.coverImg} />
         <div aria-hidden="true" style={{ ...S.overlay, background: fadeDirection }} />
         <div aria-hidden="true" style={{ ...S.overlay, background: "linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 40%)" }} />
-      </motion.div>
+      </div>
     </section>
   )
 }
 
 function Counter({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null)
-  const isVisible = useInView(ref, { once: true })
-  const reduced = useReducedMotion()
+  const [count, setCount] = useState(0)
+  const [visible, setVisible] = useState(false)
   const parsed = useMemo(() => {
     const match = value.match(/^([0-9]+(?:\.[0-9]+)?)(.*)$/)
     if (!match) return { numeric: 0, suffix: value }
     return { numeric: parseFloat(match[1]), suffix: match[2] }
   }, [value])
-  const motionValue = useMotionValue(0)
-  const rounded = useTransform(motionValue, (v) => Math.floor(v))
-  const hasAnimatedRef = useRef(false)
+
   useEffect(() => {
-    if (!isVisible || hasAnimatedRef.current) return
-    hasAnimatedRef.current = true
-    if (reduced) { motionValue.set(parsed.numeric); return }
-    const controls = framerAnimate(motionValue, parsed.numeric, { duration: 2.2, delay, ease: [0.22, 1, 0.36, 1] })
-    return () => { controls.stop() }
-  }, [delay, isVisible, motionValue, parsed.numeric, reduced])
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!visible) return
+    const timeout = setTimeout(() => {
+      const duration = 2200
+      const start = performance.now()
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCount(Math.floor(eased * parsed.numeric))
+        if (progress < 1) requestAnimationFrame(tick)
+        else setCount(parsed.numeric)
+      }
+      requestAnimationFrame(tick)
+    }, delay * 1000)
+    return () => clearTimeout(timeout)
+  }, [visible, parsed.numeric, delay])
+
   return (
     <div ref={ref} style={{ textAlign: "center", minWidth: 0 }}>
       <div aria-label={`${value} ${label}`} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(40px,5vw,64px)", color: "#fff", lineHeight: 1, marginBottom: 10, letterSpacing: -4, fontVariantNumeric: "tabular-nums", overflowWrap: "break-word" }}>
-        <span aria-hidden="true">{isVisible ? <motion.span>{rounded}</motion.span> : 0}{parsed.suffix}</span>
+        <span aria-hidden="true">{count}{parsed.suffix}</span>
       </div>
       <div style={{ ...S.label, fontSize: 10, color: white(OP.tag), marginBottom: 0, overflowWrap: "break-word" }}>{label}</div>
     </div>
@@ -405,9 +302,9 @@ function ContactInputField({ id, label, name, type = "text", autoComplete, input
   const hintId = `${id}-hint`
   return (
     <div style={{ position: "relative" }}>
-      <motion.label htmlFor={id} animate={{ top: active ? 6 : 24, fontSize: active ? 11 : 15, color: error ? JC.error : JC.text, letterSpacing: active ? 3.5 : 0 }} transition={{ duration: 0.22 }} style={{ position: "absolute", left: 0, fontFamily: BODY, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", pointerEvents: "none", zIndex: 1, lineHeight: 1 }}>
+      <label htmlFor={id} style={{ position: "absolute", left: 0, top: active ? 6 : 24, fontFamily: BODY, fontSize: active ? 11 : 15, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", color: error ? JC.error : JC.text, letterSpacing: active ? 3.5 : 0, pointerEvents: "none", zIndex: 1, lineHeight: 1, transition: "all 0.22s ease" }}>
         {label}{required && <span aria-hidden="true" style={{ color: JC.text }}> *</span>}
-      </motion.label>
+      </label>
       <input id={id} name={name} type={type} value={value} required={required} autoComplete={autoComplete} inputMode={inputMode} aria-required={required || undefined} aria-invalid={error ? true : undefined} aria-describedby={[hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined} placeholder={focused ? placeholder : ""} onChange={(e) => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} style={{ width: "100%", background: "transparent", border: "none", borderBottom: `1px solid ${error ? JC.error : focused ? JC.borderFocus : JC.border}`, padding: "30px 0 16px", fontFamily: BODY, fontSize: 17, fontWeight: 400, color: JC.text, outline: "none", transition: "border-color 0.25s ease", letterSpacing: 0.2 }} />
       {hint && <p id={hintId} style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 12, lineHeight: 1.6, color: JC.muted }}>{hint}</p>}
       {error && <p id={errorId} role="alert" style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 13, lineHeight: 1.6, color: JC.error }}>{error}</p>}
@@ -423,9 +320,9 @@ function ContactTextareaField({ id, label, name, placeholder, required = false, 
   const errorId = `${id}-error`
   return (
     <div style={{ position: "relative" }}>
-      <motion.label htmlFor={id} animate={{ top: active ? 6 : 24, fontSize: active ? 11 : 15, color: error ? JC.error : JC.text, letterSpacing: active ? 3.5 : 0 }} transition={{ duration: 0.22 }} style={{ position: "absolute", left: 0, fontFamily: BODY, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", pointerEvents: "none", zIndex: 1, lineHeight: 1 }}>
+      <label htmlFor={id} style={{ position: "absolute", left: 0, top: active ? 6 : 24, fontFamily: BODY, fontSize: active ? 11 : 15, fontWeight: active ? 700 : 400, textTransform: active ? "uppercase" : "none", color: error ? JC.error : JC.text, letterSpacing: active ? 3.5 : 0, pointerEvents: "none", zIndex: 1, lineHeight: 1, transition: "all 0.22s ease" }}>
         {label}{required && <span aria-hidden="true" style={{ color: JC.text }}> *</span>}
-      </motion.label>
+      </label>
       <textarea id={id} name={name} value={value} required={required} aria-required={required || undefined} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} placeholder={focused ? placeholder : ""} onChange={(e) => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} rows={5} style={{ width: "100%", background: "transparent", border: "none", borderBottom: `1px solid ${error ? JC.error : focused ? JC.borderFocus : JC.border}`, padding: "30px 0 16px", fontFamily: BODY, fontSize: 17, fontWeight: 400, color: JC.text, outline: "none", resize: "vertical", minHeight: 130, transition: "border-color 0.25s ease", letterSpacing: 0.2 }} />
       {error && <p id={errorId} role="alert" style={{ margin: "10px 0 0", fontFamily: BODY, fontSize: 13, lineHeight: 1.6, color: JC.error }}>{error}</p>}
     </div>
@@ -439,11 +336,11 @@ function ContactPillSelect({ label, name, options, value, onChange }: { label: s
       <legend id={groupId} style={{ fontFamily: BODY, fontSize: 11, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: JC.text, marginBottom: 18 }}>{label}</legend>
       <div role="group" aria-labelledby={groupId} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         {options.map((opt) => {
-          const active = value === opt
+          const isActive = value === opt
           return (
-            <motion.button key={opt} type="button" aria-pressed={active} onClick={() => onChange(active ? "" : opt)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} animate={{ background: active ? "#ffffff" : "transparent", borderColor: active ? "#ffffff" : "rgba(255,255,255,0.18)", color: active ? "#000000" : "#ffffff" }} transition={{ duration: 0.2 }} style={{ padding: "11px 20px", borderRadius: 100, border: "1px solid", fontFamily: BODY, fontSize: 13, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", outline: "none", boxShadow: "none" }}>
+            <button key={opt} type="button" aria-pressed={isActive} onClick={() => onChange(isActive ? "" : opt)} style={{ padding: "11px 20px", borderRadius: 100, border: `1px solid ${isActive ? "#ffffff" : "rgba(255,255,255,0.18)"}`, background: isActive ? "#ffffff" : "transparent", color: isActive ? "#000000" : "#ffffff", fontFamily: BODY, fontSize: 13, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", outline: "none", boxShadow: "none", transition: "all 0.2s ease" }}>
               {opt}
-            </motion.button>
+            </button>
           )
         })}
       </div>
@@ -453,13 +350,7 @@ function ContactPillSelect({ label, name, options, value, onChange }: { label: s
 }
 
 export default function JustPage() {
-  // FIX : mounted guard — évite React hydration error #185
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-
-  const reduced = useReducedMotion()
-  const responsive = useResponsive()
-  const { mobile, tablet, px, sectionPad, width } = responsive
+  const { mounted, mobile, tablet, px, sectionPad, width } = useResponsive()
 
   const [heroIndex, setHeroIndex] = useState(0)
   const [heroPaused, setHeroPaused] = useState(false)
@@ -472,10 +363,10 @@ export default function JustPage() {
   ], [])
 
   useEffect(() => {
-    if (reduced || heroPaused) return
-    const interval = window.setInterval(() => { setHeroIndex((prev) => (prev + 1) % heroSlides.length) }, 5000)
+    if (heroPaused) return
+    const interval = window.setInterval(() => setHeroIndex((p) => (p + 1) % heroSlides.length), 5000)
     return () => window.clearInterval(interval)
-  }, [heroPaused, heroSlides.length, reduced])
+  }, [heroPaused, heroSlides.length])
 
   const galleryImages: GalleryImage[] = useMemo(() => [
     { src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-just.jpg", label: "L'équipe", caption: "Just Life" },
@@ -494,28 +385,15 @@ export default function JustPage() {
   const heroLineHeight = 0.92
   const heroPad = mobile ? "100px 20px 72px" : tablet ? "120px 40px 88px" : "120px 72px 96px"
 
-  const heroRotatingBase: CSSProperties = {
-    fontFamily: DISPLAY, fontWeight: 800, lineHeight: heroLineHeight, letterSpacing: mobile ? -2 : -4,
-    position: "absolute", inset: 0, overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%", display: "block",
-  }
-  const rotatingSlot = (fontPx: number): CSSProperties => ({
-    position: "relative", width: "100%", minHeight: Math.ceil(fontPx * heroLineHeight + 12), overflow: "hidden",
-  })
-
   const [formData, setFormData] = useState<ContactFormData>({ name: "", email: "", phone: "", company: "", entity: "", message: "" })
   const [errors, setErrors] = useState<ContactErrors>({})
   const [status, setStatus] = useState<ContactStatus>("idle")
   const [liveMsg, setLiveMsg] = useState("")
   const entityList = ["Just Impact", "Just Prod", "Just Agency", "Just 4 You"]
 
-  const nameId = useId()
-  const emailId = useId()
-  const phoneId = useId()
-  const companyId = useId()
-  const messageId = useId()
-  const sectionTitleId = useId()
-  const sectionDescId = useId()
-  const successTitleId = useId()
+  const nameId = useId(); const emailId = useId(); const phoneId = useId()
+  const companyId = useId(); const messageId = useId()
+  const sectionTitleId = useId(); const sectionDescId = useId(); const successTitleId = useId()
 
   const updateField = useCallback((field: keyof ContactFormData) => (value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -526,8 +404,10 @@ export default function JustPage() {
   const validateForm = useCallback(() => {
     const e: ContactErrors = {}
     if (!formData.name.trim()) e.name = "Merci d'indiquer votre nom."
-    if (!formData.email.trim()) { e.email = "Merci d'indiquer votre adresse email." } else if (!isValidEmail(formData.email)) { e.email = "L'adresse email semble invalide." }
-    if (!formData.message.trim()) { e.message = "Merci de préciser votre demande." } else if (formData.message.trim().length < 10) { e.message = "Votre message est un peu trop court." }
+    if (!formData.email.trim()) { e.email = "Merci d'indiquer votre adresse email." }
+    else if (!isValidEmail(formData.email)) { e.email = "L'adresse email semble invalide." }
+    if (!formData.message.trim()) { e.message = "Merci de préciser votre demande." }
+    else if (formData.message.trim().length < 10) { e.message = "Votre message est un peu trop court." }
     return e
   }, [formData])
 
@@ -547,9 +427,8 @@ export default function JustPage() {
       const fd = new FormData()
       fd.append("access_key", WEB3FORMS_ACCESS_KEY)
       fd.append("subject", `[JUST] Nouveau contact — ${formData.entity || "Général"}`)
-      fd.append("from_name", formData.name)
-      fd.append("name", formData.name); fd.append("email", formData.email); fd.append("phone", formData.phone)
-      fd.append("company", formData.company); fd.append("entity", formData.entity); fd.append("message", formData.message)
+      fd.append("from_name", formData.name); fd.append("name", formData.name); fd.append("email", formData.email)
+      fd.append("phone", formData.phone); fd.append("company", formData.company); fd.append("entity", formData.entity); fd.append("message", formData.message)
       const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: fd })
       const data: { success?: boolean; message?: string } = await res.json()
       if (res.ok && data?.success) { setStatus("success"); setLiveMsg("Message envoyé.") }
@@ -560,16 +439,20 @@ export default function JustPage() {
   const isSubmitDisabled = status === "sending" || !formData.name.trim() || !formData.email.trim() || !formData.message.trim()
   const marqueeSize = mobile ? 44 : tablet ? 56 : 72
 
-  // Placeholder SSR noir — évite le mismatch hydratation
-  if (!mounted) {
-    return <div style={{ width: "100%", minHeight: "100vh", background: "#000" }} />
-  }
+  if (!mounted) return <div style={{ width: "100%", minHeight: "100vh", background: "#000" }} />
 
   return (
     <div style={{ width: "100%", minWidth: 0, background: "#000", color: "#c8c8c8", fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", position: "relative" }}>
       <style>{`
+        @keyframes pulse { 0%,100% { opacity:.3; transform:scale(1); } 50% { opacity:.8; transform:scale(1.5); } }
+        @keyframes pulse2 { 0%,100% { opacity:.45; transform:scale(1); } 50% { opacity:1; transform:scale(1.3); } }
+        @keyframes scrollAnim { 0%,100% { transform:translateY(0); opacity:.5; } 50% { transform:translateY(8px); opacity:1; } }
+        @keyframes heroIn { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes heroOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-40px); } }
         .jm2-contact-root input::placeholder, .jm2-contact-root textarea::placeholder { color: ${JC.placeholder}; }
         .jm2-contact-root input:-webkit-autofill, .jm2-contact-root textarea:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px #000 inset !important; -webkit-text-fill-color: #fff !important; caret-color: #fff !important; }
+        .just-pill-btn:hover { opacity: 0.85; transform: scale(1.02); }
+        .just-submit-btn:hover:not(:disabled) { background: #ffffff !important; color: #000000 !important; transform: translateY(-2px); }
         @media (max-width: 980px) {
           .jm2-contact-grid { grid-template-columns: 1fr !important; gap: 56px !important; }
           .jm2-contact-two-cols { grid-template-columns: 1fr !important; gap: 28px !important; }
@@ -580,42 +463,43 @@ export default function JustPage() {
       <header>
         <section aria-label="Présentation Just Group" style={{ minHeight: mobile ? "auto" : "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: heroPad, position: "relative", overflow: "hidden" }}>
           <div aria-hidden="true" style={{ ...S.overlay, backgroundImage: `radial-gradient(${white(0.02)} 1px, transparent 1px)`, backgroundSize: mobile ? "28px 28px" : "40px 40px" }} />
-          <motion.p initial={mo(reduced, { opacity: 0 }, { opacity: 1 })} animate={{ opacity: 1 }} transition={tr(reduced, 1, 0.2)} style={{ ...S.label, fontSize: mobile ? 9 : 10, color: white(OP.tag), marginBottom: mobile ? 28 : 48, display: "flex", alignItems: "center", gap: 12 }}>
-            <motion.span aria-hidden="true" animate={reduced ? undefined : { scale: [1, 1.5, 1], opacity: [0.3, 0.8, 0.3] }} transition={reduced ? {} : { duration: 2.5, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", flexShrink: 0 }} />
+
+          <p style={{ ...S.label, fontSize: mobile ? 9 : 10, color: white(OP.tag), marginBottom: mobile ? 28 : 48, display: "flex", alignItems: "center", gap: 12, animation: "heroIn 1s cubic-bezier(0.16,1,0.3,1) 0.2s both" }}>
+            <span aria-hidden="true" style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block", flexShrink: 0, animation: "pulse 2.5s ease-in-out infinite" }} />
             Paris · Influence · Production · Conciergerie
-          </motion.p>
+          </p>
+
           <div style={{ maxWidth: Math.min(1180, width - px * 2), width: "100%", minWidth: 0, position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
             <h1 style={{ margin: 0, padding: 0, minWidth: 0 }}>
-              <div style={rotatingSlot(heroFontPx1)}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span key={heroSlides[heroIndex].title} initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })} animate={{ opacity: 1, y: 0 }} exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })} transition={tr(reduced, 0.6)} style={{ ...heroRotatingBase, fontSize: `${heroFontPx1}px`, color: "#fff" }}>
-                    {heroSlides[heroIndex].title}
-                  </motion.span>
-                </AnimatePresence>
+              <div style={{ position: "relative", width: "100%", minHeight: Math.ceil(heroFontPx1 * heroLineHeight + 12), overflow: "hidden" }}>
+                <span key={heroSlides[heroIndex].title} style={{ fontFamily: DISPLAY, fontWeight: 800, lineHeight: heroLineHeight, letterSpacing: mobile ? -2 : -4, position: "absolute", inset: 0, overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%", display: "block", fontSize: `${heroFontPx1}px`, color: "#fff", animation: "heroIn 0.6s cubic-bezier(0.16,1,0.3,1) both" }}>
+                  {heroSlides[heroIndex].title}
+                </span>
               </div>
-              <motion.span initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })} animate={{ opacity: 1, y: 0 }} transition={tr(reduced, 0.6, 0.2)} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: `${heroFontPx2}px`, lineHeight: heroLineHeight, color: white(0.15), letterSpacing: mobile ? -2 : -4, display: "block", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+              <span style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: `${heroFontPx2}px`, lineHeight: heroLineHeight, color: white(0.15), letterSpacing: mobile ? -2 : -4, display: "block", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%", animation: "heroIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.2s both" }}>
                 c&apos;est bien plus
-              </motion.span>
-              <div style={rotatingSlot(heroFontPx3)}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span key={heroSlides[heroIndex].subtitle} initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })} animate={{ opacity: 1, y: 0 }} exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })} transition={tr(reduced, 0.6)} style={{ ...heroRotatingBase, fontSize: `${heroFontPx3}px`, fontWeight: 300, fontStyle: "italic", color: white(0.12), letterSpacing: mobile ? -1 : -2 }}>
-                    {heroSlides[heroIndex].subtitle}
-                  </motion.span>
-                </AnimatePresence>
+              </span>
+              <div style={{ position: "relative", width: "100%", minHeight: Math.ceil(heroFontPx3 * heroLineHeight + 12), overflow: "hidden" }}>
+                <span key={heroSlides[heroIndex].subtitle} style={{ fontFamily: DISPLAY, fontWeight: 300, fontStyle: "italic", lineHeight: heroLineHeight, letterSpacing: mobile ? -1 : -2, position: "absolute", inset: 0, overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%", display: "block", fontSize: `${heroFontPx3}px`, color: white(0.12), animation: "heroIn 0.6s cubic-bezier(0.16,1,0.3,1) both" }}>
+                  {heroSlides[heroIndex].subtitle}
+                </span>
               </div>
             </h1>
           </div>
-          <motion.p initial={mo(reduced, { opacity: 0, y: 30 }, { opacity: 1, y: 0 })} animate={{ opacity: 1, y: 0 }} transition={tr(reduced, 0.8, 0.8)} style={{ marginTop: mobile ? 24 : 34, fontSize: mobile ? 15 : 16, lineHeight: 1.9, maxWidth: mobile ? "100%" : 500, color: white(OP.heroDesc), fontWeight: 300, minWidth: 0, overflowWrap: "break-word" }}>
+
+          <p style={{ marginTop: mobile ? 24 : 34, fontSize: mobile ? 15 : 16, lineHeight: 1.9, maxWidth: mobile ? "100%" : 500, color: white(OP.heroDesc), fontWeight: 300, minWidth: 0, overflowWrap: "break-word", animation: "heroIn 0.8s cubic-bezier(0.16,1,0.3,1) 0.8s both" }}>
             Un écosystème créatif qui unit influence, production et conciergerie de luxe. Trois entités, une seule vision : créer l&apos;extraordinaire.
-          </motion.p>
-          <motion.button onClick={() => setHeroPaused((p) => !p)} aria-label={heroPaused ? "Reprendre le défilement" : "Pause le défilement"} initial={mo(reduced, { opacity: 0 }, { opacity: 1 })} animate={{ opacity: 1 }} transition={reduced ? {} : { delay: 1.5 }} whileHover={reduced ? undefined : { scale: 1.1 }} whileTap={reduced ? undefined : { scale: 0.95 }} style={{ position: "absolute", bottom: mobile ? 20 : 40, right: px, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${white(0.15)}`, background: white(0.03), color: white(0.6), cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, zIndex: 2, flexShrink: 0 }}>
+          </p>
+
+          <button onClick={() => setHeroPaused((p) => !p)} aria-label={heroPaused ? "Reprendre le défilement" : "Pause le défilement"} style={{ position: "absolute", bottom: mobile ? 20 : 40, right: px, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${white(0.15)}`, background: white(0.03), color: white(0.6), cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, zIndex: 2, flexShrink: 0 }}>
             {heroPaused ? ICONS.play : ICONS.pause}
-          </motion.button>
+          </button>
+
           {!mobile && (
-            <motion.div aria-hidden="true" initial={mo(reduced, { opacity: 0 }, { opacity: 1 })} animate={{ opacity: 1 }} transition={reduced ? {} : { delay: 1.5 }} style={{ position: "absolute", bottom: 40, left: px, display: "flex", alignItems: "center", gap: 12 }}>
-              <motion.div animate={reduced ? undefined : { y: [0, 8, 0] }} transition={reduced ? {} : { duration: 2, repeat: Infinity, ease: "easeInOut" }} style={{ width: 1, height: 40, background: `linear-gradient(to bottom,${white(0.5)},transparent)` }} />
+            <div aria-hidden="true" style={{ position: "absolute", bottom: 40, left: px, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 1, height: 40, background: `linear-gradient(to bottom,${white(0.5)},transparent)`, animation: "scrollAnim 2s ease-in-out infinite" }} />
               <span style={{ ...S.label, fontSize: 9, letterSpacing: 4, marginBottom: 0 }}>Scroll</span>
-            </motion.div>
+            </div>
           )}
         </section>
       </header>
@@ -623,9 +507,9 @@ export default function JustPage() {
       <div style={{ minWidth: 0 }}>
         <Marquee items={["Just", "Just Impact", "Just Prod", "Just Agency", "Influence", "Production", "Conciergerie", "Luxe"]} speed={40} fontSize={marqueeSize} />
 
-        <Entity number="01" name="Just Impact" tagline="Agence d'influence" description="JUST IMPACT connecte les marques aux voix qui comptent. Stratégie data-driven, créateurs triés sur le volet, exécution sans faille." services={parse("Influence Marketing, Casting Créateurs, Social Media, Brand Content, KPI & Reporting")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-tennis.jpg" responsive={responsive} />
-        <Entity number="02" name="Just Prod" tagline="Studio de production" description="JUST PROD donne vie à vos idées. Du concept créatif au livrable final, on produit du contenu qui performe." services={parse("Direction Artistique, Réalisation Vidéo, Photo, Post-Production, Motion Design")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod.jpg" reverse responsive={responsive} />
-        <Entity number="03" name="Just Agency" tagline="Conciergerie de luxe" description="JUST AGENCY orchestre l'exceptionnel. Biens de luxe, jets privés, yachts — l'impossible n'est qu'une question de temps." services={parse("Conciergerie Privée, Biens de Luxe, Véhicules, Jets Privés, Yachts")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justagency.jpg" responsive={responsive} />
+        <Entity number="01" name="Just Impact" tagline="Agence d'influence" description="JUST IMPACT connecte les marques aux voix qui comptent. Stratégie data-driven, créateurs triés sur le volet, exécution sans faille." services={parse("Influence Marketing, Casting Créateurs, Social Media, Brand Content, KPI & Reporting")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-tennis.jpg" mobile={mobile} tablet={tablet} width={width} />
+        <Entity number="02" name="Just Prod" tagline="Studio de production" description="JUST PROD donne vie à vos idées. Du concept créatif au livrable final, on produit du contenu qui performe." services={parse("Direction Artistique, Réalisation Vidéo, Photo, Post-Production, Motion Design")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod.jpg" reverse mobile={mobile} tablet={tablet} width={width} />
+        <Entity number="03" name="Just Agency" tagline="Conciergerie de luxe" description="JUST AGENCY orchestre l'exceptionnel. Biens de luxe, jets privés, yachts — l'impossible n'est qu'une question de temps." services={parse("Conciergerie Privée, Biens de Luxe, Véhicules, Jets Privés, Yachts")} imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justagency.jpg" mobile={mobile} tablet={tablet} width={width} />
 
         <div style={{ padding: mobile ? "24px 0" : "40px 0" }}>
           <Marquee items={["Authenticité", "Précision", "Audace", "Impact", "Excellence", "Créativité"]} speed={30} fontSize={mobile ? 36 : tablet ? 48 : marqueeSize} />
@@ -650,7 +534,7 @@ export default function JustPage() {
               <blockquote style={{ fontFamily: DISPLAY, fontSize: mobile ? "28px" : "clamp(22px,3.5vw,42px)", fontWeight: 300, lineHeight: 1.45, color: white(OP.quote), margin: 0, letterSpacing: -1, fontStyle: "italic", overflowWrap: "break-word" }}>
                 &laquo;&nbsp;On ne fait pas du bruit. On crée de l&apos;impact.&nbsp;&raquo;
               </blockquote>
-              <motion.div aria-hidden="true" initial={mo(reduced, { width: 0 }, { width: 60 })} whileInView={mo(reduced, { width: 60 }, { width: 60 })} viewport={{ once: true }} transition={tr(reduced, 1, 0.3)} style={{ height: 2, width: reduced ? 60 : 0, background: white(0.15), margin: "36px auto 0" }} />
+              <div style={{ height: 2, width: 60, background: white(0.15), margin: "36px auto 0" }} />
             </div>
           </Reveal>
         </section>
@@ -659,7 +543,7 @@ export default function JustPage() {
           <div style={{ padding: `0 ${px}px`, marginBottom: 40 }}>
             <SectionHeader label="Inside Just" title="Dans les coulisses" />
           </div>
-          <AutoGallery images={galleryImages} speed={45} responsive={responsive} />
+          <AutoGallery images={galleryImages} speed={45} mobile={mobile} tablet={tablet} />
         </section>
 
         <section aria-label="Nos valeurs" style={{ padding: sectionPad }}>
@@ -669,11 +553,13 @@ export default function JustPage() {
               {VALUES.map((v, i) => (
                 <li key={v.n} style={{ minWidth: 0 }}>
                   <Reveal delay={i * 0.06}>
-                    <motion.div whileHover={reduced ? undefined : { backgroundColor: white(0.03) }} transition={{ duration: 0.3 }} style={{ background: white(0.01), padding: mobile ? "40px 20px" : "56px 24px", textAlign: "center", cursor: "default", borderTop: `1px solid ${white(0.04)}`, minHeight: mobile ? 180 : 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 0 }}>
+                    <div style={{ background: white(0.01), padding: mobile ? "40px 20px" : "56px 24px", textAlign: "center", cursor: "default", borderTop: `1px solid ${white(0.04)}`, minHeight: mobile ? 180 : 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 0, transition: "background 0.3s ease" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = white(0.03))}
+                      onMouseLeave={e => (e.currentTarget.style.background = white(0.01))}>
                       <div aria-hidden="true" style={S.ghost(mobile ? 40 : 56)}>{v.n}</div>
                       <h3 style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 16, color: "#fff", marginBottom: 10, marginTop: 16, overflowWrap: "break-word" }}>{v.t}</h3>
                       <p style={{ fontSize: 12, color: white(OP.desc), lineHeight: 1.7, margin: 0, fontWeight: 300, maxWidth: 220, overflowWrap: "break-word" }}>{v.d}</p>
-                    </motion.div>
+                    </div>
                   </Reveal>
                 </li>
               ))}
@@ -688,7 +574,7 @@ export default function JustPage() {
             <Reveal>
               <div style={{ marginBottom: mobile ? 48 : 72 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(OP.tag), margin: "0 0 28px", display: "flex", alignItems: "center", gap: 12 }}>
-                  <motion.span aria-hidden="true" animate={reduced ? undefined : { scale: [1, 1.45, 1], opacity: [0.35, 0.85, 0.35] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: "50%", background: "#ffffff", display: "inline-block" }} />
+                  <span aria-hidden="true" style={{ width: 5, height: 5, borderRadius: "50%", background: "#ffffff", display: "inline-block", animation: "pulse2 2.5s ease-in-out infinite" }} />
                   Formulaire de contact
                 </p>
                 <h2 style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: mobile ? "clamp(40px,12vw,58px)" : "clamp(56px,8vw,110px)", lineHeight: 0.92, color: "#ffffff", margin: 0, letterSpacing: mobile ? -2 : -5 }}>
@@ -705,16 +591,16 @@ export default function JustPage() {
               <Reveal>
                 <div>
                   {status === "success" ? (
-                    <motion.section aria-labelledby={successTitleId} initial={reduced ? false : { opacity: 0, y: 24 }} animate={reduced ? undefined : { opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE }} style={{ textAlign: "center", padding: mobile ? "56px 24px" : "80px 40px", background: JC.surface, border: `1px solid ${JC.border}`, borderRadius: 24 }}>
-                      <motion.div initial={reduced ? false : { scale: 0.85, opacity: 0 }} animate={reduced ? undefined : { scale: 1, opacity: 1 }} transition={{ duration: 0.45, delay: 0.12, ease: EASE }} style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 28px" }}>
+                    <div aria-labelledby={successTitleId} style={{ textAlign: "center", padding: mobile ? "56px 24px" : "80px 40px", background: JC.surface, border: `1px solid ${JC.border}`, borderRadius: 24, animation: "heroIn 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>
+                      <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 28px" }}>
                         <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                      </motion.div>
+                      </div>
                       <h3 id={successTitleId} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 34, color: "#ffffff", letterSpacing: -2, margin: "0 0 12px" }}>Message envoyé.</h3>
                       <p style={{ fontFamily: BODY, fontSize: 16, color: white(OP.desc), fontWeight: 300, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>Merci pour votre intérêt. Notre équipe revient vers vous sous 24h.</p>
-                      <motion.button type="button" onClick={resetForm} whileHover={reduced ? undefined : { opacity: 0.85 }} style={{ marginTop: 36, padding: "14px 30px", borderRadius: 100, border: "1px solid #ffffff", background: "transparent", color: "#ffffff", fontFamily: BODY, fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer" }}>
+                      <button type="button" onClick={resetForm} style={{ marginTop: 36, padding: "14px 30px", borderRadius: 100, border: "1px solid #ffffff", background: "transparent", color: "#ffffff", fontFamily: BODY, fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer", transition: "opacity 0.2s ease" }}>
                         Nouveau message
-                      </motion.button>
-                    </motion.section>
+                      </button>
+                    </div>
                   ) : (
                     <section>
                       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(OP.tag), margin: "0 0 14px" }}>Formulaire</p>
@@ -732,17 +618,15 @@ export default function JustPage() {
                           </div>
                           <ContactPillSelect label="Entité" name="entity" options={entityList} value={formData.entity} onChange={updateField("entity")} />
                           <ContactTextareaField id={messageId} label="Votre message" name="message" required value={formData.message} error={errors.message} placeholder="Décrivez votre projet, vos objectifs, vos délais..." onChange={updateField("message")} />
-                          <AnimatePresence>
-                            {status === "error" && (
-                              <motion.div role="alert" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} style={{ padding: "16px 22px", borderRadius: 12, background: JC.errorBg, border: `1px solid ${JC.errorBorder}`, fontFamily: BODY, fontSize: 14, color: JC.error, fontWeight: 400, lineHeight: 1.7 }}>
-                                <strong>Une erreur est survenue.</strong>{" "}{liveMsg && liveMsg !== "Une erreur est survenue." ? liveMsg : "Veuillez réessayer ou nous contacter directement."}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                          <motion.button type="submit" disabled={isSubmitDisabled} aria-disabled={isSubmitDisabled} whileHover={!isSubmitDisabled && !reduced ? { y: -2, backgroundColor: "#ffffff", color: "#000000" } : undefined} whileTap={!isSubmitDisabled && !reduced ? { scale: 0.98 } : undefined} style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", gap: 12, padding: "18px 42px", background: "transparent", color: isSubmitDisabled ? "rgba(255,255,255,0.25)" : "#ffffff", fontFamily: DISPLAY, fontWeight: 700, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", border: `1px solid ${isSubmitDisabled ? "rgba(255,255,255,0.12)" : "#ffffff"}`, borderRadius: 100, cursor: isSubmitDisabled ? "not-allowed" : "pointer", transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", opacity: status === "sending" ? 0.58 : 1 }}>
+                          {status === "error" && (
+                            <div role="alert" style={{ padding: "16px 22px", borderRadius: 12, background: JC.errorBg, border: `1px solid ${JC.errorBorder}`, fontFamily: BODY, fontSize: 14, color: JC.error, fontWeight: 400, lineHeight: 1.7 }}>
+                              <strong>Une erreur est survenue.</strong>{" "}{liveMsg && liveMsg !== "Une erreur est survenue." ? liveMsg : "Veuillez réessayer ou nous contacter directement."}
+                            </div>
+                          )}
+                          <button type="submit" disabled={isSubmitDisabled} aria-disabled={isSubmitDisabled} className="just-submit-btn" style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", gap: 12, padding: "18px 42px", background: "transparent", color: isSubmitDisabled ? "rgba(255,255,255,0.25)" : "#ffffff", fontFamily: DISPLAY, fontWeight: 700, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", border: `1px solid ${isSubmitDisabled ? "rgba(255,255,255,0.12)" : "#ffffff"}`, borderRadius: 100, cursor: isSubmitDisabled ? "not-allowed" : "pointer", transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)", opacity: status === "sending" ? 0.58 : 1 }}>
                             {status === "sending" ? "Envoi en cours..." : "Envoyer"}
                             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                          </motion.button>
+                          </button>
                         </div>
                       </form>
                     </section>
@@ -753,7 +637,7 @@ export default function JustPage() {
               <Reveal delay={0.15}>
                 <aside className="jm2-contact-sticky" aria-label="Informations de contact" style={{ position: "sticky", top: 100, display: "flex", flexDirection: "column", gap: 24 }}>
                   <div style={{ padding: "20px", borderRadius: 16, background: JC.surface, border: `1px solid ${JC.border}`, display: "flex", alignItems: "center", gap: 14 }}>
-                    <motion.div aria-hidden="true" animate={reduced ? undefined : { scale: [1, 1.3, 1], opacity: [0.45, 1, 0.45] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 8, height: 8, borderRadius: "50%", background: JC.success, flexShrink: 0 }} />
+                    <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: "50%", background: JC.success, flexShrink: 0, display: "inline-block", animation: "pulse2 2s ease-in-out infinite" }} />
                     <p style={{ margin: 0, fontFamily: BODY, fontSize: 13, fontWeight: 500, color: "#ffffff" }}>Réponse sous 24h</p>
                   </div>
                   <div style={{ padding: mobile ? "24px" : "28px", borderRadius: 20, background: white(0.02), border: `1px solid ${white(0.08)}` }}>
