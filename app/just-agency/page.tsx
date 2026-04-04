@@ -1,19 +1,30 @@
 import type { Metadata } from "next"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
 import JustAgencyPage from "@/components/pages/JustAgency"
 
 export const metadata: Metadata = {
-  title: "Just Agency",
-  description: "Just Agency est la conciergerie de luxe de JUST. Nous orchestrons l'inaccessible, des jets privés aux villas d'exception.",
+  title: "Conciergerie de luxe sur mesure | Just Agency",
+  description:
+    "Just Agency, conciergerie de luxe sur mesure. Jets privés, villas d’exception, supercars, gastronomie, événements VIP et gestion de vie.",
+  alternates: {
+    canonical: "/just-agency",
+  },
+  openGraph: {
+    title: "Conciergerie de luxe sur mesure | Just Agency",
+    description:
+      "Jets privés, villas d’exception, supercars, gastronomie, événements VIP et gestion de vie.",
+    url: "https://justagency-inc.com/just-agency",
+    siteName: "Just",
+    type: "website",
+    locale: "fr_FR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Conciergerie de luxe sur mesure | Just Agency",
+    description:
+      "Just Agency, conciergerie de luxe sur mesure pour les demandes les plus exclusives.",
+  },
 }
 
 export default function Page() {
-  return (
-    <>
-      <Header />
-      <JustAgencyPage />
-      <Footer />
-    </>
-  )
+  return <JustAgencyPage />
 }
