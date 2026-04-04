@@ -12,36 +12,20 @@ const COUNTERS = [
 ]
 
 function useCountUp(target: number, duration: number, active: boolean, suffix: string) {
-  const [value, setValue] = useState(`0${suffix}`)
+  const [value, setValue] = useState(() => `0${suffix}`)
   const raf = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!active) {
-      // Utiliser requestAnimationFrame pour éviter le setState synchrone
-      raf.current = requestAnimationFrame(() => {
-        setValue(`0${suffix}`)
-      })
-      return () => {
-        if (raf.current) cancelAnimationFrame(raf.current)
-      }
-    }
-    
+    if (!active) return
     const start = performance.now()
-    
     const step = (now: number) => {
       const p = Math.min((now - start) / duration, 1)
       const e = 1 - Math.pow(1 - p, 4)
       setValue(`${Math.round(e * target)}${suffix}`)
-      if (p < 1) {
-        raf.current = requestAnimationFrame(step)
-      }
+      if (p < 1) raf.current = requestAnimationFrame(step)
     }
-    
     raf.current = requestAnimationFrame(step)
-    
-    return () => { 
-      if (raf.current) cancelAnimationFrame(raf.current) 
-    }
+    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
   }, [active, target, duration, suffix])
 
   return value
@@ -55,7 +39,7 @@ function Counter({ target, suffix, label, duration, active }: {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <span style={{
         fontFamily: "'Syne', sans-serif", fontWeight: 300,
-        fontSize: "clamp(20px, 2.5vw, 26px)", color: "#dd0909",
+        fontSize: 22, color: "#dd0909",
         letterSpacing: "-0.02em", lineHeight: 1,
         filter: "drop-shadow(0 0 8px rgba(221,9,9,0.5))",
       }}>
@@ -63,7 +47,7 @@ function Counter({ target, suffix, label, duration, active }: {
       </span>
       <span style={{
         fontFamily: "'DM Mono', monospace", fontWeight: 300,
-        fontSize: 8, letterSpacing: "0.38em",
+        fontSize: 7, letterSpacing: "0.32em",
         textTransform: "uppercase", color: "rgba(255,255,255,0.22)",
         marginTop: 4, textAlign: "center",
       }}>
@@ -73,14 +57,13 @@ function Counter({ target, suffix, label, duration, active }: {
   )
 }
 
-export default function IntroStatsDesktop() {
+export default function IntroStatsMobile() {
   const ref    = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, amount: 0.3 })
   const [countersActive, setCountersActive] = useState(false)
 
   useEffect(() => {
     if (!inView) return
-    
     const t = setTimeout(() => setCountersActive(true), 1800)
     return () => clearTimeout(t)
   }, [inView])
@@ -97,9 +80,9 @@ export default function IntroStatsDesktop() {
 
       <section ref={ref} style={{
         position: "relative", width: "100%",
-        minHeight: "90vh", background: "#000",
+        minHeight: "100svh", background: "#000",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "20px clamp(20px, 4vw, 80px)",
+        padding: "80px 24px 60px",
         overflow: "hidden",
       }}>
 
@@ -113,24 +96,22 @@ export default function IntroStatsDesktop() {
           }}
         >
           <div style={{
-            width: "clamp(320px, 50vw, 700px)",
-            height: "clamp(180px, 20vw, 300px)",
+            width: "80vw", height: "30vh",
             background: "radial-gradient(ellipse, rgba(221,9,9,0.08) 0%, rgba(221,9,9,0.04) 50%, transparent 70%)",
-            filter: "blur(80px)",
+            filter: "blur(60px)",
           }} />
         </motion.div>
 
         <div style={{
-          width: "100%", maxWidth: 1200,
+          width: "100%",
           display: "flex", flexDirection: "column",
           alignItems: "center", textAlign: "center",
           position: "relative", zIndex: 1,
         }}>
           <div style={{
             fontFamily: "'Cormorant Garamond', serif", fontWeight: 300,
-            fontSize: "clamp(52px, 10vw, 118px)",
+            fontSize: "clamp(52px, 16vw, 80px)",
             lineHeight: 0.96, letterSpacing: "-0.02em",
-            maxWidth: 1000,
           }}>
             {titleLines.map((line, i) => (
               <span key={i} style={{ display: "block", overflow: "hidden", lineHeight: 1.1, paddingBottom: i === 2 ? "0.3em" : 0 }}>
@@ -154,11 +135,11 @@ export default function IntroStatsDesktop() {
             initial={{ opacity: 0 }}
             animate={inView ? { opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 1.3 }}
-            style={{ display: "flex", alignItems: "center", gap: 16, margin: "40px 0 32px" }}
+            style={{ display: "flex", alignItems: "center", gap: 12, margin: "32px 0 24px" }}
           >
             <motion.div
               initial={{ width: 0 }}
-              animate={inView ? { width: 80 } : {}}
+              animate={inView ? { width: 48 } : {}}
               transition={{ duration: 1.2, delay: 1.4, ease: EASE }}
               style={{ height: 1, background: "linear-gradient(90deg, transparent, #dd0909)", opacity: 0.5 }}
             />
@@ -169,7 +150,7 @@ export default function IntroStatsDesktop() {
             />
             <motion.div
               initial={{ width: 0 }}
-              animate={inView ? { width: 80 } : {}}
+              animate={inView ? { width: 48 } : {}}
               transition={{ duration: 1.2, delay: 1.4, ease: EASE }}
               style={{ height: 1, background: "linear-gradient(90deg, #dd0909, transparent)", opacity: 0.5 }}
             />
@@ -180,15 +161,15 @@ export default function IntroStatsDesktop() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.9, delay: 1.6, ease: EASE }}
             style={{
-              display: "flex", flexWrap: "wrap",
-              alignItems: "center", justifyContent: "center",
-              gap: "clamp(18px, 4vw, 32px)",
+              display: "flex", flexDirection: "column",
+              alignItems: "center",
+              gap: 24,
             }}
           >
             {COUNTERS.map((c, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "clamp(18px, 4vw, 32px)" }}>
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
                 {i > 0 && (
-                  <div style={{ width: 1, height: 28, background: "rgba(255,255,255,0.08)" }} />
+                  <div style={{ width: 40, height: 1, background: "rgba(255,255,255,0.08)" }} />
                 )}
                 <Counter {...c} active={countersActive} />
               </div>

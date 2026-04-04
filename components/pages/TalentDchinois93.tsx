@@ -107,6 +107,7 @@ function Marquee({ items, speed = 35 }: MarqueeProps) {
               {item}
             </span>
             <span
+              aria-hidden="true"
               style={{
                 width: 6,
                 height: 6,
@@ -208,6 +209,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <path d="M12 2C8 2 6 5 6 8v2c-1 0-2 .5-2 1s1 1 2 1c-.5 2-2 3-4 4 0 .5.5 1 2 1 0 .5 0 1 .5 1.5S6 19 8 19.5c0 1 .5 2.5 4 2.5s4-1.5 4-2.5c2-.5 3-1 3.5-1.5s.5-1 .5-1.5c1.5 0 2-.5 2-1-2-1-3.5-2-4-4 1 0 2-.5 2-1s-1-1-2-1V8c0-3-2-6-6-6z" />
       </svg>
@@ -225,6 +227,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <rect x="2" y="2" width="20" height="20" rx="5" />
         <circle cx="12" cy="12" r="5" />
@@ -244,6 +247,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
       </svg>
@@ -261,6 +265,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
         <path d="m10 15 5-3-5-3z" />
@@ -276,6 +281,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
       fill="none"
       stroke={color}
       strokeWidth="1.5"
+      aria-hidden="true"
     >
       <circle cx="12" cy="12" r="10" />
     </svg>
@@ -523,6 +529,7 @@ export default function TalentDchinois93() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
@@ -548,6 +555,7 @@ export default function TalentDchinois93() {
             {["TikTok", "Snapchat", "Instagram", "YouTube"].map((p, i) => (
               <div
                 key={i}
+                aria-label={p}
                 style={{
                   width: 40,
                   height: 40,
@@ -578,7 +586,8 @@ export default function TalentDchinois93() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={heroImage}
-            alt={name}
+            alt={`Portrait de ${name}, créateur de contenu humoristique du 93`}
+            loading="eager"
             style={{
               width: "100%",
               height: "100%",
@@ -587,6 +596,7 @@ export default function TalentDchinois93() {
             }}
           />
           <div
+            aria-hidden="true"
             style={{
               position: "absolute",
               inset: 0,
@@ -595,6 +605,7 @@ export default function TalentDchinois93() {
             }}
           />
           <div
+            aria-hidden="true"
             style={{
               position: "absolute",
               inset: 0,
@@ -623,6 +634,7 @@ export default function TalentDchinois93() {
       {/* Stats Section */}
       <section style={{ padding: "100px 72px", position: "relative" }}>
         <div
+          aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
@@ -653,7 +665,8 @@ export default function TalentDchinois93() {
                 letterSpacing: -2,
               }}
             >
-              L'audience{" "}
+              {/* FIX react/no-unescaped-entities — apostrophe JSX */}
+              L&apos;audience{" "}
               <span style={{ color: "rgba(255,255,255,0.12)" }}>Dchinois93.</span>
             </div>
           </div>
@@ -757,7 +770,7 @@ export default function TalentDchinois93() {
                       Principal
                     </div>
                   )}
-                  <div style={{ marginBottom: 16 }}>
+                  <div aria-hidden="true" style={{ marginBottom: 16 }}>
                     <PlatformIcon platform={p.name} size={24} />
                   </div>
                   <div
@@ -824,7 +837,8 @@ export default function TalentDchinois93() {
                 marginBottom: 32,
               }}
             >
-              L'ascension
+              {/* FIX react/no-unescaped-entities L827 */}
+              L&apos;ascension
             </div>
             <blockquote
               style={{
@@ -838,9 +852,11 @@ export default function TalentDchinois93() {
                 fontStyle: "italic",
               }}
             >
-              "{ascensionText}"
+              {/* FIX react/no-unescaped-entities L841 — guillemets droits → unicode */}
+              {"\u201C"}{ascensionText}{"\u201D"}
             </blockquote>
             <motion.div
+              aria-hidden="true"
               initial={{ width: 0 }}
               whileInView={{ width: 60 }}
               viewport={{ once: true }}
@@ -882,7 +898,7 @@ export default function TalentDchinois93() {
                 marginBottom: 48,
               }}
             >
-              L'ADN{" "}
+              L&apos;ADN{" "}
               <span style={{ color: "rgba(255,255,255,0.12)" }}>du 93.</span>
             </div>
           </Reveal>
@@ -1032,6 +1048,7 @@ export default function TalentDchinois93() {
                   }}
                 >
                   <div
+                    aria-hidden="true"
                     style={{
                       fontFamily: DISPLAY,
                       fontSize: 56,
@@ -1089,7 +1106,8 @@ export default function TalentDchinois93() {
                 marginBottom: 20,
               }}
             >
-              Secteurs d'activité
+              {/* FIX react/no-unescaped-entities L885 */}
+              Secteurs d&apos;activité
             </div>
             <div
               style={{
@@ -1164,9 +1182,11 @@ export default function TalentDchinois93() {
                 fontStyle: "italic",
               }}
             >
-              "{manifesto}"
+              {/* FIX react/no-unescaped-entities L1167 — guillemets droits → unicode */}
+              {"\u201C"}{manifesto}{"\u201D"}
             </blockquote>
             <motion.div
+              aria-hidden="true"
               initial={{ width: 0 }}
               whileInView={{ width: 60 }}
               viewport={{ once: true }}
@@ -1190,6 +1210,7 @@ export default function TalentDchinois93() {
         }}
       >
         <div
+          aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
@@ -1213,6 +1234,7 @@ export default function TalentDchinois93() {
           </div>
         </Reveal>
         <Reveal delay={0.08}>
+          {/* FIX react/no-unescaped-entities L1226 */}
           <p
             style={{
               fontSize: 15,
@@ -1223,7 +1245,7 @@ export default function TalentDchinois93() {
               fontWeight: 300,
             }}
           >
-            Placement, caméra cachée, micro-trottoir, activation terrain — discutons de comment votre marque peut entrer dans l'univers Dchinois93.
+            Placement, caméra cachée, micro-trottoir, activation terrain — discutons de comment votre marque peut entrer dans l&apos;univers Dchinois93.
           </p>
         </Reveal>
         <Reveal delay={0.16}>
@@ -1263,6 +1285,7 @@ export default function TalentDchinois93() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
@@ -1292,7 +1315,7 @@ export default function TalentDchinois93() {
           }}
         >
           JUST IMPACT
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>.</span> © 2026
+          <span aria-hidden="true" style={{ color: "rgba(255,255,255,0.3)" }}>.</span> © {new Date().getFullYear()}
         </p>
         <p
           style={{

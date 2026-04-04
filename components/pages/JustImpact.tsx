@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo, useId } from "react"
 import { motion, useInView, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 
 const FONT = {
   display: "'Syne', sans-serif",
@@ -61,12 +62,16 @@ const pillStyle: React.CSSProperties = {
 
 const MASK = "linear-gradient(to right, transparent, black 8%, black 92%, transparent)"
 
+// FIX set-state-in-effect: use lazy initializer to read matchMedia at mount time,
+// only subscribe to changes inside the effect (callback form only).
 function useReducedMotion() {
-  const [r, setR] = useState(false)
+  const [r, setR] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  })
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    setR(mq.matches)
     const h = (e: MediaQueryListEvent) => setR(e.matches)
     mq.addEventListener("change", h)
     return () => mq.removeEventListener("change", h)
@@ -139,12 +144,14 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   const num = match ? parseFloat(match[1]) : 0
   const suffix = match ? match[2] : ""
   const decimals = match && match[1].includes(".") ? (match[1].split(".")[1] || "").length : 0
-  const [count, setCount] = useState(0)
+  // FIX set-state-in-effect: initialize to num when reduced, 0 otherwise — no synchronous setState in effect
+  const [count, setCount] = useState(() => (reduced ? num : 0))
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!isVisible) return
-    if (reduced) { setCount(num); return }
+    // FIX: removed synchronous setCount(num) branch — value already set by lazy initializer
+    if (reduced) return
     let mounted = true
     const timeout = window.setTimeout(() => {
       if (!mounted) return
@@ -202,8 +209,16 @@ function CaseCard({ imageUrl, brand, title, metric, metricLabel, tags, delay = 0
   const imageHeight = stacked ? 260 : tablet ? 360 : clampNumber(320, Math.round(containerWidth * 0.28), 480)
   return (
     <motion.article ref={ref} aria-label={`${brand} ${title}`} initial={mo(reduced, { opacity: 0, y: 60 }, { opacity: 1, y: 0 })} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.9, delay)} style={{ display: "grid", gridTemplateColumns: stacked ? "minmax(0,1fr)" : reverse ? "minmax(0,1fr) minmax(0,1.1fr)" : "minmax(0,1.1fr) minmax(0,1fr)", gap: 0, minHeight: stacked ? "auto" : imageHeight, background: white(0.015), border: `1px solid ${white(0.05)}`, borderRadius: 24, overflow: "hidden", minWidth: 0 }}>
+      {/* FIX no-img-element: replaced <img> with next/image <Image fill> */}
       <div style={{ order: stacked ? 1 : reverse ? 2 : 1, position: "relative", overflow: "hidden", minHeight: imageHeight, minWidth: 0 }}>
-        <img src={imageUrl} alt={`Illustration : ${title}`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <Image
+          src={imageUrl}
+          alt={`Illustration : ${title}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 55vw"
+          loading="lazy"
+          style={{ objectFit: "cover" }}
+        />
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: stacked ? "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.6) 100%)" : reverse ? "linear-gradient(to left, rgba(0,0,0,0.6) 0%, transparent 60%)" : "linear-gradient(to right, rgba(0,0,0,0.6) 0%, transparent 60%)", pointerEvents: "none" }} />
       </div>
       <div style={{ order: stacked ? 2 : reverse ? 1 : 2, padding: stacked ? "32px 24px" : tablet ? "40px 32px" : "56px 48px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
@@ -401,17 +416,17 @@ export default function JustImpactPage() {
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(${white(0.025)} 1px, transparent 1px)`, backgroundSize: mobile ? "28px 28px" : "40px 40px", pointerEvents: "none" }} />
           <motion.p initial={mo(reduced, { opacity: 0 })} animate={heroVisible ? { opacity: 1 } : {}} transition={tr(reduced, 1, 0.2)} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.tag), marginBottom: mobile ? 28 : 48, display: "flex", alignItems: "center", gap: 12, minWidth: 0, overflowWrap: "break-word" }}>
             <motion.span aria-hidden="true" animate={mo(reduced, { scale: [1, 1.5, 1], opacity: [0.35, 0.9, 0.35] })} transition={reduced ? {} : { duration: 2.5, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", display: "inline-block", flexShrink: 0 }} />
-            Influence · Créateurs · Stratégie · Résultats
+            {"Influence · Créateurs · Stratégie · Résultats"}
           </motion.p>
           <div style={{ maxWidth: Math.min(1100, vw - (mobile ? 40 : tablet ? 80 : 144)), position: "relative", zIndex: 1, minWidth: 0 }}>
             <h1 id="hero-heading" style={{ fontFamily: FONT.display, fontWeight: 800, lineHeight: 0.92, margin: 0, letterSpacing: mobile ? -2 : -5, color: "#fff", minWidth: 0 }}>
-              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.4)} style={{ display: "block", color: white(OP.heroMuted), fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>On ne fait pas</motion.span>
-              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.5)} style={{ display: "block", color: white(OP.heroMuted), fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>de la visibilité.</motion.span>
-              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.6)} style={{ display: "block", color: "#fff", fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>On crée de l'impact.</motion.span>
+              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.4)} style={{ display: "block", color: white(OP.heroMuted), fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>{"On ne fait pas"}</motion.span>
+              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.5)} style={{ display: "block", color: white(OP.heroMuted), fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>{"de la visibilité."}</motion.span>
+              <motion.span initial={mo(reduced, { opacity: 0, y: 60 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 1, 0.6)} style={{ display: "block", color: "#fff", fontSize: heroFont, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>{"On crée de l'impact."}</motion.span>
             </h1>
           </div>
           <motion.p initial={mo(reduced, { opacity: 0, y: 30 })} animate={heroVisible ? { opacity: 1, y: 0 } : {}} transition={tr(reduced, 0.8, 0.8)} style={{ marginTop: 40, fontSize: 16, lineHeight: 1.9, maxWidth: 560, color: white(OP.heroDesc), fontWeight: 300, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>
-            Just Impact est l'agence d'influence de JUST. On connecte les marques aux voix qui comptent, avec une stratégie data-driven, des créateurs triés sur le volet et une exécution sans faille.
+            {"Just Impact est l'agence d'influence de JUST. On connecte les marques aux voix qui comptent, avec une stratégie data-driven, des créateurs triés sur le volet et une exécution sans faille."}
           </motion.p>
           {!mobile && (
             <div aria-hidden="true" style={{ position: "absolute", bottom: 40, left: px, display: "flex", alignItems: "center", gap: 12 }}>
@@ -439,9 +454,9 @@ export default function JustImpactPage() {
         <section aria-labelledby="services-heading" style={{ padding: mobile ? "40px 20px 60px" : tablet ? "40px 40px 80px" : "40px 72px 80px" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.label), fontFamily: FONT.body, marginBottom: 14, marginTop: 0 }}>Ce qu'on fait</p>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.label), fontFamily: FONT.body, marginBottom: 14, marginTop: 0 }}>Ce qu&apos;on fait</p>
               <h2 id="services-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16, minWidth: 0, overflowWrap: "break-word", wordBreak: "break-word" }}>
-                Quatre expertises,<br /><span style={{ color: white(0.42) }}>un seul objectif.</span>
+                {"Quatre expertises,"}<br /><span style={{ color: white(0.42) }}>{"un seul objectif."}</span>
               </h2>
             </Reveal>
             <ServiceBlock number="01" title="Influence Marketing" description="De la stratégie au déploiement, on conçoit et pilote des campagnes d'influence qui convertissent. Micro, macro, célébrités, on active le bon levier au bon moment." items={svc1List} delay={0} mobile={mobile} tablet={tablet} />
@@ -455,7 +470,7 @@ export default function JustImpactPage() {
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.label), fontFamily: FONT.body, marginBottom: 14, marginTop: 0 }}>Résultats</p>
-              <h2 id="cases-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16 }}>Les chiffres parlent.</h2>
+              <h2 id="cases-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16 }}>{"Les chiffres parlent."}</h2>
             </Reveal>
             <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 48 }}>
               <CaseCard imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justimpact-team.jpg" brand="Case Study — Mode" title="Lancement collection été avec 12 créateurs" metric="+340%" metricLabel="Engagement rate" tags={case1Tags} mobile={mobile} tablet={tablet} containerWidth={vw} />
@@ -473,7 +488,7 @@ export default function JustImpactPage() {
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.label), fontFamily: FONT.body, marginBottom: 14, marginTop: 0 }}>Notre méthode</p>
-              <h2 id="process-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16 }}>Du brief au résultat.</h2>
+              <h2 id="process-heading" style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(34px,4.5vw,58px)", color: "#fff", lineHeight: 1, letterSpacing: -3, marginTop: 0, marginBottom: 16 }}>{"Du brief au résultat."}</h2>
             </Reveal>
             <ol style={{ display: "flex", flexDirection: mobile ? "column" : "row", gap: mobile ? 40 : 0, listStyle: "none", padding: 0, margin: "56px 0 0" }}>
               <ProcessStep number="01" title="Brief & Stratégie" description="On analyse vos objectifs, votre marché et vos audiences pour construire une stratégie sur mesure." delay={0} mobile={mobile} />
@@ -496,10 +511,10 @@ export default function JustImpactPage() {
                 </p>
                 <h2 style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: mobile ? "clamp(40px,12vw,58px)" : "clamp(56px,8vw,110px)", lineHeight: 0.92, color: "#fff", margin: 0, letterSpacing: mobile ? -2 : -5 }}>
                   <span style={{ display: "block" }}>Parlons</span>
-                  <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: white(0.88), letterSpacing: mobile ? -1 : -3 }}>de votre projet.</span>
+                  <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: white(0.88), letterSpacing: mobile ? -1 : -3 }}>{"de votre projet."}</span>
                 </h2>
                 <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: white(OP.heroDesc), fontWeight: 300 }}>
-                  Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l'entité et l'expertise qu'il vous faut. Remplissez le formulaire, on revient vers vous sous 24h.
+                  {"Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l'entité et l'expertise qu'il vous faut. Remplissez le formulaire, on revient vers vous sous 24h."}
                 </p>
               </div>
             </Reveal>
@@ -513,7 +528,7 @@ export default function JustImpactPage() {
                         <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
                       </motion.div>
                       <h3 id={successId} style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: 34, color: "#fff", letterSpacing: -2, margin: "0 0 12px" }}>Message envoyé.</h3>
-                      <p style={{ fontFamily: FONT.body, fontSize: 16, color: white(OP.desc), fontWeight: 300, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>Merci pour votre intérêt. Notre équipe revient vers vous sous 24h.</p>
+                      <p style={{ fontFamily: FONT.body, fontSize: 16, color: white(OP.desc), fontWeight: 300, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>{"Merci pour votre intérêt. Notre équipe revient vers vous sous 24h."}</p>
                       <motion.button type="button" onClick={reset} whileHover={reduced ? undefined : { opacity: 0.85 }} style={{ marginTop: 36, padding: "14px 30px", borderRadius: 100, border: "1px solid #fff", background: "transparent", color: "#fff", fontFamily: FONT.body, fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", cursor: "pointer" }}>
                         Nouveau message
                       </motion.button>
@@ -521,8 +536,8 @@ export default function JustImpactPage() {
                   ) : (
                     <section>
                       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(OP.tag), margin: "0 0 14px" }}>Formulaire</p>
-                      <h3 id={titleId} style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(32px,4vw,48px)", color: "#fff", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>Dites-nous tout.</h3>
-                      <p id={descId} style={{ margin: "0 0 52px", fontFamily: FONT.body, fontSize: 15, lineHeight: 1.8, color: white(OP.desc), maxWidth: 620 }}>Les champs marqués d'un astérisque sont obligatoires.</p>
+                      <h3 id={titleId} style={{ fontFamily: FONT.display, fontWeight: 800, fontSize: "clamp(32px,4vw,48px)", color: "#fff", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>{"Dites-nous tout."}</h3>
+                      <p id={descId} style={{ margin: "0 0 52px", fontFamily: FONT.body, fontSize: 15, lineHeight: 1.8, color: white(OP.desc), maxWidth: 620 }}>{"Les champs marqués d'un astérisque sont obligatoires."}</p>
                       <form onSubmit={handleSubmit} noValidate>
                         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
                           <div className="ji-two-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
@@ -538,7 +553,7 @@ export default function JustImpactPage() {
                           <AnimatePresence>
                             {status === "error" && (
                               <motion.div role="alert" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} style={{ padding: "16px 22px", borderRadius: 12, background: JC.errorBg, border: `1px solid ${JC.errorBorder}`, fontFamily: FONT.body, fontSize: 14, color: JC.error, lineHeight: 1.7 }}>
-                                <strong>Une erreur est survenue.</strong> {liveMsg && liveMsg !== "Une erreur est survenue." ? liveMsg : "Veuillez réessayer ou nous contacter directement."}
+                                <strong>{"Une erreur est survenue."}</strong> {liveMsg && liveMsg !== "Une erreur est survenue." ? liveMsg : "Veuillez réessayer ou nous contacter directement."}
                               </motion.div>
                             )}
                           </AnimatePresence>
@@ -557,12 +572,12 @@ export default function JustImpactPage() {
                 <aside className="ji-sticky" aria-label="Informations de contact" style={{ position: "sticky", top: 100, display: "flex", flexDirection: "column", gap: 24 }}>
                   <div style={{ padding: "20px", borderRadius: 16, background: JC.surface, border: `1px solid ${JC.border}`, display: "flex", alignItems: "center", gap: 14 }}>
                     <motion.div aria-hidden="true" animate={mo(reduced, { scale: [1, 1.3, 1], opacity: [0.45, 1, 0.45] })} transition={{ duration: 2, repeat: Infinity }} style={{ width: 8, height: 8, borderRadius: "50%", background: JC.success, flexShrink: 0 }} />
-                    <p style={{ margin: 0, fontFamily: FONT.body, fontSize: 13, fontWeight: 500, color: "#fff" }}>Réponse sous 24h</p>
+                    <p style={{ margin: 0, fontFamily: FONT.body, fontSize: 13, fontWeight: 500, color: "#fff" }}>{"Réponse sous 24h"}</p>
                   </div>
                   <div style={{ padding: mobile ? "24px" : "28px", borderRadius: 20, background: white(0.02), border: `1px solid ${white(0.08)}` }}>
                     <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(OP.label), fontFamily: FONT.body, marginBottom: 16, marginTop: 0 }}>Note</p>
                     <blockquote style={{ margin: 0, fontFamily: FONT.display, fontSize: mobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: white(OP.quote), fontStyle: "italic", letterSpacing: -0.8 }}>
-                      "Chaque projet commence par une conversation. La vôtre commence ici."
+                      &ldquo;{"Chaque projet commence par une conversation. La vôtre commence ici."}&rdquo;
                     </blockquote>
                   </div>
                 </aside>
