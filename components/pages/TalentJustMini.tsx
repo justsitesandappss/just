@@ -653,8 +653,8 @@ export default function TalentJustMini() {
                 letterSpacing: -2,
               }}
             >
-              L'audience{" "}
-              <span style={{ color: "rgba(255,255,255,0.12)" }}>Just Mini.</span>
+              {"L'audience "}
+              <span style={{ color: "rgba(255,255,255,0.12)" }}>{"Just Mini."}</span>
             </div>
           </div>
         </Reveal>
@@ -708,8 +708,8 @@ export default function TalentJustMini() {
                 marginBottom: 48,
               }}
             >
-              Ses rings{" "}
-              <span style={{ color: "rgba(255,255,255,0.12)" }}>digitaux.</span>
+              {"Ses rings "}
+              <span style={{ color: "rgba(255,255,255,0.12)" }}>{"digitaux."}</span>
             </div>
           </Reveal>
           <div
@@ -824,7 +824,7 @@ export default function TalentJustMini() {
                 marginBottom: 32,
               }}
             >
-              L'ascension
+              {"L'ascension"}
             </div>
             <blockquote
               style={{
@@ -838,7 +838,7 @@ export default function TalentJustMini() {
                 fontStyle: "italic",
               }}
             >
-              "{ascensionText}"
+              &ldquo;{ascensionText}&rdquo;
             </blockquote>
             <motion.div
               initial={{ width: 0 }}
@@ -882,8 +882,8 @@ export default function TalentJustMini() {
                 marginBottom: 48,
               }}
             >
-              Petit gabarit,{" "}
-              <span style={{ color: "rgba(255,255,255,0.12)" }}>gros impact.</span>
+              {"Petit gabarit, "}
+              <span style={{ color: "rgba(255,255,255,0.12)" }}>{"gros impact."}</span>
             </div>
           </Reveal>
           <div
@@ -998,8 +998,8 @@ export default function TalentJustMini() {
                 marginBottom: 48,
               }}
             >
-              Formats de{" "}
-              <span style={{ color: "rgba(255,255,255,0.12)" }}>collaboration.</span>
+              {"Formats de "}
+              <span style={{ color: "rgba(255,255,255,0.12)" }}>{"collaboration."}</span>
             </div>
           </Reveal>
           <div
@@ -1089,7 +1089,7 @@ export default function TalentJustMini() {
                 marginBottom: 20,
               }}
             >
-              Secteurs d'activité
+              {"Secteurs d'activité"}
             </div>
             <div
               style={{
@@ -1164,7 +1164,7 @@ export default function TalentJustMini() {
                 fontStyle: "italic",
               }}
             >
-              "{manifesto}"
+              &ldquo;{manifesto}&rdquo;
             </blockquote>
             <motion.div
               initial={{ width: 0 }}
@@ -1209,7 +1209,7 @@ export default function TalentJustMini() {
               color: "#fff",
             }}
           >
-            Collaborer avec Just Mini.
+            {"Collaborer avec Just Mini."}
           </div>
         </Reveal>
         <Reveal delay={0.08}>
@@ -1223,7 +1223,7 @@ export default function TalentJustMini() {
               fontWeight: 300,
             }}
           >
-            Placement, défi sponsorisé, ambassadeur, activation événementielle — discutons de comment votre marque peut monter sur le ring avec Just Mini.
+            {"Placement, défi sponsorisé, ambassadeur, activation événementielle — discutons de comment votre marque peut monter sur le ring avec Just Mini."}
           </p>
         </Reveal>
         <Reveal delay={0.16}>
@@ -1292,7 +1292,7 @@ export default function TalentJustMini() {
           }}
         >
           JUST IMPACT
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>.</span> © 2026
+          <span style={{ color: "rgba(255,255,255,0.3)" }}>.</span> &copy; 2026
         </p>
         <p
           style={{

@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -869,8 +869,7 @@ export default function LegalPages({ page }: LegalPagesProps) {
                   marginBottom: 8,
                 }}
               >
-                Just Agency Incorporation · SAS · 30 rue Saint-Germain
-                l'Auxerrois, 75001 Paris · 7021Z Conseil en relations publiques
+                {"Just Agency Incorporation · SAS · 30 rue Saint-Germain l'Auxerrois, 75001 Paris · 7021Z Conseil en relations publiques"}
               </section>
             </div>
 
@@ -906,7 +905,7 @@ export default function LegalPages({ page }: LegalPagesProps) {
                   letterSpacing: "0.08em",
                 }}
               >
-                © 2026 Just Agency Incorporation
+                &copy; 2026 Just Agency Incorporation
               </p>
 
               <p
