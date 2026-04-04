@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState, useId, useCallback } from "react"
 import { motion, useInView, useReducedMotion, type Transition } from "framer-motion"
+import Image from "next/image"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
@@ -284,7 +285,14 @@ export default function TalentRilesFreestyle() {
 
                 <Reveal delay={0.18} y={0}>
                     <div className="tr-hero-media" style={{ height: "100vh", position: "relative", overflow: "hidden" }}>
-                        <img src={heroImage} alt={heroImageAlt} loading="eager" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        <Image
+                            src={heroImage}
+                            alt={heroImageAlt}
+                            fill
+                            priority
+                            sizes="(max-width: 991px) 100vw, 50vw"
+                            style={{ objectFit: "cover" }}
+                        />
                         <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #000 0%, transparent 32%)", pointerEvents: "none" }} />
                         <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 34%)", pointerEvents: "none" }} />
                     </div>
