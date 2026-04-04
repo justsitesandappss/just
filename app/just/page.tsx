@@ -8,20 +8,20 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://justagency-inc.com"), 
 
   alternates: {
-    canonical: "/",
+    canonical: "/just", 
   },
 
   openGraph: {
     title: "Just | Influence, Production, Média & Conciergerie de luxe",
     description:
       "Découvrez Just, un écosystème créatif réunissant influence, production, média et conciergerie de luxe sur mesure.",
-    url: "https://justagency-inc.com",
+    url: "https://justagency-inc.com/just", 
     siteName: "Just",
     locale: "fr_FR",
     type: "website",
     images: [
       {
-        url: "/og-image.jpg", 
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Just Agency",
