@@ -605,3 +605,1331 @@ function AutoGallery({
     </>
   )
 }
+
+export default function JustPage() {
+  const reduced = useReducedMotion()
+  const responsive = useResponsive()
+  const { mobile, tablet, px, sectionPad, width } = responsive
+
+  const [heroIndex, setHeroIndex] = useState(0)
+  const [heroPaused, setHeroPaused] = useState(false)
+
+  const heroSlides = useMemo(
+    () => [
+      { title: "Just", subtitle: "qu'un groupe" },
+      { title: "Just Impact", subtitle: "qu'une agence d'influence" },
+      { title: "Just Prod", subtitle: "qu'une agence de production" },
+      { title: "Just Agency", subtitle: "qu'une conciergerie" },
+    ],
+    []
+  )
+
+  useEffect(() => {
+    if (reduced || heroPaused) return
+
+    const interval = window.setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+
+    return () => window.clearInterval(interval)
+  }, [heroPaused, heroSlides.length, reduced])
+
+  const galleryImages: GalleryImage[] = useMemo(
+    () => [
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-just.jpg",
+        label: "L'équipe",
+        caption: "Just Life",
+      },
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-events.jpg",
+        label: "Événements",
+        caption: "Just Events",
+      },
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod2.jpg",
+        label: "En tournage",
+        caption: "Just Prod",
+      },
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justindustries.jpg",
+        label: "Backstage",
+        caption: "Behind the scenes",
+      },
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-talents.jpg",
+        label: "Créateurs",
+        caption: "Just Impact",
+      },
+      {
+        src: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-voyage.jpg",
+        label: "Voyages",
+        caption: "Just Agency",
+      },
+    ],
+    []
+  )
+
+  const parse = useCallback(
+    (s: string) =>
+      s
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean),
+    []
+  )
+
+  const heroFontPx1 = fluidPx(width, mobile ? 42 : 56, 120)
+  const heroFontPx2 = fluidPx(width, mobile ? 42 : 56, 120)
+  const heroFontPx3 = fluidPx(width, mobile ? 28 : 36, 92)
+  const heroLineHeight = 0.92
+  const heroPad = mobile
+    ? "100px 20px 72px"
+    : tablet
+      ? "120px 40px 88px"
+      : "120px 72px 96px"
+
+  const heroRotatingBase: CSSProperties = {
+    fontFamily: DISPLAY,
+    fontWeight: 800,
+    lineHeight: heroLineHeight,
+    letterSpacing: mobile ? -2 : -4,
+    position: "absolute",
+    inset: 0,
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+    maxWidth: "100%",
+    display: "block",
+  }
+
+  const rotatingSlot = (fontPx: number): CSSProperties => ({
+    position: "relative",
+    width: "100%",
+    minHeight: Math.ceil(fontPx * heroLineHeight + 12),
+    overflow: "hidden",
+  })
+
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    entity: "",
+    message: "",
+  })
+
+  const [errors, setErrors] = useState<ContactErrors>({})
+  const [status, setStatus] = useState<ContactStatus>("idle")
+  const [liveMsg, setLiveMsg] = useState("")
+
+  const entityList = ["Just Impact", "Just Prod", "Just Agency", "Just 4 You"]
+
+  const nameId = useId()
+  const emailId = useId()
+  const phoneId = useId()
+  const companyId = useId()
+  const messageId = useId()
+
+  const sectionTitleId = useId()
+  const sectionDescId = useId()
+  const successTitleId = useId()
+
+  const updateField = useCallback(
+    (field: keyof ContactFormData) => (value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }))
+      }
+
+      if (status === "error") {
+        setStatus("idle")
+        setLiveMsg("")
+      }
+    },
+    [errors, status]
+  )
+
+  const validateForm = useCallback(() => {
+    const e: ContactErrors = {}
+
+    if (!formData.name.trim()) e.name = "Merci d'indiquer votre nom."
+
+    if (!formData.email.trim()) {
+      e.email = "Merci d'indiquer votre adresse email."
+    } else if (!isValidEmail(formData.email)) {
+      e.email = "L'adresse email semble invalide."
+    }
+
+    if (!formData.message.trim()) {
+      e.message = "Merci de préciser votre demande."
+    } else if (formData.message.trim().length < 10) {
+      e.message = "Votre message est un peu trop court."
+    }
+
+    return e
+  }, [formData])
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      entity: "",
+      message: "",
+    })
+    setErrors({})
+    setStatus("idle")
+    setLiveMsg("")
+  }, [])
+
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      const nextErrors = validateForm()
+      setErrors(nextErrors)
+
+      if (Object.keys(nextErrors).length > 0) {
+        setStatus("error")
+        setLiveMsg("Le formulaire contient des erreurs.")
+        return
+      }
+
+      if (!WEB3FORMS_ACCESS_KEY) {
+        setStatus("error")
+        setLiveMsg(
+          "La clé du formulaire est absente. Vérifiez votre fichier .env.local."
+        )
+        return
+      }
+
+      setStatus("sending")
+      setLiveMsg("Envoi en cours.")
+
+      try {
+        const fd = new FormData()
+        fd.append("access_key", WEB3FORMS_ACCESS_KEY)
+        fd.append(
+          "subject",
+          `[JUST] Nouveau contact — ${formData.entity || "Général"}`
+        )
+        fd.append("from_name", formData.name)
+        fd.append("name", formData.name)
+        fd.append("email", formData.email)
+        fd.append("phone", formData.phone)
+        fd.append("company", formData.company)
+        fd.append("entity", formData.entity)
+        fd.append("message", formData.message)
+
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          body: fd,
+        })
+
+        const data: { success?: boolean; message?: string } = await res.json()
+
+        if (res.ok && data?.success) {
+          setStatus("success")
+          setLiveMsg("Message envoyé.")
+        } else {
+          setStatus("error")
+          setLiveMsg(data?.message || "Une erreur est survenue.")
+        }
+      } catch {
+        setStatus("error")
+        setLiveMsg("Une erreur est survenue.")
+      }
+    },
+    [formData, validateForm]
+  )
+
+  const isSubmitDisabled =
+    status === "sending" ||
+    !formData.name.trim() ||
+    !formData.email.trim() ||
+    !formData.message.trim()
+
+  const marqueeSize = mobile ? 44 : tablet ? 56 : 72
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        minWidth: 0,
+        background: "#000",
+        color: "#c8c8c8",
+        fontFamily: BODY,
+        overflowX: "hidden",
+        WebkitFontSmoothing: "antialiased",
+        position: "relative",
+      }}
+    >
+      <style>{`
+        .jm2-contact-root input::placeholder,
+        .jm2-contact-root textarea::placeholder {
+          color: ${JC.placeholder};
+        }
+
+        .jm2-contact-root input:-webkit-autofill,
+        .jm2-contact-root textarea:-webkit-autofill {
+          -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
+          -webkit-text-fill-color: #fff !important;
+          caret-color: #fff !important;
+        }
+
+        @media (max-width: 980px) {
+          .jm2-contact-grid {
+            grid-template-columns: 1fr !important;
+            gap: 56px !important;
+          }
+
+          .jm2-contact-two-cols {
+            grid-template-columns: 1fr !important;
+            gap: 28px !important;
+          }
+
+          .jm2-contact-sticky {
+            position: relative !important;
+            top: 0 !important;
+          }
+        }
+      `}</style>
+
+      <header>
+        <section
+          aria-label="Présentation Just Group"
+          style={{
+            minHeight: mobile ? "auto" : "100vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: heroPad,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              ...S.overlay,
+              backgroundImage: `radial-gradient(${white(0.02)} 1px, transparent 1px)`,
+              backgroundSize: mobile ? "28px 28px" : "40px 40px",
+            }}
+          />
+
+          <motion.p
+            initial={mo(reduced, { opacity: 0 }, { opacity: 1 })}
+            animate={{ opacity: 1 }}
+            transition={tr(reduced, 1, 0.2)}
+            style={{
+              ...S.label,
+              fontSize: mobile ? 9 : 10,
+              color: white(OP.tag),
+              marginBottom: mobile ? 28 : 48,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
+            <motion.span
+              aria-hidden="true"
+              animate={
+                reduced
+                  ? undefined
+                  : {
+                      scale: [1, 1.5, 1],
+                      opacity: [0.3, 0.8, 0.3],
+                    }
+              }
+              transition={reduced ? {} : { duration: 2.5, repeat: Infinity }}
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                background: "#fff",
+                display: "inline-block",
+                flexShrink: 0,
+              }}
+            />
+            Paris · Influence · Production · Conciergerie
+          </motion.p>
+
+          <div
+            style={{
+              maxWidth: Math.min(1180, width - px * 2),
+              width: "100%",
+              minWidth: 0,
+              position: "relative",
+              zIndex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <h1 style={{ margin: 0, padding: 0, minWidth: 0 }}>
+              <div style={rotatingSlot(heroFontPx1)}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={heroSlides[heroIndex].title}
+                    initial={mo(
+                      reduced,
+                      { opacity: 0, y: 40 },
+                      { opacity: 1, y: 0 }
+                    )}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={mo(
+                      reduced,
+                      { opacity: 0, y: -40 },
+                      { opacity: 1, y: 0 }
+                    )}
+                    transition={tr(reduced, 0.6)}
+                    style={{
+                      ...heroRotatingBase,
+                      fontSize: `${heroFontPx1}px`,
+                      color: "#fff",
+                    }}
+                  >
+                    {heroSlides[heroIndex].title}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+
+              <motion.span
+                initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })}
+                animate={{ opacity: 1, y: 0 }}
+                transition={tr(reduced, 0.6, 0.2)}
+                style={{
+                  fontFamily: DISPLAY,
+                  fontWeight: 800,
+                  fontSize: `${heroFontPx2}px`,
+                  lineHeight: heroLineHeight,
+                  color: white(0.15),
+                  letterSpacing: mobile ? -2 : -4,
+                  display: "block",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  maxWidth: "100%",
+                }}
+              >
+                c&apos;est bien plus
+              </motion.span>
+
+              <div style={rotatingSlot(heroFontPx3)}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={heroSlides[heroIndex].subtitle}
+                    initial={mo(
+                      reduced,
+                      { opacity: 0, y: 40 },
+                      { opacity: 1, y: 0 }
+                    )}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={mo(
+                      reduced,
+                      { opacity: 0, y: -40 },
+                      { opacity: 1, y: 0 }
+                    )}
+                    transition={tr(reduced, 0.6)}
+                    style={{
+                      ...heroRotatingBase,
+                      fontSize: `${heroFontPx3}px`,
+                      fontWeight: 300,
+                      fontStyle: "italic",
+                      color: white(0.12),
+                      letterSpacing: mobile ? -1 : -2,
+                    }}
+                  >
+                    {heroSlides[heroIndex].subtitle}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+            </h1>
+          </div>
+
+          <motion.p
+            initial={mo(reduced, { opacity: 0, y: 30 }, { opacity: 1, y: 0 })}
+            animate={{ opacity: 1, y: 0 }}
+            transition={tr(reduced, 0.8, 0.8)}
+            style={{
+              marginTop: mobile ? 24 : 34,
+              fontSize: mobile ? 15 : 16,
+              lineHeight: 1.9,
+              maxWidth: mobile ? "100%" : 500,
+              color: white(OP.heroDesc),
+              fontWeight: 300,
+              minWidth: 0,
+              overflowWrap: "break-word",
+            }}
+          >
+            Un écosystème créatif qui unit influence, production et
+            conciergerie de luxe. Trois entités, une seule vision : créer
+            l&apos;extraordinaire.
+          </motion.p>
+
+          <motion.button
+            onClick={() => setHeroPaused((p) => !p)}
+            aria-label={
+              heroPaused ? "Reprendre le défilement" : "Pause le défilement"
+            }
+            initial={mo(reduced, { opacity: 0 }, { opacity: 1 })}
+            animate={{ opacity: 1 }}
+            transition={reduced ? {} : { delay: 1.5 }}
+            whileHover={reduced ? undefined : { scale: 1.1 }}
+            whileTap={reduced ? undefined : { scale: 0.95 }}
+            style={{
+              position: "absolute",
+              bottom: mobile ? 20 : 40,
+              right: px,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: `1px solid ${white(0.15)}`,
+              background: white(0.03),
+              color: white(0.6),
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              zIndex: 2,
+              flexShrink: 0,
+            }}
+          >
+            {heroPaused ? ICONS.play : ICONS.pause}
+          </motion.button>
+
+          {!mobile && (
+            <motion.div
+              aria-hidden="true"
+              initial={mo(reduced, { opacity: 0 }, { opacity: 1 })}
+              animate={{ opacity: 1 }}
+              transition={reduced ? {} : { delay: 1.5 }}
+              style={{
+                position: "absolute",
+                bottom: 40,
+                left: px,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <motion.div
+                animate={reduced ? undefined : { y: [0, 8, 0] }}
+                transition={
+                  reduced
+                    ? {}
+                    : { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                }
+                style={{
+                  width: 1,
+                  height: 40,
+                  background: `linear-gradient(to bottom,${white(0.5)},transparent)`,
+                }}
+              />
+              <span
+                style={{
+                  ...S.label,
+                  fontSize: 9,
+                  letterSpacing: 4,
+                  marginBottom: 0,
+                }}
+              >
+                Scroll
+              </span>
+            </motion.div>
+          )}
+        </section>
+      </header>
+
+      <div style={{ minWidth: 0 }}>
+        <Marquee
+          items={[
+            "Just",
+            "Just Impact",
+            "Just Prod",
+            "Just Agency",
+            "Influence",
+            "Production",
+            "Conciergerie",
+            "Luxe",
+          ]}
+          speed={40}
+          fontSize={marqueeSize}
+        />
+
+        <Entity
+          number="01"
+          name="Just Impact"
+          tagline="Agence d'influence"
+          description="JUST IMPACT connecte les marques aux voix qui comptent. Stratégie data-driven, créateurs triés sur le volet, exécution sans faille."
+          services={parse(
+            "Influence Marketing, Casting Créateurs, Social Media, Brand Content, KPI & Reporting"
+          )}
+          imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-tennis.jpg"
+          responsive={responsive}
+        />
+
+        <Entity
+          number="02"
+          name="Just Prod"
+          tagline="Studio de production"
+          description="JUST PROD donne vie à vos idées. Du concept créatif au livrable final, on produit du contenu qui performe."
+          services={parse(
+            "Direction Artistique, Réalisation Vidéo, Photo, Post-Production, Motion Design"
+          )}
+          imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justprod.jpg"
+          reverse
+          responsive={responsive}
+        />
+
+        <Entity
+          number="03"
+          name="Just Agency"
+          tagline="Conciergerie de luxe"
+          description="JUST AGENCY orchestre l&apos;exceptionnel. Biens de luxe, jets privés, yachts — l&apos;impossible n&apos;est qu&apos;une question de temps."
+          services={parse(
+            "Conciergerie Privée, Biens de Luxe, Véhicules, Jets Privés, Yachts"
+          )}
+          imageUrl="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/justagency-justagency.jpg"
+          responsive={responsive}
+        />
+
+        <div style={{ padding: mobile ? "24px 0" : "40px 0" }}>
+          <Marquee
+            items={[
+              "Authenticité",
+              "Précision",
+              "Audace",
+              "Impact",
+              "Excellence",
+              "Créativité",
+            ]}
+            speed={30}
+            fontSize={mobile ? 36 : tablet ? 48 : marqueeSize}
+          />
+        </div>
+
+        <section
+          aria-label="Chiffres clés"
+          style={{ padding: sectionPad, position: "relative" }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              ...S.overlay,
+              background:
+                "radial-gradient(ellipse at center,rgba(255,255,255,0.02) 0%,transparent 70%)",
+            }}
+          />
+          <Reveal>
+            <div
+              style={{
+                maxWidth: 1200,
+                margin: "0 auto",
+                display: "grid",
+                gridTemplateColumns: gridCols(mobile, tablet, 4, 2, 2),
+                gap: mobile ? 28 : 48,
+                minWidth: 0,
+              }}
+            >
+              <Counter value="200+" label="Campagnes livrées" delay={0} />
+              <Counter value="80+" label="Créateurs managés" delay={0.1} />
+              <Counter value="50M+" label="Reach mensuel" delay={0.2} />
+              <Counter value="98%" label="Taux de satisfaction" delay={0.3} />
+            </div>
+          </Reveal>
+        </section>
+
+        <section
+          aria-label="Manifesto"
+          style={{ padding: sectionPad, display: "flex", justifyContent: "center" }}
+        >
+          <Reveal>
+            <div style={{ maxWidth: 800, textAlign: "center", minWidth: 0 }}>
+              <h2 style={S.label}>Manifesto</h2>
+              <blockquote
+                style={{
+                  fontFamily: DISPLAY,
+                  fontSize: mobile ? "28px" : "clamp(22px,3.5vw,42px)",
+                  fontWeight: 300,
+                  lineHeight: 1.45,
+                  color: white(OP.quote),
+                  margin: 0,
+                  letterSpacing: -1,
+                  fontStyle: "italic",
+                  overflowWrap: "break-word",
+                }}
+              >
+                &laquo;&nbsp;On ne fait pas du bruit. On crée de l&apos;impact.&nbsp;&raquo;
+              </blockquote>
+
+              <motion.div
+                aria-hidden="true"
+                initial={mo(reduced, { width: 0 }, { width: 60 })}
+                whileInView={mo(reduced, { width: 60 }, { width: 60 })}
+                viewport={{ once: true }}
+                transition={tr(reduced, 1, 0.3)}
+                style={{
+                  height: 2,
+                  width: reduced ? 60 : 0,
+                  background: white(0.15),
+                  margin: "36px auto 0",
+                }}
+              />
+            </div>
+          </Reveal>
+        </section>
+
+        <section aria-label="Galerie photo" style={{ padding: "60px 0" }}>
+          <div style={{ padding: `0 ${px}px`, marginBottom: 40 }}>
+            <SectionHeader label="Inside Just" title="Dans les coulisses" />
+          </div>
+          <AutoGallery images={galleryImages} speed={45} responsive={responsive} />
+        </section>
+
+        <section aria-label="Nos valeurs" style={{ padding: sectionPad }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", minWidth: 0 }}>
+            <SectionHeader
+              label="Ce qui nous définit"
+              title="Nos valeurs"
+              titleSize="clamp(30px,4.5vw,58px)"
+            />
+
+            <ul
+              style={{
+                display: "grid",
+                gridTemplateColumns: gridCols(mobile, tablet, 4),
+                gap: 1,
+                borderRadius: 20,
+                overflow: "hidden",
+                listStyle: "none",
+                padding: 0,
+                margin: "48px 0 0",
+                minWidth: 0,
+              }}
+            >
+              {VALUES.map((v, i) => (
+                <Reveal key={v.n} delay={i * 0.06}>
+                  <motion.li
+                    whileHover={reduced ? undefined : { backgroundColor: white(0.03) }}
+                    transition={{ duration: 0.3 }}
+                    style={{
+                      background: white(0.01),
+                      padding: mobile ? "40px 20px" : "56px 24px",
+                      textAlign: "center",
+                      cursor: "default",
+                      borderTop: `1px solid ${white(0.04)}`,
+                      minHeight: mobile ? 180 : 220,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 0,
+                    }}
+                  >
+                    <div aria-hidden="true" style={S.ghost(mobile ? 40 : 56)}>
+                      {v.n}
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: DISPLAY,
+                        fontWeight: 700,
+                        fontSize: 16,
+                        color: "#fff",
+                        marginBottom: 10,
+                        marginTop: 16,
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      {v.t}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: white(OP.desc),
+                        lineHeight: 1.7,
+                        margin: 0,
+                        fontWeight: 300,
+                        maxWidth: 220,
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      {v.d}
+                    </p>
+                  </motion.li>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section
+          className="jm2-contact-root"
+          aria-labelledby={sectionTitleId}
+          aria-describedby={sectionDescId}
+          style={{
+            padding: mobile
+              ? "80px 20px 100px"
+              : tablet
+                ? "100px 40px 120px"
+                : "110px 72px 140px",
+            borderTop: `1px solid ${white(0.06)}`,
+            position: "relative",
+          }}
+        >
+          <div
+            aria-live="polite"
+            aria-atomic="true"
+            style={{
+              position: "absolute",
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: "hidden",
+              clip: "rect(0,0,0,0)",
+              whiteSpace: "nowrap",
+              border: 0,
+            }}
+          >
+            {liveMsg}
+          </div>
+
+          <div
+            aria-hidden="true"
+            style={{
+              ...S.overlay,
+              background:
+                "radial-gradient(ellipse at center top,rgba(255,255,255,0.03) 0%,transparent 65%)",
+            }}
+          />
+
+          <div
+            style={{
+              maxWidth: 1320,
+              margin: "0 auto",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <Reveal>
+              <div style={{ marginBottom: mobile ? 48 : 72 }}>
+                <p
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: 6,
+                    textTransform: "uppercase",
+                    color: white(OP.tag),
+                    margin: "0 0 28px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <motion.span
+                    aria-hidden="true"
+                    animate={
+                      reduced
+                        ? undefined
+                        : { scale: [1, 1.45, 1], opacity: [0.35, 0.85, 0.35] }
+                    }
+                    transition={{ duration: 2.5, repeat: Infinity }}
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: "#ffffff",
+                      display: "inline-block",
+                    }}
+                  />
+                  Formulaire de contact
+                </p>
+
+                <h2
+                  style={{
+                    fontFamily: DISPLAY,
+                    fontWeight: 800,
+                    fontSize: mobile
+                      ? "clamp(40px,12vw,58px)"
+                      : "clamp(56px,8vw,110px)",
+                    lineHeight: 0.92,
+                    color: "#ffffff",
+                    margin: 0,
+                    letterSpacing: mobile ? -2 : -5,
+                  }}
+                >
+                  <span style={{ display: "block" }}>Parlons</span>
+                  <span
+                    style={{
+                      display: "block",
+                      fontWeight: 300,
+                      fontStyle: "italic",
+                      color: white(0.88),
+                      letterSpacing: mobile ? -1 : -3,
+                    }}
+                  >
+                    de votre projet.
+                  </span>
+                </h2>
+
+                <p
+                  style={{
+                    marginTop: 28,
+                    fontSize: 16,
+                    lineHeight: 1.9,
+                    maxWidth: 620,
+                    color: white(OP.heroDesc),
+                    fontWeight: 300,
+                  }}
+                >
+                  Influence, production, conciergerie ou média, quelle que soit
+                  votre ambition, on a l&apos;entité et l&apos;expertise
+                  qu&apos;il vous faut. Remplissez le formulaire, on revient vers
+                  vous sous 24h.
+                </p>
+              </div>
+            </Reveal>
+
+            <div
+              className="jm2-contact-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0,1fr) minmax(280px,0.42fr)",
+                gap: mobile ? 56 : 88,
+                alignItems: "start",
+              }}
+            >
+              <Reveal>
+                <div>
+                  {status === "success" ? (
+                    <motion.section
+                      aria-labelledby={successTitleId}
+                      initial={reduced ? false : { opacity: 0, y: 24 }}
+                      animate={reduced ? undefined : { opacity: 1, y: 0 }}
+                      transition={{ duration: 0.7, ease: EASE }}
+                      style={{
+                        textAlign: "center",
+                        padding: mobile ? "56px 24px" : "80px 40px",
+                        background: JC.surface,
+                        border: `1px solid ${JC.border}`,
+                        borderRadius: 24,
+                      }}
+                    >
+                      <motion.div
+                        initial={reduced ? false : { scale: 0.85, opacity: 0 }}
+                        animate={reduced ? undefined : { scale: 1, opacity: 1 }}
+                        transition={{
+                          duration: 0.45,
+                          delay: 0.12,
+                          ease: EASE,
+                        }}
+                        style={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: "50%",
+                          border: "2px solid #ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          margin: "0 auto 28px",
+                        }}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      </motion.div>
+
+                      <h3
+                        id={successTitleId}
+                        style={{
+                          fontFamily: DISPLAY,
+                          fontWeight: 800,
+                          fontSize: 34,
+                          color: "#ffffff",
+                          letterSpacing: -2,
+                          margin: "0 0 12px",
+                        }}
+                      >
+                        Message envoyé.
+                      </h3>
+
+                      <p
+                        style={{
+                          fontFamily: BODY,
+                          fontSize: 16,
+                          color: white(OP.desc),
+                          fontWeight: 300,
+                          lineHeight: 1.8,
+                          maxWidth: 420,
+                          margin: "0 auto",
+                        }}
+                      >
+                        Merci pour votre intérêt. Notre équipe revient vers vous
+                        sous 24h.
+                      </p>
+
+                      <motion.button
+                        type="button"
+                        onClick={resetForm}
+                        whileHover={reduced ? undefined : { opacity: 0.85 }}
+                        style={{
+                          marginTop: 36,
+                          padding: "14px 30px",
+                          borderRadius: 100,
+                          border: "1px solid #ffffff",
+                          background: "transparent",
+                          color: "#ffffff",
+                          fontFamily: BODY,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          letterSpacing: 2,
+                          textTransform: "uppercase",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Nouveau message
+                      </motion.button>
+                    </motion.section>
+                  ) : (
+                    <section>
+                      <p
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: 6,
+                          textTransform: "uppercase",
+                          color: white(OP.tag),
+                          margin: "0 0 14px",
+                        }}
+                      >
+                        Formulaire
+                      </p>
+
+                      <h3
+                        id={sectionTitleId}
+                        style={{
+                          fontFamily: DISPLAY,
+                          fontWeight: 800,
+                          fontSize: "clamp(32px,4vw,48px)",
+                          color: "#ffffff",
+                          lineHeight: 1,
+                          letterSpacing: -2,
+                          margin: "0 0 18px",
+                        }}
+                      >
+                        Dites-nous tout.
+                      </h3>
+
+                      <p
+                        id={sectionDescId}
+                        style={{
+                          margin: "0 0 52px",
+                          fontFamily: BODY,
+                          fontSize: 15,
+                          lineHeight: 1.8,
+                          color: white(OP.desc),
+                          maxWidth: 620,
+                        }}
+                      >
+                        Les champs marqués d&apos;un astérisque sont obligatoires.
+                      </p>
+
+                      <form
+                        onSubmit={handleSubmit}
+                        noValidate
+                        aria-busy={status === "sending"}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 36,
+                          }}
+                        >
+                          <div
+                            className="jm2-contact-two-cols"
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: 44,
+                            }}
+                          >
+                            <ContactInputField
+                              id={nameId}
+                              label="Nom complet"
+                              name="name"
+                              required
+                              autoComplete="name"
+                              value={formData.name}
+                              error={errors.name}
+                              placeholder="Jean Dupont"
+                              onChange={updateField("name")}
+                            />
+
+                            <ContactInputField
+                              id={emailId}
+                              label="Adresse email"
+                              name="email"
+                              type="email"
+                              required
+                              autoComplete="email"
+                              inputMode="email"
+                              value={formData.email}
+                              error={errors.email}
+                              placeholder="jean@marque.com"
+                              onChange={updateField("email")}
+                            />
+                          </div>
+
+                          <div
+                            className="jm2-contact-two-cols"
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: 44,
+                            }}
+                          >
+                            <ContactInputField
+                              id={phoneId}
+                              label="Téléphone"
+                              name="phone"
+                              type="tel"
+                              autoComplete="tel"
+                              inputMode="tel"
+                              value={formData.phone}
+                              placeholder="+33 6 12 34 56 78"
+                              hint="Optionnel"
+                              onChange={updateField("phone")}
+                            />
+
+                            <ContactInputField
+                              id={companyId}
+                              label="Entreprise / Marque"
+                              name="company"
+                              autoComplete="organization"
+                              value={formData.company}
+                              placeholder="Votre marque"
+                              hint="Optionnel"
+                              onChange={updateField("company")}
+                            />
+                          </div>
+
+                          <ContactPillSelect
+                            label="Entité"
+                            name="entity"
+                            options={entityList}
+                            value={formData.entity}
+                            onChange={updateField("entity")}
+                          />
+
+                          <ContactTextareaField
+                            id={messageId}
+                            label="Votre message"
+                            name="message"
+                            required
+                            value={formData.message}
+                            error={errors.message}
+                            placeholder="Décrivez votre projet, vos objectifs, vos délais..."
+                            onChange={updateField("message")}
+                          />
+
+                          <AnimatePresence>
+                            {status === "error" && (
+                              <motion.div
+                                role="alert"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                style={{
+                                  padding: "16px 22px",
+                                  borderRadius: 12,
+                                  background: JC.errorBg,
+                                  border: `1px solid ${JC.errorBorder}`,
+                                  fontFamily: BODY,
+                                  fontSize: 14,
+                                  color: JC.error,
+                                  fontWeight: 400,
+                                  lineHeight: 1.7,
+                                }}
+                              >
+                                <strong>Une erreur est survenue.</strong>{" "}
+                                {liveMsg && liveMsg !== "Une erreur est survenue."
+                                  ? liveMsg
+                                  : "Veuillez réessayer ou nous contacter directement."}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          <motion.button
+                            type="submit"
+                            disabled={isSubmitDisabled}
+                            aria-disabled={isSubmitDisabled}
+                            whileHover={
+                              !isSubmitDisabled && !reduced
+                                ? {
+                                    y: -2,
+                                    backgroundColor: "#ffffff",
+                                    color: "#000000",
+                                  }
+                                : undefined
+                            }
+                            whileTap={
+                              !isSubmitDisabled && !reduced
+                                ? { scale: 0.98 }
+                                : undefined
+                            }
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              alignSelf: "flex-start",
+                              gap: 12,
+                              padding: "18px 42px",
+                              background: "transparent",
+                              color: isSubmitDisabled
+                                ? "rgba(255,255,255,0.25)"
+                                : "#ffffff",
+                              fontFamily: DISPLAY,
+                              fontWeight: 700,
+                              fontSize: 13,
+                              letterSpacing: 4,
+                              textTransform: "uppercase",
+                              border: `1px solid ${
+                                isSubmitDisabled
+                                  ? "rgba(255,255,255,0.12)"
+                                  : "#ffffff"
+                              }`,
+                              borderRadius: 100,
+                              cursor: isSubmitDisabled ? "not-allowed" : "pointer",
+                              transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
+                              opacity: status === "sending" ? 0.58 : 1,
+                            }}
+                          >
+                            {status === "sending" ? "Envoi en cours..." : "Envoyer"}
+                            <svg
+                              aria-hidden="true"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M5 12h14" />
+                              <path d="m12 5 7 7-7 7" />
+                            </svg>
+                          </motion.button>
+                        </div>
+                      </form>
+                    </section>
+                  )}
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.15}>
+                <aside
+                  className="jm2-contact-sticky"
+                  aria-label="Informations de contact"
+                  style={{
+                    position: "sticky",
+                    top: 100,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 24,
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "20px",
+                      borderRadius: 16,
+                      background: JC.surface,
+                      border: `1px solid ${JC.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                    }}
+                  >
+                    <motion.div
+                      aria-hidden="true"
+                      animate={
+                        reduced
+                          ? undefined
+                          : { scale: [1, 1.3, 1], opacity: [0.45, 1, 0.45] }
+                      }
+                      transition={{ duration: 2, repeat: Infinity }}
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        background: JC.success,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <p
+                      style={{
+                        margin: 0,
+                        fontFamily: BODY,
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "#ffffff",
+                      }}
+                    >
+                      Réponse sous 24h
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: mobile ? "24px" : "28px",
+                      borderRadius: 20,
+                      background: white(0.02),
+                      border: `1px solid ${white(0.08)}`,
+                    }}
+                  >
+                    <p
+                      style={{
+                        ...S.label,
+                        marginBottom: 16,
+                        color: white(OP.tag),
+                      }}
+                    >
+                      Note
+                    </p>
+                    <blockquote
+                      style={{
+                        margin: 0,
+                        fontFamily: DISPLAY,
+                        fontSize: mobile ? 22 : 28,
+                        fontWeight: 300,
+                        lineHeight: 1.5,
+                        color: white(OP.quote),
+                        fontStyle: "italic",
+                        letterSpacing: -0.8,
+                      }}
+                    >
+                      &quot;Chaque projet commence par une conversation. La vôtre commence ici.&quot;
+                    </blockquote>
+                  </div>
+                </aside>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
