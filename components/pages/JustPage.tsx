@@ -213,55 +213,31 @@ type Responsive = {
   sectionPad: string
 }
 
-type WindowSnapshot = {
-  width: number
-  height: number
-}
-
-const DEFAULT_WINDOW_SNAPSHOT: WindowSnapshot = {
-  width: 1280,
-  height: 900,
-}
-
-let lastWindowSnapshot: WindowSnapshot = DEFAULT_WINDOW_SNAPSHOT
-
 function subscribeWindow(callback: () => void) {
   if (typeof window === "undefined") return () => {}
-
   window.addEventListener("resize", callback)
   return () => window.removeEventListener("resize", callback)
 }
 
-function getWindowSnapshot(): WindowSnapshot {
+function getWindowSnapshot() {
   if (typeof window === "undefined") {
-    return DEFAULT_WINDOW_SNAPSHOT
+    return { width: 1280, height: 900 }
   }
-
-  const width = Math.max(320, window.innerWidth || 1280)
-  const height = Math.max(1, window.innerHeight || 900)
-
-  if (
-    lastWindowSnapshot.width === width &&
-    lastWindowSnapshot.height === height
-  ) {
-    return lastWindowSnapshot
+  return {
+    width: Math.max(320, window.innerWidth || 1280),
+    height: Math.max(1, window.innerHeight || 900),
   }
-
-  lastWindowSnapshot = { width, height }
-  return lastWindowSnapshot
 }
 
-function getWindowServerSnapshot(): WindowSnapshot {
-  return DEFAULT_WINDOW_SNAPSHOT
+function getWindowServerSnapshot() {
+  return { width: 1280, height: 900 }
 }
 
 function subscribeReducedMotion(callback: () => void) {
   if (typeof window === "undefined" || !window.matchMedia) return () => {}
-
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
   const handler = () => callback()
   mq.addEventListener("change", handler)
-
   return () => mq.removeEventListener("change", handler)
 }
 
@@ -606,7 +582,608 @@ function AutoGallery({
   )
 }
 
+function Entity({
+  number,
+  name,
+  tagline,
+  description,
+  services,
+  imageUrl,
+  reverse = false,
+  responsive,
+}: {
+  number: string
+  name: string
+  tagline: string
+  description: string
+  services: string[]
+  imageUrl: string
+  reverse?: boolean
+  responsive: Responsive
+}) {
+  const ref = useRef<HTMLElement | null>(null)
+  const isVisible = useInView(ref, { once: true, margin: "-100px" })
+  const reduced = useReducedMotion()
+  const { mobile, tablet, width } = responsive
+  const stacked = tablet
+
+  const fadeDirection = stacked
+    ? "linear-gradient(to bottom,transparent 50%,#000 100%)"
+    : reverse
+      ? "linear-gradient(to left,transparent 50%,#000 100%)"
+      : "linear-gradient(to right,transparent 50%,#000 100%)"
+
+  const visualHeight = mobile
+    ? 420
+    : tablet
+      ? 520
+      : Math.max(680, Math.min(900, Math.round(width * 0.55)))
+
+  return (
+    <section
+      ref={ref}
+      aria-label={name}
+      style={{
+        minHeight: stacked ? "auto" : `${visualHeight}px`,
+        display: "grid",
+        gridTemplateColumns: stacked
+          ? "minmax(0,1fr)"
+          : "minmax(0,1fr) minmax(0,1fr)",
+        alignItems: "stretch",
+        minWidth: 0,
+      }}
+    >
+      <div
+        style={{
+          order: stacked ? 2 : reverse ? 2 : 1,
+          padding: mobile ? "40px 20px" : tablet ? "56px 40px" : "80px 72px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          minWidth: 0,
+        }}
+      >
+        <motion.div
+          initial={mo(
+            reduced,
+            { opacity: 0, x: reverse ? 40 : -40 },
+            { opacity: 1, x: 0 }
+          )}
+          animate={isVisible ? { opacity: 1, x: 0 } : {}}
+          transition={tr(reduced, 0.8)}
+          style={{ minWidth: 0 }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              ...S.ghost(mobile ? 72 : 120),
+              letterSpacing: -6,
+              marginBottom: mobile ? -28 : -40,
+              position: "relative",
+              zIndex: 0,
+            }}
+          >
+            {number}
+          </div>
+
+          <h2
+            style={{
+              ...S.title,
+              fontSize: mobile ? 34 : tablet ? 48 : 64,
+              lineHeight: 0.95,
+              marginBottom: 12,
+              position: "relative",
+              zIndex: 1,
+              overflowWrap: "break-word",
+              wordBreak: "break-word",
+            }}
+          >
+            {name}
+          </h2>
+
+          <p
+            style={{
+              fontFamily: BODY,
+              fontSize: mobile ? 11 : 13,
+              fontWeight: 600,
+              letterSpacing: mobile ? 3 : 5,
+              textTransform: "uppercase",
+              color: white(OP.tag),
+              marginBottom: 24,
+              overflowWrap: "break-word",
+            }}
+          >
+            {tagline}
+          </p>
+
+          <p
+            style={{
+              fontFamily: BODY,
+              fontSize: mobile ? 15 : 16,
+              lineHeight: 1.85,
+              color: white(OP.entityDesc),
+              fontWeight: 300,
+              maxWidth: 520,
+              marginBottom: 36,
+              overflowWrap: "break-word",
+            }}
+          >
+            {description}
+          </p>
+
+          <ul
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              listStyle: "none",
+              padding: 0,
+              margin: 0,
+            }}
+            aria-label={`Services ${name}`}
+          >
+            {services.map((service, i) => (
+              <motion.li
+                key={service}
+                initial={mo(reduced, { opacity: 0, y: 12 }, { opacity: 1, y: 0 })}
+                animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                transition={tr(reduced, 0.5, 0.3 + i * 0.06)}
+                style={S.pill}
+              >
+                {service}
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+      </div>
+
+      <motion.div
+        style={{
+          order: stacked ? 1 : reverse ? 1 : 2,
+          height: `${visualHeight}px`,
+          minHeight: `${visualHeight}px`,
+          position: "relative",
+          overflow: "hidden",
+          minWidth: 0,
+        }}
+        initial={mo(reduced, { opacity: 0, scale: 1.05 }, { opacity: 1, scale: 1 })}
+        animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+        transition={tr(reduced, 1.2)}
+      >
+        <Image
+          src={imageUrl}
+          alt={`Photo illustrant ${name}`}
+          fill
+          unoptimized
+          sizes={stacked ? "100vw" : "50vw"}
+          onError={handleImageError}
+          style={S.coverImg}
+        />
+        <div aria-hidden="true" style={{ ...S.overlay, background: fadeDirection }} />
+        <div
+          aria-hidden="true"
+          style={{
+            ...S.overlay,
+            background: "linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 40%)",
+          }}
+        />
+      </motion.div>
+    </section>
+  )
+}
+
+function Counter({
+  value,
+  label,
+  delay = 0,
+}: {
+  value: string
+  label: string
+  delay?: number
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const isVisible = useInView(ref, { once: true })
+  const reduced = useReducedMotion()
+
+  // FIX: regex-based parser pour supporter decimals et suffixes variés (200+, 50M+, 98%)
+  const parsed = useMemo(() => {
+    const match = value.match(/^([0-9]+(?:\.[0-9]+)?)(.*)$/)
+    if (!match) return { numeric: 0, suffix: value }
+    return { numeric: parseFloat(match[1]), suffix: match[2] }
+  }, [value])
+
+  const motionValue = useMotionValue(0)
+  // FIX: syntaxe useTransform compatible toutes versions Framer Motion
+  const rounded = useTransform(motionValue, (v) => Math.floor(v))
+  const hasAnimatedRef = useRef(false)
+
+  useEffect(() => {
+    if (!isVisible || hasAnimatedRef.current) return
+    hasAnimatedRef.current = true
+
+    if (reduced) {
+      motionValue.set(parsed.numeric)
+      return
+    }
+
+    const controls = animate(motionValue, parsed.numeric, {
+      duration: 2.2,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+    })
+
+    return () => {
+      controls.stop()
+    }
+  }, [delay, isVisible, motionValue, parsed.numeric, reduced])
+
+  return (
+    <div ref={ref} style={{ textAlign: "center", minWidth: 0 }}>
+      <div
+        aria-label={`${value} ${label}`}
+        style={{
+          fontFamily: DISPLAY,
+          fontWeight: 800,
+          fontSize: "clamp(40px,5vw,64px)",
+          color: "#fff",
+          lineHeight: 1,
+          marginBottom: 10,
+          letterSpacing: -4,
+          fontVariantNumeric: "tabular-nums",
+          overflowWrap: "break-word",
+        }}
+      >
+        <span aria-hidden="true">
+          {isVisible ? <motion.span>{rounded}</motion.span> : 0}
+          {parsed.suffix}
+        </span>
+      </div>
+
+      <div
+        style={{
+          ...S.label,
+          fontSize: 10,
+          color: white(OP.tag),
+          marginBottom: 0,
+          overflowWrap: "break-word",
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  )
+}
+
+function ContactInputField({
+  id,
+  label,
+  name,
+  type = "text",
+  autoComplete,
+  inputMode,
+  placeholder,
+  required = false,
+  value,
+  error,
+  hint,
+  onChange,
+}: {
+  id: string
+  label: string
+  name: string
+  type?: string
+  autoComplete?: string
+  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"]
+  placeholder?: string
+  required?: boolean
+  value: string
+  error?: string
+  hint?: string
+  onChange: (v: string) => void
+}) {
+  const [focused, setFocused] = useState(false)
+  const active = focused || value.length > 0
+  const errorId = `${id}-error`
+  const hintId = `${id}-hint`
+
+  return (
+    <div style={{ position: "relative" }}>
+      <motion.label
+        htmlFor={id}
+        animate={{
+          top: active ? 6 : 24,
+          fontSize: active ? 11 : 15,
+          color: error ? JC.error : JC.text,
+          letterSpacing: active ? 3.5 : 0,
+        }}
+        transition={{ duration: 0.22 }}
+        style={{
+          position: "absolute",
+          left: 0,
+          fontFamily: BODY,
+          fontWeight: active ? 700 : 400,
+          textTransform: active ? "uppercase" : "none",
+          pointerEvents: "none",
+          zIndex: 1,
+          lineHeight: 1,
+        }}
+      >
+        {label}
+        {required && (
+          <span aria-hidden="true" style={{ color: JC.text }}>
+            {" "}
+            *
+          </span>
+        )}
+      </motion.label>
+
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value}
+        required={required}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        aria-required={required || undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={
+          [hint ? hintId : null, error ? errorId : null]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
+        placeholder={focused ? placeholder : ""}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          width: "100%",
+          background: "transparent",
+          border: "none",
+          borderBottom: `1px solid ${
+            error ? JC.error : focused ? JC.borderFocus : JC.border
+          }`,
+          padding: "30px 0 16px",
+          fontFamily: BODY,
+          fontSize: 17,
+          fontWeight: 400,
+          color: JC.text,
+          outline: "none",
+          transition: "border-color 0.25s ease",
+          letterSpacing: 0.2,
+        }}
+      />
+
+      {hint && (
+        <p
+          id={hintId}
+          style={{
+            margin: "10px 0 0",
+            fontFamily: BODY,
+            fontSize: 12,
+            lineHeight: 1.6,
+            color: JC.muted,
+          }}
+        >
+          {hint}
+        </p>
+      )}
+
+      {error && (
+        <p
+          id={errorId}
+          role="alert"
+          style={{
+            margin: "10px 0 0",
+            fontFamily: BODY,
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: JC.error,
+          }}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function ContactTextareaField({
+  id,
+  label,
+  name,
+  placeholder,
+  required = false,
+  value,
+  error,
+  onChange,
+}: {
+  id: string
+  label: string
+  name: string
+  placeholder?: string
+  required?: boolean
+  value: string
+  error?: string
+  onChange: (v: string) => void
+}) {
+  const [focused, setFocused] = useState(false)
+  const active = focused || value.length > 0
+  const errorId = `${id}-error`
+
+  return (
+    <div style={{ position: "relative" }}>
+      <motion.label
+        htmlFor={id}
+        animate={{
+          top: active ? 6 : 24,
+          fontSize: active ? 11 : 15,
+          color: error ? JC.error : JC.text,
+          letterSpacing: active ? 3.5 : 0,
+        }}
+        transition={{ duration: 0.22 }}
+        style={{
+          position: "absolute",
+          left: 0,
+          fontFamily: BODY,
+          fontWeight: active ? 700 : 400,
+          textTransform: active ? "uppercase" : "none",
+          pointerEvents: "none",
+          zIndex: 1,
+          lineHeight: 1,
+        }}
+      >
+        {label}
+        {required && (
+          <span aria-hidden="true" style={{ color: JC.text }}>
+            {" "}
+            *
+          </span>
+        )}
+      </motion.label>
+
+      <textarea
+        id={id}
+        name={name}
+        value={value}
+        required={required}
+        aria-required={required || undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        placeholder={focused ? placeholder : ""}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        rows={5}
+        style={{
+          width: "100%",
+          background: "transparent",
+          border: "none",
+          borderBottom: `1px solid ${
+            error ? JC.error : focused ? JC.borderFocus : JC.border
+          }`,
+          padding: "30px 0 16px",
+          fontFamily: BODY,
+          fontSize: 17,
+          fontWeight: 400,
+          color: JC.text,
+          outline: "none",
+          resize: "vertical",
+          minHeight: 130,
+          transition: "border-color 0.25s ease",
+          letterSpacing: 0.2,
+        }}
+      />
+
+      {error && (
+        <p
+          id={errorId}
+          role="alert"
+          style={{
+            margin: "10px 0 0",
+            fontFamily: BODY,
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: JC.error,
+          }}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function ContactPillSelect({
+  label,
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  name: string
+  options: string[]
+  value: string
+  onChange: (v: string) => void
+}) {
+  const groupId = useId()
+
+  return (
+    <fieldset style={{ border: "none", padding: 0, margin: 0, minWidth: 0 }}>
+      <legend
+        id={groupId}
+        style={{
+          fontFamily: BODY,
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: 4,
+          textTransform: "uppercase",
+          color: JC.text,
+          marginBottom: 18,
+        }}
+      >
+        {label}
+      </legend>
+
+      <div
+        role="group"
+        aria-labelledby={groupId}
+        style={{ display: "flex", flexWrap: "wrap", gap: 10 }}
+      >
+        {options.map((opt) => {
+          const active = value === opt
+
+          return (
+            <motion.button
+              key={opt}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onChange(active ? "" : opt)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              animate={{
+                background: active ? "#ffffff" : "transparent",
+                borderColor: active ? "#ffffff" : "rgba(255,255,255,0.18)",
+                color: active ? "#000000" : "#ffffff",
+              }}
+              transition={{ duration: 0.2 }}
+              style={{
+                padding: "11px 20px",
+                borderRadius: 100,
+                border: "1px solid",
+                fontFamily: BODY,
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                cursor: "pointer",
+                outline: "none",
+                boxShadow: "none",
+              }}
+            >
+              {opt}
+            </motion.button>
+          )
+        })}
+      </div>
+
+      <input type="hidden" name={name} value={value} />
+    </fieldset>
+  )
+}
+
 export default function JustPage() {
+  // ─── FIX PRINCIPAL : mounted guard pour éviter React hydration error #185 ───
+  // useSyncExternalStore retourne des snapshots différents entre SSR et client
+  // (window size, prefers-reduced-motion). Ce guard force le rendu uniquement
+  // côté client, éliminant tout mismatch d'hydratation.
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const reduced = useReducedMotion()
   const responsive = useResponsive()
   const { mobile, tablet, px, sectionPad, width } = responsive
@@ -853,6 +1430,20 @@ export default function JustPage() {
 
   const marqueeSize = mobile ? 44 : tablet ? 56 : 72
 
+  // ─── Placeholder SSR : fond noir, pas de contenu interactif ───
+  // Évite tout mismatch entre le HTML serveur et le rendu client.
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          minHeight: "100vh",
+          background: "#000",
+        }}
+      />
+    )
+  }
+
   return (
     <div
       style={{
@@ -973,17 +1564,9 @@ export default function JustPage() {
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={heroSlides[heroIndex].title}
-                    initial={mo(
-                      reduced,
-                      { opacity: 0, y: 40 },
-                      { opacity: 1, y: 0 }
-                    )}
+                    initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={mo(
-                      reduced,
-                      { opacity: 0, y: -40 },
-                      { opacity: 1, y: 0 }
-                    )}
+                    exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })}
                     transition={tr(reduced, 0.6)}
                     style={{
                       ...heroRotatingBase,
@@ -1020,17 +1603,9 @@ export default function JustPage() {
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={heroSlides[heroIndex].subtitle}
-                    initial={mo(
-                      reduced,
-                      { opacity: 0, y: 40 },
-                      { opacity: 1, y: 0 }
-                    )}
+                    initial={mo(reduced, { opacity: 0, y: 40 }, { opacity: 1, y: 0 })}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={mo(
-                      reduced,
-                      { opacity: 0, y: -40 },
-                      { opacity: 1, y: 0 }
-                    )}
+                    exit={mo(reduced, { opacity: 0, y: -40 }, { opacity: 1, y: 0 })}
                     transition={tr(reduced, 0.6)}
                     style={{
                       ...heroRotatingBase,
@@ -1297,6 +1872,7 @@ export default function JustPage() {
               titleSize="clamp(30px,4.5vw,58px)"
             />
 
+            {/* FIX: structure ul > li correcte, Reveal à l'intérieur du li */}
             <ul
               style={{
                 display: "grid",
@@ -1311,55 +1887,57 @@ export default function JustPage() {
               }}
             >
               {VALUES.map((v, i) => (
-                <Reveal key={v.n} delay={i * 0.06}>
-                  <motion.li
-                    whileHover={reduced ? undefined : { backgroundColor: white(0.03) }}
-                    transition={{ duration: 0.3 }}
-                    style={{
-                      background: white(0.01),
-                      padding: mobile ? "40px 20px" : "56px 24px",
-                      textAlign: "center",
-                      cursor: "default",
-                      borderTop: `1px solid ${white(0.04)}`,
-                      minHeight: mobile ? 180 : 220,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      minWidth: 0,
-                    }}
-                  >
-                    <div aria-hidden="true" style={S.ghost(mobile ? 40 : 56)}>
-                      {v.n}
-                    </div>
-                    <h3
+                <li key={v.n} style={{ minWidth: 0 }}>
+                  <Reveal delay={i * 0.06}>
+                    <motion.div
+                      whileHover={reduced ? undefined : { backgroundColor: white(0.03) }}
+                      transition={{ duration: 0.3 }}
                       style={{
-                        fontFamily: DISPLAY,
-                        fontWeight: 700,
-                        fontSize: 16,
-                        color: "#fff",
-                        marginBottom: 10,
-                        marginTop: 16,
-                        overflowWrap: "break-word",
+                        background: white(0.01),
+                        padding: mobile ? "40px 20px" : "56px 24px",
+                        textAlign: "center",
+                        cursor: "default",
+                        borderTop: `1px solid ${white(0.04)}`,
+                        minHeight: mobile ? 180 : 220,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minWidth: 0,
                       }}
                     >
-                      {v.t}
-                    </h3>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: white(OP.desc),
-                        lineHeight: 1.7,
-                        margin: 0,
-                        fontWeight: 300,
-                        maxWidth: 220,
-                        overflowWrap: "break-word",
-                      }}
-                    >
-                      {v.d}
-                    </p>
-                  </motion.li>
-                </Reveal>
+                      <div aria-hidden="true" style={S.ghost(mobile ? 40 : 56)}>
+                        {v.n}
+                      </div>
+                      <h3
+                        style={{
+                          fontFamily: DISPLAY,
+                          fontWeight: 700,
+                          fontSize: 16,
+                          color: "#fff",
+                          marginBottom: 10,
+                          marginTop: 16,
+                          overflowWrap: "break-word",
+                        }}
+                      >
+                        {v.t}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: white(OP.desc),
+                          lineHeight: 1.7,
+                          margin: 0,
+                          fontWeight: 300,
+                          maxWidth: 220,
+                          overflowWrap: "break-word",
+                        }}
+                      >
+                        {v.d}
+                      </p>
+                    </motion.div>
+                  </Reveal>
+                </li>
               ))}
             </ul>
           </div>
@@ -1779,11 +2357,7 @@ export default function JustPage() {
                             aria-disabled={isSubmitDisabled}
                             whileHover={
                               !isSubmitDisabled && !reduced
-                                ? {
-                                    y: -2,
-                                    backgroundColor: "#ffffff",
-                                    color: "#000000",
-                                  }
+                                ? { y: -2, backgroundColor: "#ffffff", color: "#000000" }
                                 : undefined
                             }
                             whileTap={
