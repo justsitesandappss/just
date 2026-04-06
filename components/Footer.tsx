@@ -48,7 +48,7 @@ export default function Footer() {
         .footer-legal-link { color:${white(0.25)}; text-decoration:none; font-size:11px; font-weight:700; letter-spacing:2.4px; text-transform:uppercase; white-space:nowrap; transition: color .2s ease; }
         .footer-legal-link:hover { color:${white(0.5)}; }
         @media (max-width: 768px) {
-          .footer-main { grid-template-columns: 1fr !important; }
+          .footer-main { grid-template-columns: 1fr !important; gap: 16px !important; }
           .footer-side { align-items: flex-start !important; }
           .footer-email { text-align: left !important; }
           .footer-legal { justify-content: flex-start !important; }
@@ -58,7 +58,7 @@ export default function Footer() {
       <footer style={{
         width: "100%", background: "#000", color: white(0.68),
         fontFamily: BODY, borderTop: `1px solid ${white(0.06)}`,
-        padding: "48px 72px 0",
+        padding: "20px 72px 0",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div className="footer-main" style={{
@@ -73,20 +73,17 @@ export default function Footer() {
               <Link href="/" className="footer-link" style={{
                 display: "inline-block", fontFamily: DISPLAY,
                 fontSize: 14, fontWeight: 700, letterSpacing: 4,
-                marginBottom: 8, color: white(0.62),
+                marginBottom: 6, color: white(0.62),
               }}>
                 JUST<span style={{ color: white(0.34) }}>.</span>
               </Link>
-              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.55, color: white(0.56) }}>
-                Paris, France<br />© {year} Just Group
-              </p>
-              <p style={{ margin: "3px 0 0", fontSize: 12, color: white(0.36) }}>
-                Made by the best
+              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: white(0.56) }}>
+                Paris, France · © {year} Just Group
               </p>
             </div>
 
             {/* Colonne droite — Socials + email */}
-            <div className="footer-side" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+            <div className="footer-side" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
               <div style={{ display: "flex", gap: 10 }}>
                 {socials.map(s => (
                   <Link key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
@@ -103,9 +100,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div style={{ borderTop: `1px solid ${white(0.04)}`, marginTop: 24 }} />
+        <div style={{ borderTop: `1px solid ${white(0.04)}`, marginTop: 16 }} />
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 0 18px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 0 12px" }}>
           <nav aria-label="Liens légaux">
             <div className="footer-legal" style={{
               display: "flex", flexWrap: "wrap",
