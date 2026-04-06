@@ -5,25 +5,6 @@ const DISPLAY = "'Syne', sans-serif"
 
 const white = (o: number) => `rgba(255,255,255,${o})`
 
-const navColumns = [
-  [
-    { label: "Just",          href: "/"            },
-    { label: "Just Impact",   href: "/just-impact" },
-    { label: "Nos Sponsors",  href: "/nosponsors"  },
-  ],
-  [
-    { label: "Nos Talents",   href: "/nos-talents" },
-    { label: "Just Prod",     href: "/just-prod"   },
-    { label: "Just Agency",   href: "/just-agency" },
-  ],
-  [
-    { label: "Nous contacter", href: "/contact"    },
-    { label: "Qui sommes-nous ?", href: "/just"    },
-    { label: "Media",          href: "/media"      },
-    { label: "Podcast",        href: "/podcast"    },
-  ],
-]
-
 const socials = [
   {
     label: "Instagram", href: "https://www.instagram.com/justagency.inc/",
@@ -67,9 +48,8 @@ export default function Footer() {
         .footer-legal-link { color:${white(0.25)}; text-decoration:none; font-size:11px; font-weight:700; letter-spacing:2.4px; text-transform:uppercase; white-space:nowrap; transition: color .2s ease; }
         .footer-legal-link:hover { color:${white(0.5)}; }
         @media (max-width: 768px) {
-          .footer-main  { grid-template-columns: 1fr !important; }
-          .footer-nav   { grid-template-columns: 1fr 1fr !important; }
-          .footer-side  { align-items: flex-start !important; }
+          .footer-main { grid-template-columns: 1fr !important; }
+          .footer-side { align-items: flex-start !important; }
           .footer-email { text-align: left !important; }
           .footer-legal { justify-content: flex-start !important; }
         }
@@ -83,11 +63,12 @@ export default function Footer() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div className="footer-main" style={{
             display: "grid",
-            gridTemplateColumns: "minmax(200px,0.8fr) minmax(320px,1.5fr) minmax(180px,0.7fr)",
-            gap: 20, alignItems: "start",
+            gridTemplateColumns: "minmax(200px,1fr) minmax(180px,auto)",
+            gap: 20,
+            alignItems: "center",
           }}>
 
-            {/* Colonne 1 — Brand */}
+            {/* Colonne gauche — Brand */}
             <div>
               <Link href="/" className="footer-link" style={{
                 display: "inline-block", fontFamily: DISPLAY,
@@ -104,28 +85,7 @@ export default function Footer() {
               </p>
             </div>
 
-            {/* Colonne 2 — Nav (3 colonnes internes) */}
-            <nav aria-label="Navigation pied de page">
-              <div className="footer-nav" style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 26,
-              }}>
-                {navColumns.map((col, ci) => (
-                  <ul key={ci} style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 6 }}>
-                    {col.map(link => (
-                      <li key={link.label}>
-                        <Link href={link.href} className="footer-link" style={{ fontSize: 12, fontWeight: 500 }}>
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ))}
-              </div>
-            </nav>
-
-            {/* Colonne 3 — Socials + email */}
+            {/* Colonne droite — Socials + email */}
             <div className="footer-side" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
               <div style={{ display: "flex", gap: 10 }}>
                 {socials.map(s => (
