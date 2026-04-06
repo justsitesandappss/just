@@ -9,6 +9,7 @@ const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const scrollOffset = -80
+const SCROLL_STORAGE_KEY = "just-scroll-restore"
 
 type NavItem = {
   label: string
@@ -51,6 +52,11 @@ export default function HeaderDesktop() {
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
   const pendingPageRef = useRef<string | null>(null)
 
+  // Sauvegarde la position scroll avant de quitter la page
+  function saveScrollPosition() {
+    sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY))
+  }
+
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
     if (!el) return
@@ -79,6 +85,8 @@ export default function HeaderDesktop() {
       return
     }
 
+    // Sauvegarde la position avant de naviguer vers /
+    saveScrollPosition()
     pendingPageRef.current = item.page
     router.push(`/?jumpToRoom=${item.room - 1}`)
   }
@@ -88,9 +96,30 @@ export default function HeaderDesktop() {
       window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
+    // Sauvegarde la position avant de naviguer vers /
+    saveScrollPosition()
     pendingPageRef.current = "nav1"
     router.push("/?jumpToRoom=0")
   }
+
+  // Restaure la position scroll au retour arrière
+  useEffect(() => {
+    const handlePopState = () => {
+      const saved = sessionStorage.getItem(SCROLL_STORAGE_KEY)
+      if (saved !== null) {
+        const y = parseInt(saved, 10)
+        sessionStorage.removeItem(SCROLL_STORAGE_KEY)
+        // Petit délai pour laisser la page se rendre
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, behavior: "instant" })
+          })
+        })
+      }
+    }
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
 
   useEffect(() => {
     const mapped = PATHNAME_TO_PAGE[pathname]
