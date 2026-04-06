@@ -10,7 +10,7 @@ const ROOM_RESTORE_KEY = "just-room-restore"
 const SCROLL_STORAGE_KEY = "just-scroll-restore"
 const SIDES = ["left", "top", "right", "bottom"] as const
 const IMG_RE = /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i
-const HEADER_OFFSET = 56 // hauteur header mobile
+const HEADER_OFFSET = 56
 
 type Side = (typeof SIDES)[number]
 type Phase = "intro" | "transitionPlaying" | "rooms"
@@ -41,12 +41,11 @@ const ALL_ROOMS: Room[] = [
   { label: "Just Prod",   video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4" },
 ]
 
-// ✅ FIX 1 — URLs corrigées pour correspondre au desktop
 const HOTSPOTS: Hotspot[][] = [
   [{ label: "Qui sommes-nous ?", x: 50, y: 52, url: "/just" }],
-  [{ label: "Just Impact",       x: 50, y: 52, url: "/just-impact" }],   // était /justimpact
+  [{ label: "Just Impact",       x: 50, y: 52, url: "/just-impact" }],
   [{ label: "Nos Sponsors",      x: 50, y: 52, url: "/nosponsors" }],
-  [{ label: "Nos Talents",       x: 50, y: 52, url: "/nos-talents" }],   // était /nostalents
+  [{ label: "Nos Talents",       x: 50, y: 52, url: "/nos-talents" }],
   [
     { label: "Media",   x: 35, y: 52, url: "/media" },
     { label: "Podcast", x: 65, y: 52, url: "/podcast" },
@@ -127,10 +126,155 @@ function injectStyles() {
       from { opacity:0; transform:translate(-50%,-50%) translateY(20px); }
       to   { opacity:1; transform:translate(-50%,-50%) translateY(0); }
     }
+    @keyframes jr-modal-in {
+      from { opacity:0; transform:scale(0.92) translateY(14px); }
+      to   { opacity:1; transform:scale(1) translateY(0); }
+    }
   `
   document.head.appendChild(s)
 }
 
+// ─── Modal de confirmation ────────────────────────────────────────────────────
+const ConfirmModal = memo(function ConfirmModal({
+  label,
+  onConfirm,
+  onCancel,
+}: {
+  label: string
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  return (
+    <div
+      onClick={onCancel}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 24px",
+        background: "rgba(0,0,0,0.72)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "rgba(14,14,14,0.98)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderRadius: 24,
+          padding: "36px 28px 28px",
+          width: "100%",
+          maxWidth: 340,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 22,
+          boxShadow: "0 32px 80px rgba(0,0,0,0.7)",
+          animation: "jr-modal-in 0.28s cubic-bezier(0.22,1,0.36,1) both",
+        }}
+      >
+        {/* Icône */}
+        <div style={{
+          width: 52, height: 52, borderRadius: "50%",
+          background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12H19M19 12L13 6M19 12L13 18"
+              stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        {/* Texte */}
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{
+            fontFamily: "'Syne', system-ui, sans-serif",
+            fontSize: 17, fontWeight: 700,
+            color: "#fff", letterSpacing: -0.4,
+            margin: 0,
+          }}>
+            Quitter l&apos;expérience ?
+          </p>
+          <p style={{
+            fontFamily: "'Outfit', system-ui, sans-serif",
+            fontSize: 13, fontWeight: 400,
+            color: "rgba(255,255,255,0.48)",
+            lineHeight: 1.65, margin: 0,
+          }}>
+            Vous allez ouvrir la page{" "}
+            <span style={{ color: "#fff", fontWeight: 600 }}>{label}</span>.{" "}
+            Voulez-vous continuer ?
+          </p>
+        </div>
+
+        {/* Boutons */}
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+          <button
+            onClick={onCancel}
+            style={{
+              flex: 1,
+              padding: "13px 0",
+              borderRadius: 100,
+              border: "1px solid rgba(255,255,255,0.09)",
+              background: "transparent",
+              color: "rgba(255,255,255,0.45)",
+              fontFamily: "'Outfit', system-ui, sans-serif",
+              fontSize: 11, fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              transition: "color 0.2s ease, border-color 0.2s ease",
+            }}
+            onPointerOver={(e) => {
+              e.currentTarget.style.color = "#fff"
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"
+            }}
+            onPointerOut={(e) => {
+              e.currentTarget.style.color = "rgba(255,255,255,0.45)"
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"
+            }}
+          >
+            Annuler
+          </button>
+          <button
+            onClick={onConfirm}
+            style={{
+              flex: 1,
+              padding: "13px 0",
+              borderRadius: 100,
+              border: "none",
+              background: "#fff",
+              color: "#000",
+              fontFamily: "'Outfit', system-ui, sans-serif",
+              fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              transition: "opacity 0.2s ease",
+            }}
+            onPointerOver={(e) => { e.currentTarget.style.opacity = "0.82" }}
+            onPointerOut={(e) => { e.currentTarget.style.opacity = "1" }}
+          >
+            Continuer
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12H19M19 12L13 6M19 12L13 18"
+                stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+})
+
+// ─── Composants utilitaires ───────────────────────────────────────────────────
 const ArrowIcon = memo(function ArrowIcon({ side }: { side: Side }) {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"
@@ -176,7 +320,6 @@ const EdgeArrowButton = memo(function EdgeArrowButton({ side, onClick }: {
   )
 })
 
-// ✅ FIX 2 — HotspotBtn utilise le callback navigate (router.push) au lieu de window.location.href
 const HotspotBtn = memo(function HotspotBtn({
   label, x, y, url, onNavigate,
 }: Hotspot & { onNavigate: (url: string) => void }) {
@@ -366,26 +509,29 @@ const IntroVideo = memo(function IntroVideo({ src, onExplore }: {
   )
 })
 
+// ─── Phase initiale ───────────────────────────────────────────────────────────
 function getInitialPhase(): Phase {
   if (typeof window === "undefined") return "intro"
   return hasEnteredExperience() ? "rooms" : INTRO_VIDEO ? "intro" : "rooms"
 }
 
+// ─── Composant principal ──────────────────────────────────────────────────────
 export default function RoomsExperienceMobile() {
   useEffect(injectStyles, [])
 
-  // ✅ FIX 2 — useRouter pour navigation client-side (pas de rechargement de page)
   const router = useRouter()
 
   const [phase, setPhase] = useState<Phase>(getInitialPhase)
   const [activeIndex, setActiveIndex] = useState(0)
+
+  // null = modal fermée | { url, label } = modal ouverte
+  const [confirm, setConfirm] = useState<{ url: string; label: string } | null>(null)
 
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const hasMountedRef = useRef(false)
 
-  // ✅ FIX 2 — navigate utilise router.push + sauvegarde la room pour le retour
   const navigate = useCallback(
     (url: string) => {
       sessionStorage.setItem(ROOM_RESTORE_KEY, String(activeIndex))
@@ -396,7 +542,7 @@ export default function RoomsExperienceMobile() {
     [router, activeIndex]
   )
 
-  // Restaure la room au retour arrière (comme le desktop)
+  // Restaure la room au retour arrière
   useEffect(() => {
     const savedRoom = sessionStorage.getItem(ROOM_RESTORE_KEY)
     if (savedRoom === null) return
@@ -430,7 +576,6 @@ export default function RoomsExperienceMobile() {
         })
       }
     }, 80)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -453,11 +598,12 @@ export default function RoomsExperienceMobile() {
     window.dispatchEvent(new CustomEvent("just-room-changed", { detail: { roomIndex: activeIndex } }))
   }, [activeIndex])
 
+  // ✅ Si pageUrl → ouvre la modal de confirmation au lieu de naviguer directement
   const handleEdgeClick = useCallback((edge: EdgeConfig) => {
     if (!edge?.show) return
     markExperienceAsEntered()
     if (edge.pageUrl) {
-      navigate(edge.pageUrl) // ✅ router.push via navigate
+      setConfirm({ url: edge.pageUrl, label: edge.pageLabel || edge.pageUrl })
       return
     }
     const idx = edge.target - 1
@@ -465,7 +611,7 @@ export default function RoomsExperienceMobile() {
       setPhase("rooms")
       setActiveIndex(idx)
     }
-  }, [navigate])
+  }, [])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
@@ -510,97 +656,111 @@ export default function RoomsExperienceMobile() {
   )
 
   return (
-    <section aria-label="Expérience immersive Just" style={{
-      width: "100%", background: "#000", padding: "0 0 40px",
-    }}>
-      <div
-        id={ROOMS_ANCHOR_ID}
-        ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          width: "92%", margin: "0 auto",
-          aspectRatio: "9/14",
-          position: "relative",
-          borderRadius: RADIUS,
-          background: "#000",
-          overflow: "hidden",
-          contain: "layout style paint",
-        }}
-      >
-        <div style={{
-          position: "absolute", inset: 0,
-          overflow: "hidden", borderRadius: RADIUS, zIndex: 1,
-        }}>
-          {ALL_ROOMS.map((room, i) =>
-            room.video ? (
-              <VideoSlot key={i} room={room}
-                isActive={i === activeIndex}
-                isNeighbor={neighborIndices.has(i)} />
-            ) : null
-          )}
-          <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "auto" }}>
-            {currentHotspots.map((spot, i) =>
-              spot.label
-                ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} onNavigate={navigate} />
-                : null
+    <>
+      {/* Modal de confirmation — s'affiche uniquement pour les liens page (ex: Just Agency) */}
+      {confirm && (
+        <ConfirmModal
+          label={confirm.label}
+          onConfirm={() => {
+            setConfirm(null)
+            navigate(confirm.url)
+          }}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      <section aria-label="Expérience immersive Just" style={{
+        width: "100%", background: "#000", padding: "0 0 40px",
+      }}>
+        <div
+          id={ROOMS_ANCHOR_ID}
+          ref={containerRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            width: "92%", margin: "0 auto",
+            aspectRatio: "9/14",
+            position: "relative",
+            borderRadius: RADIUS,
+            background: "#000",
+            overflow: "hidden",
+            contain: "layout style paint",
+          }}
+        >
+          <div style={{
+            position: "absolute", inset: 0,
+            overflow: "hidden", borderRadius: RADIUS, zIndex: 1,
+          }}>
+            {ALL_ROOMS.map((room, i) =>
+              room.video ? (
+                <VideoSlot key={i} room={room}
+                  isActive={i === activeIndex}
+                  isNeighbor={neighborIndices.has(i)} />
+              ) : null
             )}
-          </div>
-          <div aria-hidden="true" style={{
-            position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none",
-            background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)",
-          }} />
-        </div>
-
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none",
-          opacity: roomsVisible ? 1 : 0, transition: "opacity 0.5s ease",
-        }}>
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-            <div key={`label-${activeIndex}`} style={{
-              position: "absolute", top: 14, left: 14, pointerEvents: "none",
-              padding: "7px 12px", borderRadius: 999,
-              background: "rgba(18,18,18,0.82)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              backdropFilter: "blur(10px)",
-              color: "#fff", fontSize: 10, fontWeight: 700,
-              letterSpacing: "0.12em",
-              fontFamily: "'Outfit', system-ui, sans-serif",
-              textTransform: "uppercase", whiteSpace: "nowrap",
-              animation: "jr-label-in 0.4s cubic-bezier(0.22,1,0.36,1) both",
-            }}>
-              {currentRoom.label}
+            <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "auto" }}>
+              {currentHotspots.map((spot, i) =>
+                spot.label
+                  ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} onNavigate={navigate} />
+                  : null
+              )}
             </div>
-
-            {roomsVisible && SIDES.map(side => {
-              const edge = currentEdges[side]
-              if (!edge.show) return null
-              if (!edge.pageUrl) {
-                const idx = edge.target - 1
-                if (idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return null
-              }
-              const label = edge.pageUrl
-                ? (edge.pageLabel || "Page")
-                : ALL_ROOMS[edge.target - 1]?.label || ""
-              return (
-                <EdgeArrowButton key={side} side={side} label={label}
-                  isPageLink={!!edge.pageUrl} onClick={() => handleEdgeClick(edge)} />
-              )
-            })}
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none",
+              background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0.02) 55%, rgba(0,0,0,0.10) 100%)",
+            }} />
           </div>
-        </div>
 
-        {showTransition && (
-          <TransitionVideo src={TRANSITION_VIDEO}
-            onEnd={() => { markExperienceAsEntered(); setPhase("rooms") }} />
-        )}
-        {showIntro && (
-          <IntroVideo src={INTRO_VIDEO} onExplore={() => {
-            markExperienceAsEntered()
-            if (TRANSITION_VIDEO) { setPhase("transitionPlaying") } else { setPhase("rooms") }
-          }} />
-        )}
-      </div>
-    </section>
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none",
+            opacity: roomsVisible ? 1 : 0, transition: "opacity 0.5s ease",
+          }}>
+            <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+              <div key={`label-${activeIndex}`} style={{
+                position: "absolute", top: 14, left: 14, pointerEvents: "none",
+                padding: "7px 12px", borderRadius: 999,
+                background: "rgba(18,18,18,0.82)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                backdropFilter: "blur(10px)",
+                color: "#fff", fontSize: 10, fontWeight: 700,
+                letterSpacing: "0.12em",
+                fontFamily: "'Outfit', system-ui, sans-serif",
+                textTransform: "uppercase", whiteSpace: "nowrap",
+                animation: "jr-label-in 0.4s cubic-bezier(0.22,1,0.36,1) both",
+              }}>
+                {currentRoom.label}
+              </div>
+
+              {roomsVisible && SIDES.map(side => {
+                const edge = currentEdges[side]
+                if (!edge.show) return null
+                if (!edge.pageUrl) {
+                  const idx = edge.target - 1
+                  if (idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return null
+                }
+                const label = edge.pageUrl
+                  ? (edge.pageLabel || "Page")
+                  : ALL_ROOMS[edge.target - 1]?.label || ""
+                return (
+                  <EdgeArrowButton key={side} side={side} label={label}
+                    isPageLink={!!edge.pageUrl} onClick={() => handleEdgeClick(edge)} />
+                )
+              })}
+            </div>
+          </div>
+
+          {showTransition && (
+            <TransitionVideo src={TRANSITION_VIDEO}
+              onEnd={() => { markExperienceAsEntered(); setPhase("rooms") }} />
+          )}
+          {showIntro && (
+            <IntroVideo src={INTRO_VIDEO} onExplore={() => {
+              markExperienceAsEntered()
+              if (TRANSITION_VIDEO) { setPhase("transitionPlaying") } else { setPhase("rooms") }
+            }} />
+          )}
+        </div>
+      </section>
+    </>
   )
 }
