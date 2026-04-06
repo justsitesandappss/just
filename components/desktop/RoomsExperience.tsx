@@ -23,6 +23,8 @@ import {
 
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EXPERIENCE_DONE_KEY = "just_rooms_experience_done_v1"
+const ROOM_RESTORE_KEY = "just-room-restore"
+const SCROLL_STORAGE_KEY = "just-scroll-restore"
 const SIDES = ["left", "top", "right", "bottom"] as const
 const IMG_RE = /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i
 const HEADER_OFFSET = 80
@@ -398,7 +400,6 @@ const HotspotBtn = memo(function HotspotBtn({
   if (!label) return null
   const goToUrl = () => {
     if (!url) return
-    markExperienceAsEntered()
     onNavigate(url)
   }
   return (
@@ -781,14 +782,55 @@ export default function RoomsExperience() {
   const x = useSpring(rawX, { stiffness: 40, damping: 25, mass: 1.2 })
   const y = useSpring(rawY, { stiffness: 40, damping: 25, mass: 1.2 })
 
+  // Navigation avec sauvegarde de la room active pour le retour arrière
   const navigate = useCallback(
     (url: string) => {
+      sessionStorage.setItem(ROOM_RESTORE_KEY, String(activeIndex))
+      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY))
+      markExperienceAsEntered()
       router.push(url)
     },
-    [router]
+    [router, activeIndex]
   )
 
-  // ✅ Fix: setTimeout pour éviter les cascading renders
+  // Restaure la room au montage si on revient en arrière
+  useEffect(() => {
+    const savedRoom = sessionStorage.getItem(ROOM_RESTORE_KEY)
+    if (savedRoom === null) return
+    const roomIndex = parseInt(savedRoom, 10)
+    sessionStorage.removeItem(ROOM_RESTORE_KEY)
+    if (
+      Number.isNaN(roomIndex) ||
+      roomIndex < 0 ||
+      roomIndex >= ALL_ROOMS.length ||
+      !ALL_ROOMS[roomIndex]?.video
+    ) return
+    markExperienceAsEntered()
+    setTimeout(() => {
+      setPhaseOverride("rooms")
+      setActiveIndex(roomIndex)
+      // Restaure aussi le scroll
+      const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY)
+      if (savedScroll !== null) {
+        sessionStorage.removeItem(SCROLL_STORAGE_KEY)
+        const y = parseInt(savedScroll, 10)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, behavior: "instant" })
+          })
+        })
+      } else {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(ROOMS_ANCHOR_ID)
+          if (!el) return
+          const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
+          window.scrollTo({ top, behavior: "instant" })
+        })
+      }
+    }, 80)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ roomIndex?: number }>).detail
@@ -813,7 +855,6 @@ export default function RoomsExperience() {
     }
   }, [])
 
-  // ✅ Fix: setTimeout pour éviter les cascading renders
   useEffect(() => {
     const jump = searchParams.get("jumpToRoom")
     if (jump == null) {
@@ -845,7 +886,6 @@ export default function RoomsExperience() {
     })
   }, [searchParams, router])
 
-  // ✅ Ne dispatch PAS au premier render pour ne pas écraser pendingPageRef du header
   useEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true

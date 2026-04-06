@@ -10,7 +10,6 @@ const BODY = "'Outfit', sans-serif"
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const scrollOffset = -80
 const SCROLL_STORAGE_KEY = "just-scroll-restore"
-const ROOM_RESTORE_KEY = "just-room-restore"
 
 type NavItem = {
   label: string
@@ -65,17 +64,7 @@ export default function HeaderDesktop() {
   }
 
   function handleClick(item: NavItem) {
-    // Navigation vers une page href (ex: /just-impact, /just-agency)
     if (item.href) {
-      // Si on vient de la room correspondante, on sauvegarde le contexte de retour
-      // On cherche si cet item href a une room associée à sauvegarder
-      // On regarde quelle room était active pour savoir où revenir
-      const currentItem = navItems.find((n) => n.page === current)
-      if (currentItem?.room != null) {
-        // Sauvegarde scroll + roomIndex pour restaurer au retour arrière
-        saveScrollPosition()
-        sessionStorage.setItem(ROOM_RESTORE_KEY, String(currentItem.room - 1))
-      }
       setCurrent(item.page)
       router.push(item.href)
       return
@@ -110,33 +99,11 @@ export default function HeaderDesktop() {
     router.push("/?jumpToRoom=0")
   }
 
-  // Restaure scroll + room au retour arrière
+  // Restaure le scroll au retour arrière (cas général sans room)
   useEffect(() => {
     const handlePopState = () => {
       const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY)
-      const savedRoom = sessionStorage.getItem(ROOM_RESTORE_KEY)
-
-      if (savedRoom !== null) {
-        const roomIndex = parseInt(savedRoom, 10)
-        sessionStorage.removeItem(ROOM_RESTORE_KEY)
-
-        // Dispatch la room pour que le composant rooms se repositionne
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            window.dispatchEvent(
-              new CustomEvent("just-nav-change", {
-                detail: { roomIndex },
-              })
-            )
-            // Scroll vers la section rooms après le changement de room
-            const el = document.getElementById(ROOMS_ANCHOR_ID)
-            if (el) {
-              const top = el.getBoundingClientRect().top + window.scrollY + scrollOffset
-              window.scrollTo({ top, behavior: "instant" })
-            }
-          })
-        })
-      } else if (savedScroll !== null) {
+      if (savedScroll !== null) {
         const y = parseInt(savedScroll, 10)
         sessionStorage.removeItem(SCROLL_STORAGE_KEY)
         requestAnimationFrame(() => {
@@ -145,12 +112,7 @@ export default function HeaderDesktop() {
           })
         })
       }
-
-      if (savedScroll !== null) {
-        sessionStorage.removeItem(SCROLL_STORAGE_KEY)
-      }
     }
-
     window.addEventListener("popstate", handlePopState)
     return () => window.removeEventListener("popstate", handlePopState)
   }, [])
@@ -222,31 +184,6 @@ export default function HeaderDesktop() {
       window.removeEventListener("resize", update)
     }
   }, [targetPage, current, pathname])
-
-  // Au montage sur "/", vérifie si une room est à restaurer (retour arrière)
-  useEffect(() => {
-    if (pathname !== "/") return
-    const savedRoom = sessionStorage.getItem(ROOM_RESTORE_KEY)
-    if (savedRoom === null) return
-    const roomIndex = parseInt(savedRoom, 10)
-    sessionStorage.removeItem(ROOM_RESTORE_KEY)
-    const match = navItems.find((item) => item.room === roomIndex + 1)
-    if (match) {
-      setTimeout(() => {
-        setCurrent(match.page)
-        window.dispatchEvent(
-          new CustomEvent("just-nav-change", {
-            detail: { roomIndex },
-          })
-        )
-        const el = document.getElementById(ROOMS_ANCHOR_ID)
-        if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY + scrollOffset
-          window.scrollTo({ top, behavior: "instant" })
-        }
-      }, 120)
-    }
-  }, [pathname])
 
   const dot = (
     <span
