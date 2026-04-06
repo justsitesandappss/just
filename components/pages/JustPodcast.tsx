@@ -775,7 +775,7 @@ export default function JustPodcastPage() {
 
   useGlobalStyles()
 
-  const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
+  const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "b891692e-8148-4785-856a-e1c43f4816dc"
 
   const formats: FormatItem[] = [
     { title: "Série de marque", desc: "Un podcast à votre nom, avec votre identité sonore, votre ligne éditoriale et un rendez-vous régulier.", image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/podcast-podcast.jpg", imageAlt: "Microphone de studio" },

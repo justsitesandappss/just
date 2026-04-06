@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react"
+import Image from "next/image"
 import { motion, useInView, useReducedMotion, AnimatePresence, type Transition } from "framer-motion"
 
 const DISPLAY = "'Syne', sans-serif"
@@ -147,6 +148,7 @@ function Marquee({ items, speed = 35, accessibleLabel }: { items: string[]; spee
   )
 }
 
+// FIX: lazy initializer pour éviter setState synchrone dans useEffect
 function Counter({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null)
   const inView = useInView(ref, { once: true })
@@ -155,12 +157,11 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   const numeric = match ? parseInt(match[0], 10) : 0
   const prefix = value.slice(0, match?.index ?? 0)
   const suffix = match ? value.slice((match.index ?? 0) + match[0].length) : value
-  const [count, setCount] = useState<number>(reducedMotion ? numeric : 0)
+  const [count, setCount] = useState<number>(() => reducedMotion ? numeric : 0)
 
   useEffect(() => {
-    if (!inView) return
-    if (reducedMotion) { setCount(numeric); return }
-    if (typeof window === "undefined") { setCount(numeric); return }
+    // Si reduced motion, le lazy initializer a déjà mis numeric — rien à faire
+    if (!inView || reducedMotion) return
     let raf = 0
     const timeout = window.setTimeout(() => {
       const duration = 1800, start = performance.now()
@@ -185,74 +186,72 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
   )
 }
 
+// FIX ligne 216 : <img> remplacé par <Image /> de next/image
 function SponsorTextCard({ name, imageUrl, delay = 0 }: { name: string; imageUrl?: string; delay?: number }) {
   const ref = useRef<HTMLLIElement | null>(null)
   const isInView = useInView(ref, { once: true, margin: "-30px" })
   const reducedMotion = useReducedMotion()
   return (
-    <motion.li 
-      ref={ref} 
-      initial={reducedMotion ? false : { opacity: 0, scale: 0.96, y: 12 }} 
-      animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}} 
-      transition={getTransition(delay, !!reducedMotion)} 
-      style={{ 
-        listStyle: "none", 
-        background: COLORS.surface, 
-        border: `1px solid ${COLORS.borderSoft}`, 
-        borderRadius: 16, 
-        padding: "clamp(18px, 2vw, 28px) clamp(16px, 1.8vw, 24px)", 
-        display: "flex", 
+    <motion.li
+      ref={ref}
+      initial={reducedMotion ? false : { opacity: 0, scale: 0.96, y: 12 }}
+      animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={getTransition(delay, !!reducedMotion)}
+      style={{
+        listStyle: "none",
+        background: COLORS.surface,
+        border: `1px solid ${COLORS.borderSoft}`,
+        borderRadius: 16,
+        padding: "clamp(18px, 2vw, 28px) clamp(16px, 1.8vw, 24px)",
+        display: "flex",
         flexDirection: "column",
-        alignItems: "center", 
-        justifyContent: "center", 
+        alignItems: "center",
+        justifyContent: "center",
         gap: 12,
-        minHeight: "clamp(140px, 16vw, 180px)", 
-        minWidth: 0, 
-        width: "100%", 
-        overflow: "hidden" 
+        minHeight: "clamp(140px, 16vw, 180px)",
+        minWidth: 0,
+        width: "100%",
+        overflow: "hidden",
       }}
     >
       {imageUrl ? (
-        <img 
-          src={imageUrl} 
-          alt="" 
-          loading="lazy" 
-          decoding="async" 
-          style={{ 
-            maxWidth: "70%", 
-            maxHeight: "clamp(50px, 6vw, 70px)", 
-            objectFit: "contain", 
-            opacity: 0.9, 
-            display: "block"
-          }} 
-        />
+        <div style={{ position: "relative", width: "70%", height: "clamp(50px, 6vw, 70px)", flexShrink: 0 }}>
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 40vw, 15vw"
+            style={{ objectFit: "contain", opacity: 0.9 }}
+          />
+        </div>
       ) : (
-        <div style={{ 
-          width: "clamp(50px, 6vw, 70px)", 
-          height: "clamp(50px, 6vw, 70px)", 
-          borderRadius: "50%", 
+        <div style={{
+          width: "clamp(50px, 6vw, 70px)",
+          height: "clamp(50px, 6vw, 70px)",
+          borderRadius: "50%",
           background: COLORS.surfaceHover,
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          justifyContent: "center",
         }}>
           <span style={{ fontFamily: DISPLAY, fontSize: "clamp(18px, 2vw, 24px)", fontWeight: 700, color: COLORS.textMuted }}>
             {name.charAt(0)}
           </span>
         </div>
       )}
-      <p style={{ 
-        margin: 0, 
-        fontFamily: DISPLAY, 
-        fontSize: "clamp(13px, 1.3vw, 15px)", 
-        fontWeight: 700, 
-        color: COLORS.textSoft, 
-        letterSpacing: -0.3, 
-        textAlign: "center", 
-        lineHeight: 1.3, 
-        overflowWrap: "anywhere", 
-        wordBreak: "break-word", 
-        maxWidth: "100%" 
+      <p style={{
+        margin: 0,
+        fontFamily: DISPLAY,
+        fontSize: "clamp(13px, 1.3vw, 15px)",
+        fontWeight: 700,
+        color: COLORS.textSoft,
+        letterSpacing: -0.3,
+        textAlign: "center",
+        lineHeight: 1.3,
+        overflowWrap: "anywhere",
+        wordBreak: "break-word",
+        maxWidth: "100%",
       }}>
         {name}
       </p>
@@ -260,6 +259,7 @@ function SponsorTextCard({ name, imageUrl, delay = 0 }: { name: string; imageUrl
   )
 }
 
+// FIX ligne 216 : <img> remplacé par <Image /> de next/image dans LogoScrollRow
 function LogoScrollRow({ sponsors, speed = 25, reverse = false, accessibleLabel }: { sponsors: SponsorItem[]; speed?: number; reverse?: boolean; accessibleLabel: string }) {
   const reducedMotion = useReducedMotion()
   const tripled = [...sponsors, ...sponsors, ...sponsors]
@@ -268,9 +268,16 @@ function LogoScrollRow({ sponsors, speed = 25, reverse = false, accessibleLabel 
       <div aria-hidden="true" style={{ overflow: "hidden", width: "100%", maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}>
         <motion.div animate={reducedMotion ? undefined : { x: reverse ? ["-33.333%", "0%"] : ["0%", "-33.333%"] }} transition={reducedMotion ? undefined : { duration: speed, repeat: Infinity, ease: "linear" }} style={{ display: "flex", gap: "clamp(24px, 4vw, 48px)", width: "max-content", alignItems: "center", paddingInline: 4 }}>
           {tripled.map((sponsor, index) => (
-            <div key={`${sponsor.name}-${index}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "clamp(96px, 12vw, 140px)", minHeight: "clamp(36px, 4vw, 50px)" }}>
+            <div key={`${sponsor.name}-${index}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: "clamp(96px, 12vw, 140px)", minHeight: "clamp(36px, 4vw, 50px)", position: "relative" }}>
               {sponsor.imageUrl ? (
-                <img src={sponsor.imageUrl} alt="" loading="lazy" decoding="async" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", opacity: 0.7, display: "block" }} />
+                <Image
+                  src={sponsor.imageUrl}
+                  alt=""
+                  fill
+                  unoptimized
+                  sizes="140px"
+                  style={{ objectFit: "contain", opacity: 0.7 }}
+                />
               ) : (
                 <span style={{ fontFamily: DISPLAY, fontSize: "clamp(12px, 1.3vw, 14px)", fontWeight: 700, color: COLORS.textLow, whiteSpace: "nowrap" }}>{sponsor.name}</span>
               )}
@@ -296,11 +303,11 @@ function CategorySection({ title, sponsors, delay = 0 }: { title: string; sponso
       </div>
       <ul style={{ margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12, minWidth: 0 }}>
         {sponsors.map((sponsor, index) => (
-          <SponsorTextCard 
-            key={`${title}-${sponsor.name}-${index}`} 
-            name={sponsor.name} 
+          <SponsorTextCard
+            key={`${title}-${sponsor.name}-${index}`}
+            name={sponsor.name}
             imageUrl={sponsor.imageUrl}
-            delay={index * 0.03} 
+            delay={index * 0.03}
           />
         ))}
       </ul>
@@ -405,10 +412,10 @@ export default function JustSponsorsPage() {
 
   const validateContactForm = useCallback(() => {
     const e: ContactErrorState = {}
-    if (!contactFormData.name.trim()) e.name = "Merci d'indiquer votre nom."
-    if (!contactFormData.email.trim()) e.email = "Merci d'indiquer votre adresse email."
-    else if (!isValidEmail(contactFormData.email)) e.email = "L'adresse email semble invalide."
-    if (!contactFormData.message.trim()) e.message = "Merci de préciser votre demande."
+    if (!contactFormData.name.trim()) e.name = "Merci d\u2019indiquer votre nom."
+    if (!contactFormData.email.trim()) e.email = "Merci d\u2019indiquer votre adresse email."
+    else if (!isValidEmail(contactFormData.email)) e.email = "L\u2019adresse email semble invalide."
+    if (!contactFormData.message.trim()) e.message = "Merci de pr\u00e9ciser votre demande."
     else if (contactFormData.message.trim().length < 10) e.message = "Votre message est un peu trop court."
     return e
   }, [contactFormData])
@@ -497,7 +504,8 @@ export default function JustSponsorsPage() {
           </h1>
         </div>
         <motion.p initial={reducedMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={getTransition(0.35, !!reducedMotion)} style={{ margin: `${mobile ? 22 : 34}px 0 0`, fontSize: mobile ? 15 : 16, lineHeight: 1.8, maxWidth: 620, color: COLORS.textMuted, fontWeight: 400, position: "relative", zIndex: 1, minWidth: 0, overflowWrap: "anywhere" }}>
-          De grandes marques internationales aux acteurs locaux les plus ambitieux, nos partenaires partagent notre vision de l'excellence. Plus de 36 marques nous ont fait confiance pour porter leurs projets d'influence, de production et de conciergerie.
+          {/* FIX ligne 571 : apostrophes échappées en entités HTML */}
+          De grandes marques internationales aux acteurs locaux les plus ambitieux, nos partenaires partagent notre vision de l&apos;excellence. Plus de 36 marques nous ont fait confiance pour porter leurs projets d&apos;influence, de production et de conciergerie.
         </motion.p>
         {!mobile && (
           <div aria-hidden="true" style={{ position: "absolute", bottom: 32, left: pagePadding, display: "flex", alignItems: "center", gap: 12 }}>
@@ -568,7 +576,7 @@ export default function JustSponsorsPage() {
                   <span style={{ display: "block", fontWeight: 300, fontStyle: "italic", color: white(0.88), letterSpacing: mobile ? -1 : -3 }}>de votre projet.</span>
                 </h2>
                 <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.9, maxWidth: 620, color: white(0.62), fontWeight: 300 }}>
-                  Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l'entité et l'expertise qu'il vous faut. Remplissez le formulaire, on revient vers vous sous 24h.
+                  Influence, production, conciergerie ou média, quelle que soit votre ambition, on a l&apos;entité et l&apos;expertise qu&apos;il vous faut. Remplissez le formulaire, on revient vers vous sous 24h.
                 </p>
               </div>
             </Reveal>
@@ -591,7 +599,7 @@ export default function JustSponsorsPage() {
                     <section>
                       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 6, textTransform: "uppercase", color: white(0.58), margin: "0 0 14px" }}>Formulaire</p>
                       <h3 id={contactSectionTitleId} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 48px)", color: "#ffffff", lineHeight: 1, letterSpacing: -2, margin: "0 0 18px" }}>Dites-nous tout.</h3>
-                      <p id={contactSectionDescId} style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: white(0.6), maxWidth: 620 }}>Les champs marqués d'un astérisque sont obligatoires.</p>
+                      <p id={contactSectionDescId} style={{ margin: "0 0 52px", fontFamily: BODY, fontSize: 15, lineHeight: 1.8, color: white(0.6), maxWidth: 620 }}>Les champs marqués d&apos;un astérisque sont obligatoires.</p>
                       <form onSubmit={handleContactSubmit} noValidate>
                         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
                           <div className="just-sponsors-contact-two-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
@@ -631,7 +639,7 @@ export default function JustSponsorsPage() {
                   <div style={{ padding: mobile ? "24px" : "28px", borderRadius: 20, background: white(0.02), border: `1px solid ${white(0.08)}` }}>
                     <p style={{ margin: "0 0 16px", fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: white(0.58), fontFamily: BODY }}>Note</p>
                     <blockquote style={{ margin: 0, fontFamily: DISPLAY, fontSize: mobile ? 22 : 28, fontWeight: 300, lineHeight: 1.5, color: white(0.75), fontStyle: "italic", letterSpacing: -0.8 }}>
-                      "Chaque projet commence par une conversation. La vôtre commence ici."
+                      &ldquo;Chaque projet commence par une conversation. La vôtre commence ici.&rdquo;
                     </blockquote>
                   </div>
                 </aside>

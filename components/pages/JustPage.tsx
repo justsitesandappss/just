@@ -15,7 +15,7 @@ import type { CSSProperties, FormEvent, HTMLAttributes, ReactNode } from "react"
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 
-const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "b891692e-8148-4785-856a-e1c43f4816dc"
 
 const BP = { mobile: 640, tablet: 1024 } as const
 const OP = {
@@ -81,11 +81,12 @@ type GalleryImage = { src: string; label: string; caption: string }
 
 // ─── Responsive hook (useState + useEffect, pas de useSyncExternalStore) ───
 function useResponsive() {
-  const [size, setSize] = useState({ width: 1280, height: 900 })
-  const [mounted, setMounted] = useState(false)
+  const [size, setSize] = useState(() => ({
+    width: typeof window !== "undefined" ? window.innerWidth : 1280,
+    height: typeof window !== "undefined" ? window.innerHeight : 900,
+  }))
 
   useEffect(() => {
-    setMounted(true)
     const update = () => setSize({ width: window.innerWidth, height: window.innerHeight })
     update()
     window.addEventListener("resize", update)
@@ -96,7 +97,6 @@ function useResponsive() {
   const tablet = size.width <= BP.tablet
   const px = mobile ? 20 : tablet ? 40 : 72
   return {
-    mounted,
     width: size.width, height: size.height, mobile, tablet, px,
     sectionPad: mobile ? "60px 20px" : tablet ? "80px 40px" : "100px 72px",
   }
@@ -350,7 +350,7 @@ function ContactPillSelect({ label, name, options, value, onChange }: { label: s
 }
 
 export default function JustPage() {
-  const { mounted, mobile, tablet, px, sectionPad, width } = useResponsive()
+const { mobile, tablet, px, sectionPad, width } = useResponsive()
 
   const [heroIndex, setHeroIndex] = useState(0)
   const [heroPaused, setHeroPaused] = useState(false)
@@ -439,7 +439,6 @@ export default function JustPage() {
   const isSubmitDisabled = status === "sending" || !formData.name.trim() || !formData.email.trim() || !formData.message.trim()
   const marqueeSize = mobile ? 44 : tablet ? 56 : 72
 
-  if (!mounted) return <div style={{ width: "100%", minHeight: "100vh", background: "#000" }} />
 
   return (
     <div style={{ width: "100%", minWidth: 0, background: "#000", color: "#c8c8c8", fontFamily: BODY, overflowX: "hidden", WebkitFontSmoothing: "antialiased", position: "relative" }}>
