@@ -35,7 +35,7 @@ type FormDataState = {
 type ErrorState = Partial<Record<keyof FormDataState, string>>
 
 const WEB3FORMS_ACCESS_KEY =
-  process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || ""
+  process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "b891692e-8148-4785-856a-e1c43f4816dc"
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
