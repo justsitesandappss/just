@@ -257,24 +257,27 @@ export default function HeaderDesktop() {
           height: 32,
         }}
       >
-        <motion.div
-          aria-hidden="true"
-          animate={{ left: pillStyle.left, width: pillStyle.width }}
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
-          style={{
-            position: "absolute",
-            top: 0,
-            height: 32,
-            borderRadius: 100,
-            background:
-              current === targetPage
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
+        {/* Pill cachée quand on est sur /contact */}
+        {!isContactActive && (
+          <motion.div
+            aria-hidden="true"
+            animate={{ left: pillStyle.left, width: pillStyle.width }}
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              height: 32,
+              borderRadius: 100,
+              background:
+                current === targetPage
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        )}
 
         {navItems.map((item) => {
           const isActive = current === item.page
@@ -289,7 +292,7 @@ export default function HeaderDesktop() {
               onClick={() => handleClick(item)}
               onMouseEnter={() => setHovered(item.page)}
               onMouseLeave={() => setHovered(null)}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={isActive && !isContactActive ? "page" : undefined}
               style={{
                 position: "relative",
                 zIndex: 1,
@@ -298,10 +301,13 @@ export default function HeaderDesktop() {
                 cursor: "pointer",
                 fontFamily: BODY,
                 fontSize: 11,
-                fontWeight: isActive ? 600 : 400,
+                fontWeight: isActive && !isContactActive ? 600 : 400,
                 letterSpacing: 1.5,
                 textTransform: "uppercase",
-                color: isActive || isHov ? "#fff" : "rgba(255,255,255,0.7)",
+                color:
+                  (isActive && !isContactActive) || isHov
+                    ? "#fff"
+                    : "rgba(255,255,255,0.7)",
                 textShadow: isHov
                   ? "0 0 12px rgba(255,255,255,0.8), 0 0 24px rgba(255,255,255,0.4)"
                   : "none",
@@ -314,7 +320,8 @@ export default function HeaderDesktop() {
                 border: "none",
               }}
             >
-              {isActive && dot}
+              {/* Dot uniquement si actif ET pas sur /contact */}
+              {isActive && !isContactActive && dot}
               {item.label}
             </button>
           )
