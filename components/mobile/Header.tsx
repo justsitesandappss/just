@@ -51,7 +51,6 @@ export default function HeaderMobile() {
 
   const isContactActive = current === "nav-contact"
 
-  // FIX : setTimeout pour éviter setState synchrone dans l'effet
   useEffect(() => {
     const t = setTimeout(() => setMenuOpen(false), 0)
     return () => clearTimeout(t)
@@ -147,9 +146,8 @@ export default function HeaderMobile() {
   }
 
   function handleNavClick(item: NavItem) {
-    setMenuOpen(false)
-
     if (item.href) {
+      setMenuOpen(false)
       setCurrent(item.page)
       router.push(item.href)
       return
@@ -157,21 +155,28 @@ export default function HeaderMobile() {
 
     if (typeof item.room !== "number") return
 
+    const roomIndex = item.room - 1
+
     setCurrent(item.page)
 
     if (pathname === "/") {
-      window.dispatchEvent(
-        new CustomEvent("just-nav-change", {
-          detail: { roomIndex: item.room - 1 },
-        })
-      )
-      scrollToRooms()
+
+      setMenuOpen(false)
+      setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent("just-nav-change", {
+            detail: { roomIndex },
+          })
+        )
+        scrollToRooms()
+      }, 350)
       return
     }
 
+    setMenuOpen(false)
     saveScrollPosition()
     pendingPageRef.current = item.page
-    router.push(`/?jumpToRoom=${item.room - 1}`)
+    router.push(`/?jumpToRoom=${roomIndex}`)
   }
 
   return (
