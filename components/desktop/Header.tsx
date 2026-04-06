@@ -36,6 +36,7 @@ const PATHNAME_TO_PAGE: Record<string, string> = {
   "/just-prod": "nav6",
   "/media": "nav6",
   "/podcast": "nav6",
+  "/contact": "nav-contact",
 }
 
 export default function HeaderDesktop() {
@@ -51,6 +52,8 @@ export default function HeaderDesktop() {
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 })
   const pendingPageRef = useRef<string | null>(null)
+
+  const isContactActive = current === "nav-contact"
 
   function saveScrollPosition() {
     sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY))
@@ -99,7 +102,6 @@ export default function HeaderDesktop() {
     router.push("/?jumpToRoom=0")
   }
 
-  // Restaure le scroll au retour arrière (cas général sans room)
   useEffect(() => {
     const handlePopState = () => {
       const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY)
@@ -321,13 +323,14 @@ export default function HeaderDesktop() {
 
       <Link
         href="/contact"
+        aria-current={isContactActive ? "page" : undefined}
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
           padding: "10px 24px",
-          background: "transparent",
-          color: "#e82828",
+          background: isContactActive ? "rgba(255,255,255,0.06)" : "transparent",
+          color: isContactActive ? "#ffffff" : "#e82828",
           fontFamily: BODY,
           fontWeight: 600,
           fontSize: 10,
@@ -335,11 +338,26 @@ export default function HeaderDesktop() {
           textTransform: "uppercase",
           textDecoration: "none",
           borderRadius: 100,
-          border: "none",
+          border: isContactActive
+            ? "1px solid rgba(255,255,255,0.14)"
+            : "none",
           cursor: "pointer",
           flexShrink: 0,
+          transition: "all 0.3s ease",
         }}
       >
+        {isContactActive && (
+          <span
+            style={{
+              width: 4,
+              height: 4,
+              borderRadius: "50%",
+              background: "#ff3b3b",
+              flexShrink: 0,
+              boxShadow: "0 0 8px rgba(255,59,59,0.5)",
+            }}
+          />
+        )}
         Nous contacter
         <svg
           width="12"
