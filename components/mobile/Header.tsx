@@ -1,31 +1,105 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const ROOMS_ANCHOR_ID = "just-rooms-container"
+const scrollOffset = -80
+const SCROLL_STORAGE_KEY = "just-scroll-restore"
 
-const navItems = [
+type NavItem = {
+  label: string
+  page: string
+  room?: number
+  href?: string
+}
+
+const navItems: NavItem[] = [
   { label: "Just",         page: "nav1", room: 1 },
   { label: "Just Impact",  page: "nav2", room: 2 },
-  { label: "Just Prod",    page: "nav3", room: 3 },
-  { label: "Just Agency",  page: "nav4", room: 4 },
-  { label: "Nos Sponsors", page: "nav5", room: 5 },
-  { label: "Nos Talents",  page: "nav6", room: 6 },
+  { label: "Nos Sponsors", page: "nav3", room: 3 },
+  { label: "Nos Talents",  page: "nav5", room: 4 },
+  { label: "Just Prod",    page: "nav6", room: 5 },
+  { label: "Just Agency",  page: "nav4", href: "/just-agency" },
 ]
 
-const scrollOffset = -80
+const PATHNAME_TO_PAGE: Record<string, string> = {
+  "/": "nav1",
+  "/just-impact": "nav2",
+  "/nosponsors": "nav3",
+  "/just-agency": "nav4",
+  "/nos-talents": "nav5",
+  "/just-prod": "nav6",
+  "/media": "nav6",
+  "/podcast": "nav6",
+  "/contact": "nav-contact",
+}
 
 export default function HeaderMobile() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const jumpToRoom = searchParams.get("jumpToRoom")
+
   const [current, setCurrent] = useState("nav1")
   const [menuOpen, setMenuOpen] = useState(false)
+  const pendingPageRef = useRef<string | null>(null)
+
+  const isContactActive = current === "nav-contact"
+
+  // FIX : setTimeout pour éviter setState synchrone dans l'effet
+  useEffect(() => {
+    const t = setTimeout(() => setMenuOpen(false), 0)
+    return () => clearTimeout(t)
+  }, [pathname])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : ""
+    return () => { document.body.style.overflow = "" }
+  }, [menuOpen])
+
+  useEffect(() => {
+    const mapped = PATHNAME_TO_PAGE[pathname]
+
+    if (mapped) {
+      setTimeout(() => setCurrent(mapped), 0)
+      pendingPageRef.current = null
+      return
+    }
+
+    if (pathname === "/") {
+      if (jumpToRoom !== null) {
+        const roomIndex = parseInt(jumpToRoom, 10)
+        if (!Number.isNaN(roomIndex)) {
+          const match = navItems.find((item) => item.room === roomIndex + 1)
+          if (match) {
+            setTimeout(() => setCurrent(match.page), 0)
+            pendingPageRef.current = null
+            return
+          }
+        }
+      }
+
+      if (pendingPageRef.current !== null) {
+        const pending = pendingPageRef.current
+        setTimeout(() => setCurrent(pending), 0)
+        pendingPageRef.current = null
+        return
+      }
+
+      setTimeout(() => setCurrent("nav1"), 0)
+    }
+  }, [pathname, jumpToRoom])
 
   useEffect(() => {
     function onRoomChanged(e: Event) {
-      const roomIndex = (e as CustomEvent).detail?.roomIndex
+      const roomIndex = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (roomIndex == null) return
+      if (pendingPageRef.current !== null) return
       const match = navItems.find((item) => item.room === roomIndex + 1)
       if (match) setCurrent(match.page)
     }
@@ -34,9 +108,25 @@ export default function HeaderMobile() {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : ""
-    return () => { document.body.style.overflow = "" }
-  }, [menuOpen])
+    const handlePopState = () => {
+      const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY)
+      if (savedScroll !== null) {
+        const y = parseInt(savedScroll, 10)
+        sessionStorage.removeItem(SCROLL_STORAGE_KEY)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, behavior: "instant" })
+          })
+        })
+      }
+    }
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
+
+  function saveScrollPosition() {
+    sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY))
+  }
 
   function scrollToRooms() {
     const el = document.getElementById(ROOMS_ANCHOR_ID)
@@ -45,16 +135,43 @@ export default function HeaderMobile() {
     window.scrollTo({ top, behavior: "smooth" })
   }
 
-  function handleClick(item: typeof navItems[0]) {
-    const roomsEl = document.getElementById(ROOMS_ANCHOR_ID)
-    if (!roomsEl) {
-      window.location.href = `/?jumpToRoom=${item.room - 1}`
+  function handleLogoClick() {
+    setMenuOpen(false)
+    if (pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
       return
     }
-    setCurrent(item.page)
+    saveScrollPosition()
+    pendingPageRef.current = "nav1"
+    router.push("/?jumpToRoom=0")
+  }
+
+  function handleNavClick(item: NavItem) {
     setMenuOpen(false)
-    window.dispatchEvent(new CustomEvent("just-nav-change", { detail: { roomIndex: item.room - 1 } }))
-    scrollToRooms()
+
+    if (item.href) {
+      setCurrent(item.page)
+      router.push(item.href)
+      return
+    }
+
+    if (typeof item.room !== "number") return
+
+    setCurrent(item.page)
+
+    if (pathname === "/") {
+      window.dispatchEvent(
+        new CustomEvent("just-nav-change", {
+          detail: { roomIndex: item.room - 1 },
+        })
+      )
+      scrollToRooms()
+      return
+    }
+
+    saveScrollPosition()
+    pendingPageRef.current = item.page
+    router.push(`/?jumpToRoom=${item.room - 1}`)
   }
 
   return (
@@ -79,7 +196,7 @@ export default function HeaderMobile() {
         }}
       >
         <button
-          onClick={() => handleClick(navItems[0])}
+          onClick={handleLogoClick}
           aria-label="Just — retour à l'accueil"
           style={{
             fontFamily: DISPLAY,
@@ -162,11 +279,11 @@ export default function HeaderMobile() {
             }}
           >
             {navItems.map((item, i) => {
-              const isActive = current === item.page
+              const isActive = current === item.page && !isContactActive
               return (
                 <motion.button
                   key={item.page}
-                  onClick={() => handleClick(item)}
+                  onClick={() => handleNavClick(item)}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -204,37 +321,54 @@ export default function HeaderMobile() {
               )
             })}
 
-            <motion.a
-              href="/contact"
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4, delay: navItems.length * 0.05 + 0.1 }}
-              onClick={() => setMenuOpen(false)}
-              style={{
-                marginTop: 32,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "14px 32px",
-                border: "1px solid rgba(255,59,59,0.3)",
-                borderRadius: 100,
-                color: "#e82828",
-                fontFamily: BODY,
-                fontWeight: 600,
-                fontSize: 11,
-                letterSpacing: 2.5,
-                textTransform: "uppercase",
-                textDecoration: "none",
-                background: "rgba(255,59,59,0.04)",
-              }}
+              style={{ marginTop: 32 }}
             >
-              Nous contacter
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </motion.a>
+              <Link
+                href="/contact"
+                aria-current={isContactActive ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "14px 32px",
+                  border: isContactActive
+                    ? "1px solid rgba(255,255,255,0.18)"
+                    : "1px solid rgba(255,59,59,0.3)",
+                  borderRadius: 100,
+                  color: isContactActive ? "#ffffff" : "#e82828",
+                  background: isContactActive
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(255,59,59,0.04)",
+                  fontFamily: BODY,
+                  fontWeight: 600,
+                  fontSize: 11,
+                  letterSpacing: 2.5,
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {isContactActive && (
+                  <span style={{
+                    width: 6, height: 6, borderRadius: "50%",
+                    background: "#ff3b3b",
+                    boxShadow: "0 0 12px rgba(255,59,59,0.6)",
+                    flexShrink: 0,
+                  }} />
+                )}
+                Nous contacter
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </Link>
+            </motion.div>
           </motion.nav>
         )}
       </AnimatePresence>
