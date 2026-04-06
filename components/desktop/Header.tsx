@@ -21,9 +21,9 @@ const navItems: NavItem[] = [
   { label: "Just", page: "nav1", room: 1 },
   { label: "Just Impact", page: "nav2", room: 2 },
   { label: "Nos Sponsors", page: "nav3", room: 3 },
-  { label: "Just Agency", page: "nav4", href: "/just-agency" },
   { label: "Nos Talents", page: "nav5", room: 4 },
   { label: "Just Prod", page: "nav6", room: 5 },
+  { label: "Just Agency", page: "nav4", href: "/just-agency" },
 ]
 
 const PATHNAME_TO_PAGE: Record<string, string> = {
