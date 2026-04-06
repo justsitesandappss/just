@@ -2,11 +2,15 @@
 
 import { useState, useEffect, useRef, useCallback, memo } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const ROOMS_ANCHOR_ID = "just-rooms-container"
 const EXPERIENCE_DONE_KEY = "just_rooms_experience_done_v1"
+const ROOM_RESTORE_KEY = "just-room-restore"
+const SCROLL_STORAGE_KEY = "just-scroll-restore"
 const SIDES = ["left", "top", "right", "bottom"] as const
 const IMG_RE = /\.(png|jpe?g|webp|gif|avif|svg)(\?.*)?$/i
+const HEADER_OFFSET = 56 // hauteur header mobile
 
 type Side = (typeof SIDES)[number]
 type Phase = "intro" | "transitionPlaying" | "rooms"
@@ -37,12 +41,16 @@ const ALL_ROOMS: Room[] = [
   { label: "Just Prod",   video: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/Salle-Just-Prod.mp4" },
 ]
 
+// ✅ FIX 1 — URLs corrigées pour correspondre au desktop
 const HOTSPOTS: Hotspot[][] = [
   [{ label: "Qui sommes-nous ?", x: 50, y: 52, url: "/just" }],
-  [{ label: "Just Impact", x: 50, y: 52, url: "/justimpact" }],
-  [{ label: "Nos Sponsors", x: 50, y: 52, url: "/nosponsors" }],
-  [{ label: "Nos Talents", x: 50, y: 52, url: "/nostalents" }],
-  [{ label: "Media", x: 35, y: 52, url: "/media" }, { label: "Podcast", x: 65, y: 52, url: "/podcast" }],
+  [{ label: "Just Impact",       x: 50, y: 52, url: "/just-impact" }],   // était /justimpact
+  [{ label: "Nos Sponsors",      x: 50, y: 52, url: "/nosponsors" }],
+  [{ label: "Nos Talents",       x: 50, y: 52, url: "/nos-talents" }],   // était /nostalents
+  [
+    { label: "Media",   x: 35, y: 52, url: "/media" },
+    { label: "Podcast", x: 65, y: 52, url: "/podcast" },
+  ],
 ]
 
 const EDGES: Record<number, Record<Side, EdgeConfig>> = {
@@ -137,7 +145,6 @@ const EdgeArrowButton = memo(function EdgeArrowButton({ side, onClick }: {
   side: Side; label: string; isPageLink: boolean; onClick: () => void
 }) {
   const [pressed, setPressed] = useState(false)
-
   return (
     <div style={EDGE_POS[side]}>
       <div
@@ -150,8 +157,7 @@ const EdgeArrowButton = memo(function EdgeArrowButton({ side, onClick }: {
         onPointerUp={() => setPressed(false)}
         onPointerLeave={() => setPressed(false)}
         style={{
-          width: ARROW_SIZE,
-          height: ARROW_SIZE,
+          width: ARROW_SIZE, height: ARROW_SIZE,
           borderRadius: "50%",
           border: "1px solid rgba(255,255,255,0.14)",
           background: "rgba(18,18,18,0.82)",
@@ -170,7 +176,10 @@ const EdgeArrowButton = memo(function EdgeArrowButton({ side, onClick }: {
   )
 })
 
-const HotspotBtn = memo(function HotspotBtn({ label, x, y, url }: Hotspot) {
+// ✅ FIX 2 — HotspotBtn utilise le callback navigate (router.push) au lieu de window.location.href
+const HotspotBtn = memo(function HotspotBtn({
+  label, x, y, url, onNavigate,
+}: Hotspot & { onNavigate: (url: string) => void }) {
   const [hovered, setHovered] = useState(false)
   if (!label) return null
   return (
@@ -178,8 +187,8 @@ const HotspotBtn = memo(function HotspotBtn({ label, x, y, url }: Hotspot) {
       role="button"
       tabIndex={0}
       aria-label={label}
-      onClick={() => { if (!url) return; markExperienceAsEntered(); window.location.href = url }}
-      onKeyDown={(e) => { if (e.key === "Enter" && url) { markExperienceAsEntered(); window.location.href = url } }}
+      onClick={() => { if (!url) return; onNavigate(url) }}
+      onKeyDown={(e) => { if (e.key === "Enter" && url) onNavigate(url) }}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       style={{
@@ -216,7 +225,6 @@ const VideoSlot = memo(function VideoSlot({ room, isActive, isNeighbor }: {
     const el = videoRef.current; if (!el) return
     if (isActive) {
       const doPlay = () => {
-        // FIX no-unused-expressions: assign result instead of floating expression
         playRef.current = el.play()
         playRef.current.catch(() => {})
       }
@@ -250,7 +258,6 @@ const VideoSlot = memo(function VideoSlot({ room, isActive, isNeighbor }: {
       <div style={{ width: "100%", height: "100%" }}>
         {isImg
           ? (
-            // FIX no-img-element: use next/image with fill for cover behaviour
             <div style={{ position: "relative", width: "100%", height: "100%" }}>
               <Image
                 src={room.video}
@@ -275,7 +282,6 @@ const TransitionVideo = memo(function TransitionVideo({ src, onEnd }: {
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [fadeOut, setFadeOut] = useState(false)
-  // FIX react-hooks/refs: update ref inside effect, not during render
   const onEndRef = useRef(onEnd)
   useEffect(() => { onEndRef.current = onEnd }, [onEnd])
 
@@ -306,12 +312,10 @@ const IntroVideo = memo(function IntroVideo({ src, onExplore }: {
   src: string; onExplore: () => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  // FIX set-state-in-effect: initialize to false directly, no synchronous setState in effect
   const [visible, setVisible] = useState(false)
   const [btnHovered, setBtnHovered] = useState(false)
 
   useEffect(() => {
-    // No synchronous setState here — visible starts false, we only set it true via timeout (callback)
     videoRef.current?.play().catch(() => {})
     const t = setTimeout(() => setVisible(true), 800)
     return () => clearTimeout(t)
@@ -370,39 +374,98 @@ function getInitialPhase(): Phase {
 export default function RoomsExperienceMobile() {
   useEffect(injectStyles, [])
 
+  // ✅ FIX 2 — useRouter pour navigation client-side (pas de rechargement de page)
+  const router = useRouter()
+
   const [phase, setPhase] = useState<Phase>(getInitialPhase)
   const [activeIndex, setActiveIndex] = useState(0)
 
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const hasMountedRef = useRef(false)
 
-  // FIX set-state-in-effect: removed setMounted + setPhase from effect body.
-  // Phase is now initialized via lazy initializer getInitialPhase above.
+  // ✅ FIX 2 — navigate utilise router.push + sauvegarde la room pour le retour
+  const navigate = useCallback(
+    (url: string) => {
+      sessionStorage.setItem(ROOM_RESTORE_KEY, String(activeIndex))
+      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY))
+      markExperienceAsEntered()
+      router.push(url)
+    },
+    [router, activeIndex]
+  )
+
+  // Restaure la room au retour arrière (comme le desktop)
+  useEffect(() => {
+    const savedRoom = sessionStorage.getItem(ROOM_RESTORE_KEY)
+    if (savedRoom === null) return
+    const roomIndex = parseInt(savedRoom, 10)
+    sessionStorage.removeItem(ROOM_RESTORE_KEY)
+    if (
+      Number.isNaN(roomIndex) ||
+      roomIndex < 0 ||
+      roomIndex >= ALL_ROOMS.length ||
+      !ALL_ROOMS[roomIndex]?.video
+    ) return
+    markExperienceAsEntered()
+    setTimeout(() => {
+      setPhase("rooms")
+      setActiveIndex(roomIndex)
+      const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY)
+      if (savedScroll !== null) {
+        sessionStorage.removeItem(SCROLL_STORAGE_KEY)
+        const y = parseInt(savedScroll, 10)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, behavior: "instant" })
+          })
+        })
+      } else {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(ROOMS_ANCHOR_ID)
+          if (!el) return
+          const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
+          window.scrollTo({ top, behavior: "instant" })
+        })
+      }
+    }, 80)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const handler = (e: Event) => {
       const idx = (e as CustomEvent<{ roomIndex?: number }>).detail?.roomIndex
       if (idx == null || idx < 0 || idx >= ALL_ROOMS.length || !ALL_ROOMS[idx]?.video) return
-      markExperienceAsEntered(); setPhase("rooms"); setActiveIndex(idx)
+      markExperienceAsEntered()
+      setPhase("rooms")
+      setActiveIndex(idx)
     }
     window.addEventListener("just-nav-change", handler)
     return () => window.removeEventListener("just-nav-change", handler)
   }, [])
 
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      return
+    }
     window.dispatchEvent(new CustomEvent("just-room-changed", { detail: { roomIndex: activeIndex } }))
   }, [activeIndex])
 
   const handleEdgeClick = useCallback((edge: EdgeConfig) => {
     if (!edge?.show) return
     markExperienceAsEntered()
-    if (edge.pageUrl) { window.location.href = edge.pageUrl; return }
+    if (edge.pageUrl) {
+      navigate(edge.pageUrl) // ✅ router.push via navigate
+      return
+    }
     const idx = edge.target - 1
     if (idx >= 0 && idx < ALL_ROOMS.length && ALL_ROOMS[idx]?.video) {
-      setPhase("rooms"); setActiveIndex(idx)
+      setPhase("rooms")
+      setActiveIndex(idx)
     }
-  }, [])
+  }, [navigate])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
@@ -478,7 +541,9 @@ export default function RoomsExperienceMobile() {
           )}
           <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "auto" }}>
             {currentHotspots.map((spot, i) =>
-              spot.label ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} /> : null
+              spot.label
+                ? <HotspotBtn key={`${activeIndex}-h${i}`} {...spot} onNavigate={navigate} />
+                : null
             )}
           </div>
           <div aria-hidden="true" style={{
