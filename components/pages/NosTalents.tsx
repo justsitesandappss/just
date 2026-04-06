@@ -586,15 +586,15 @@ export default function NosTalents() {
     const isContactSubmitDisabled = contactStatus === "sending" || !contactFormData.name.trim() || !contactFormData.email.trim() || !contactFormData.message.trim()
 
     const allTalents = useMemo(() => [
-        parseTalent(p.t1Name, p.t1Handle, p.t1Image, p.t1Cats, p.t1Followers, p.t1Views, p.t1Bio, "01", p.t1Link),
-        parseTalent(p.t2Name, p.t2Handle, p.t2Image, p.t2Cats, p.t2Followers, p.t2Views, p.t2Bio, "02", p.t2Link),
-        parseTalent(p.t3Name, p.t3Handle, p.t3Image, p.t3Cats, p.t3Followers, p.t3Views, p.t3Bio, "03", p.t3Link),
+        parseTalent(p.t2Name, p.t2Handle, p.t2Image, p.t2Cats, p.t2Followers, p.t2Views, p.t2Bio, "01", p.t2Link),
+        parseTalent(p.t1Name, p.t1Handle, p.t1Image, p.t1Cats, p.t1Followers, p.t1Views, p.t1Bio, "02", p.t1Link),
+        parseTalent(p.t9Name, p.t9Handle, p.t9Image, p.t9Cats, p.t9Followers, p.t9Views, p.t9Bio, "03", p.t9Link),
         parseTalent(p.t4Name, p.t4Handle, p.t4Image, p.t4Cats, p.t4Followers, p.t4Views, p.t4Bio, "04", p.t4Link),
         parseTalent(p.t5Name, p.t5Handle, p.t5Image, p.t5Cats, p.t5Followers, p.t5Views, p.t5Bio, "05", p.t5Link),
         parseTalent(p.t6Name, p.t6Handle, p.t6Image, p.t6Cats, p.t6Followers, p.t6Views, p.t6Bio, "06", p.t6Link),
         parseTalent(p.t7Name, p.t7Handle, p.t7Image, p.t7Cats, p.t7Followers, p.t7Views, p.t7Bio, "07", p.t7Link),
         parseTalent(p.t8Name, p.t8Handle, p.t8Image, p.t8Cats, p.t8Followers, p.t8Views, p.t8Bio, "08", p.t8Link),
-        parseTalent(p.t9Name, p.t9Handle, p.t9Image, p.t9Cats, p.t9Followers, p.t9Views, p.t9Bio, "09", p.t9Link),
+        parseTalent(p.t3Name, p.t3Handle, p.t3Image, p.t3Cats, p.t3Followers, p.t3Views, p.t3Bio, "09", p.t3Link),
     ].filter((talent) => talent.name || talent.handle || talent.bio), [p])
 
     const allCats = useMemo(() => Array.from(new Set(allTalents.flatMap((t) => t.categories))), [allTalents])
@@ -607,31 +607,9 @@ export default function NosTalents() {
 
     const socials = useMemo<SocialLink[]>(() => {
         const items: SocialLink[] = []
-
-        if (p.footerInstagram) {
-            items.push({
-                href: p.footerInstagram,
-                label: "Instagram",
-                icon: ICONS.instagram,
-            })
-        }
-
-        if (p.footerTikTok) {
-            items.push({
-                href: p.footerTikTok,
-                label: "TikTok",
-                icon: ICONS.tiktok,
-            })
-        }
-
-        if (p.footerLinkedIn) {
-            items.push({
-                href: p.footerLinkedIn,
-                label: "LinkedIn",
-                icon: ICONS.linkedin,
-            })
-        }
-
+        if (p.footerInstagram) items.push({ href: p.footerInstagram, label: "Instagram", icon: ICONS.instagram })
+        if (p.footerTikTok) items.push({ href: p.footerTikTok, label: "TikTok", icon: ICONS.tiktok })
+        if (p.footerLinkedIn) items.push({ href: p.footerLinkedIn, label: "LinkedIn", icon: ICONS.linkedin })
         return items
     }, [p.footerInstagram, p.footerTikTok, p.footerLinkedIn])
 
