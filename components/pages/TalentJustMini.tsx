@@ -51,13 +51,12 @@ interface Collab {
 // Animation Components
 function Reveal({ children, delay = 0 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const isInView = useInView(ref, { once: true, margin: "-60px" })
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 1, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay, ease: EASE }}
     >
       {children}
@@ -401,7 +400,7 @@ export default function TalentJustMini() {
       >
         <div style={{ padding: "80px 72px" }}>
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{
@@ -439,7 +438,7 @@ export default function TalentJustMini() {
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 1, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.35, ease: EASE }}
             style={{
@@ -456,7 +455,7 @@ export default function TalentJustMini() {
           </motion.h1>
 
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             style={{
@@ -488,7 +487,7 @@ export default function TalentJustMini() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
             style={{
@@ -504,7 +503,7 @@ export default function TalentJustMini() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
             style={{
@@ -540,7 +539,7 @@ export default function TalentJustMini() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
             style={{ marginTop: 32, display: "flex", gap: 12 }}
@@ -566,7 +565,7 @@ export default function TalentJustMini() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 1, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.3, ease: EASE }}
           style={{
@@ -1101,7 +1100,7 @@ export default function TalentJustMini() {
               {brandList.map((b, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 1, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{
@@ -1228,7 +1227,7 @@ export default function TalentJustMini() {
         </Reveal>
         <Reveal delay={0.16}>
           <motion.a
-            href="#"
+            href="/contact"
             whileHover={{
               y: -3,
               backgroundColor: "#fff",

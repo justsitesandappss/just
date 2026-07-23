@@ -22,3 +22,84 @@ body {
   outline: 2px solid #fff;
   outline-offset: 3px;
 }
+
+/* ── Styles de mise en page "Nos talents" / formulaire (déplacés du JS vers ici
+   pour rester présents lors des navigations client, ex. retour arrière) ── */
+.just-merged-root, .just-merged-root * { box-sizing: border-box; }
+.just-merged-root { color-scheme: dark; width: 100%; min-width: 0; }
+.just-merged-root main, .just-merged-root section, .just-merged-root div,
+.just-merged-root article, .just-merged-root p, .just-merged-root h1,
+.just-merged-root h2, .just-merged-root h3, .just-merged-root ul,
+.just-merged-root li, .just-merged-root blockquote { min-width: 0; }
+.just-merged-root img { max-width: 100%; display: block; }
+.just-merged-root a, .just-merged-root button { -webkit-tap-highlight-color: transparent; }
+.just-merged-root a:focus-visible, .just-merged-root button:focus-visible {
+  outline: 2px solid #ffffff; outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.14);
+}
+.just-merged-root .sr-only {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+  clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
+}
+.just-merged-root .jm-link-overlay { position: absolute; inset: 0; z-index: 5; border-radius: inherit; }
+.just-merged-root .jm-section-inner { width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+.just-merged-root .jm-cards-grid > *, .just-merged-root .jm-values-grid > *, .just-merged-root .jm-stats-grid > * { min-width: 0; }
+.jm2-contact-root input::placeholder, .jm2-contact-root textarea::placeholder { color: rgba(255,255,255,0.28); }
+.jm2-contact-root input:-webkit-autofill, .jm2-contact-root input:-webkit-autofill:hover,
+.jm2-contact-root input:-webkit-autofill:focus, .jm2-contact-root textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
+  -webkit-text-fill-color: #fff !important; caret-color: #fff !important;
+}
+@media (max-width: 980px) {
+  .jm2-contact-grid { grid-template-columns: 1fr !important; gap: 56px !important; }
+  .jm2-contact-two-cols { grid-template-columns: 1fr !important; gap: 28px !important; }
+  .jm2-contact-sticky { position: relative !important; top: 0 !important; }
+}
+@media (max-width: 640px) { .jm2-contact-root .jm2-contact-pad { padding-left: 20px !important; padding-right: 20px !important; } }
+@media (max-width: 1279px) {
+  .just-merged-root .jm-section { padding-left: 48px !important; padding-right: 48px !important; }
+  .just-merged-root .jm-hero-scroll { left: 48px !important; }
+  .just-merged-root .jm-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .just-merged-root .jm-values-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .just-merged-root .jm-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 32px !important; }
+}
+@media (max-width: 767px) {
+  .just-merged-root .jm-section { padding-left: 20px !important; padding-right: 20px !important; }
+  .just-merged-root .jm-hero { min-height: auto !important; padding-top: 72px !important; padding-bottom: 72px !important; }
+  .just-merged-root .jm-hero-tagline { gap: 8px !important; margin-bottom: 28px !important; letter-spacing: 2.5px !important; line-height: 1.5 !important; flex-wrap: wrap !important; }
+  .just-merged-root .jm-hero-title { letter-spacing: -2px !important; line-height: 0.98 !important; }
+  .just-merged-root .jm-hero-desc { margin-top: 24px !important; font-size: 14px !important; line-height: 1.8 !important; }
+  .just-merged-root .jm-stats-grid, .just-merged-root .jm-cards-grid, .just-merged-root .jm-values-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .just-merged-root .jm-stats-grid { gap: 24px !important; }
+  .just-merged-root .jm-filter-wrap { margin-bottom: 32px !important; }
+  .just-merged-root .jm-card-body { padding: 18px 18px 22px !important; }
+  .just-merged-root .jm-card-number { top: 12px !important; left: 14px !important; font-size: 22px !important; }
+  .just-merged-root .jm-card-views { top: 12px !important; right: 12px !important; padding: 5px 10px !important; }
+  .just-merged-root .jm-footer { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  .just-merged-root .jm-hero-scroll { display: none !important; }
+  .just-merged-root .jm-marquee-item { letter-spacing: -1px !important; }
+}
+@media (max-width: 479px) {
+  .just-merged-root .jm-section { padding-left: 16px !important; padding-right: 16px !important; }
+  .just-merged-root .jm-filter-pill { padding: 9px 14px !important; font-size: 10px !important; letter-spacing: 1.4px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .just-merged-root *, .just-merged-root *::before, .just-merged-root *::after { scroll-behavior: auto !important; }
+}
+
+/* ── Animations CSS (contenu visible par défaut ; l'animation n'est qu'un bonus,
+   donc rien ne peut rester invisible même si elle ne se joue pas) ── */
+@keyframes jm-fade-up {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes jm-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.333%); }
+}
+.jm-reveal { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .jm-reveal { animation: jm-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .jm-marquee-track { animation: jm-marquee-scroll var(--marquee-duration, 40s) linear infinite; }
+}

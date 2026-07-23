@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 import "./globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -85,7 +86,9 @@ export default function RootLayout({
           Aller au contenu principal
         </a>
 
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
 
         <main id="contenu-principal" role="main">
           {children}

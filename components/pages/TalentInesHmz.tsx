@@ -161,7 +161,7 @@ function getFadeIn(reduced: boolean, delay = 0) {
               animate: { opacity: 1 },
           }
         : {
-              initial: { opacity: 0 },
+              initial: { opacity: 1 },
               animate: { opacity: 1 },
               transition: { duration: 0.6, delay },
           }
@@ -174,7 +174,7 @@ function getSlideUp(reduced: boolean, delay = 0) {
               animate: { opacity: 1, y: 0 },
           }
         : {
-              initial: { opacity: 0, y: 50 },
+              initial: { opacity: 1, y: 50 },
               animate: { opacity: 1, y: 0 },
               transition: { duration: 1, delay, ease: EASE },
           }
@@ -191,15 +191,12 @@ function Reveal({
     children: React.ReactNode
     delay?: number
 }) {
-    const ref = useRef<HTMLDivElement | null>(null)
-    const visible = useInView(ref, { once: true, margin: "-60px" })
     const reduced = useReducedMotion() ?? false
 
     return (
         <motion.div
-            ref={ref}
-            initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-            animate={visible ? { opacity: 1, y: 0 } : {}}
+            initial={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={
                 reduced ? { duration: 0 } : { duration: 0.9, delay, ease: EASE }
             }
@@ -611,7 +608,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
         manifesto = "Ines ne vend pas des produits — elle vend un mode de vie. Quand elle recommande une clinique, un soin ou une marque, sa communauté ne scroll pas, elle achète. Cette confiance-là ne se fabrique pas — elle se construit story après story, jour après jour.",
         ctaTitle = "Collaborer avec Ines.",
         ctaDesc = "Placement beauté, haul mode, ambassadrice, contenu lifestyle Dubaï — discutons de comment intégrer votre marque dans l'univers Ines Hmz.",
-        ctaUrl = "#",
+        ctaUrl = "/contact",
     } = props
 
     const reduced = useReducedMotion() ?? false
@@ -841,7 +838,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                   animate: { opacity: 1, y: 0 },
                               }
                             : {
-                                  initial: { opacity: 0, y: 20 },
+                                  initial: { opacity: 1, y: 20 },
                                   animate: { opacity: 1, y: 0 },
                                   transition: { duration: 0.7, delay: 0.6 },
                               })}
@@ -935,7 +932,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                     initial={
                         reduced
                             ? { opacity: 1, scale: 1 }
-                            : { opacity: 0, scale: 1.05 }
+                            : { opacity: 1, scale: 1.05 }
                     }
                     animate={{ opacity: 1, scale: 1 }}
                     transition={
@@ -1529,7 +1526,7 @@ export default function TalentInesHmz(props: TalentInesHmzProps) {
                                     initial={
                                         reduced
                                             ? { opacity: 1, y: 0 }
-                                            : { opacity: 0, y: 10 }
+                                            : { opacity: 1, y: 10 }
                                     }
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}

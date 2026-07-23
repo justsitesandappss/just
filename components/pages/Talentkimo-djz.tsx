@@ -48,19 +48,17 @@ function useGlobalStyles() {
 }
 
 function getFadeIn(reduced: boolean, delay = 0) {
-    return reduced ? { initial: { opacity: 1 }, animate: { opacity: 1 } } : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.6, delay } }
+    return reduced ? { initial: { opacity: 1 }, animate: { opacity: 1 } } : { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0.6, delay } }
 }
 
 function getSlideUp(reduced: boolean, delay = 0) {
-    return reduced ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } } : { initial: { opacity: 0, y: 50 }, animate: { opacity: 1, y: 0 }, transition: { duration: 1, delay, ease: EASE } }
+    return reduced ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } } : { initial: { opacity: 1, y: 50 }, animate: { opacity: 1, y: 0 }, transition: { duration: 1, delay, ease: EASE } }
 }
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-    const ref = useRef<HTMLDivElement | null>(null)
-    const visible = useInView(ref, { once: true, margin: "-60px" })
     const reduced = useReducedMotion() ?? false
     return (
-        <motion.div ref={ref} initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }} animate={visible ? { opacity: 1, y: 0 } : {}} transition={reduced ? { duration: 0 } : { duration: 0.9, delay, ease: EASE }}>
+        <motion.div initial={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={reduced ? { duration: 0 } : { duration: 0.9, delay, ease: EASE }}>
             {children}
         </motion.div>
     )
@@ -197,7 +195,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
         manifesto = "Kimo Djz ne fait pas des vidéos — il crée des bandes-son. Quand un de ses beats fait vibrer des millions de téléphones, c'est parce qu'il a touché quelque chose de vrai. Associer votre marque à Kimo, c'est associer votre marque à un son, une vibe, une génération.",
         ctaTitle = "Collaborer avec Kimo.",
         ctaDesc = "Son sponsorisé, placement, showcase, campagne musicale — discutons de comment votre marque peut entrer dans l'univers Kimo Djz.",
-        ctaUrl = "#",
+        ctaUrl = "/contact",
     } = props
 
     const reduced = useReducedMotion() ?? false
@@ -267,7 +265,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
                         {catList.map((cat) => <li key={cat} style={pillStyle}>{cat}</li>)}
                     </motion.ul>
 
-                    <motion.p {...(reduced ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } } : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, delay: 0.6 } })} style={{ marginTop: 28, fontSize: 15, lineHeight: 1.9, maxWidth: 520, color: WHITE(0.42), fontWeight: 300 }}>{bio}</motion.p>
+                    <motion.p {...(reduced ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } } : { initial: { opacity: 1, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, delay: 0.6 } })} style={{ marginTop: 28, fontSize: 15, lineHeight: 1.9, maxWidth: 520, color: WHITE(0.42), fontWeight: 300 }}>{bio}</motion.p>
 
                     <motion.div {...getFadeIn(reduced, 0.8)} style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 8 }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={WHITE(0.25)} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
@@ -283,7 +281,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
                     </motion.ul>
                 </div>
 
-                <motion.figure initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} transition={reduced ? { duration: 0 } : { duration: 1.2, delay: 0.3, ease: EASE }} style={{ height: mobile ? "58vh" : "100vh", minHeight: mobile ? 420 : undefined, position: "relative", overflow: "hidden", margin: 0, order: mobile ? 0 : 2 }}>
+                <motion.figure initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} transition={reduced ? { duration: 0 } : { duration: 1.2, delay: 0.3, ease: EASE }} style={{ height: mobile ? "58vh" : "100vh", minHeight: mobile ? 420 : undefined, position: "relative", overflow: "hidden", margin: 0, order: mobile ? 0 : 2 }}>
                     {/*
                         NOTE: <img> natif conservé intentionnellement.
                         Pour migrer vers next/image, ajouter cdn.jsdelivr.net dans
@@ -429,7 +427,7 @@ export default function TalentKimoDjz(props: TalentKimoDjzProps) {
                         <h2 id="sectors-heading" style={labelStyle}>Secteurs d&apos;activité</h2>
                         <ul aria-label="Secteurs d'activité" style={{ display: "flex", flexWrap: "wrap", gap: 10, padding: 0, margin: 0, listStyle: "none" }}>
                             {brandList.map((brand, i) => (
-                                <motion.li key={brand} initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduced ? { duration: 0 } : { duration: 0.4, delay: i * 0.05, ease: EASE }} style={{ padding: "10px 24px", borderRadius: 100, border: `1px solid ${WHITE(0.08)}`, background: WHITE(0.03), fontFamily: BODY, fontSize: 12, fontWeight: 500, color: WHITE(0.5), letterSpacing: 1, textTransform: "uppercase" }}>
+                                <motion.li key={brand} initial={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduced ? { duration: 0 } : { duration: 0.4, delay: i * 0.05, ease: EASE }} style={{ padding: "10px 24px", borderRadius: 100, border: `1px solid ${WHITE(0.08)}`, background: WHITE(0.03), fontFamily: BODY, fontSize: 12, fontWeight: 500, color: WHITE(0.5), letterSpacing: 1, textTransform: "uppercase" }}>
                                     {brand}
                                 </motion.li>
                             ))}

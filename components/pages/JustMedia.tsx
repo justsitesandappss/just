@@ -194,7 +194,7 @@ function formatMetric(meta: MetricMeta, animatedValue: number): string {
 
 const FOOTER_NAV = [
   { label: "Just Impact", href: "/just-impact" },
-  { label: "Just Prod", href: "/just-prod" },
+  { label: "Just Prod", href: "/?jumpToRoom=4" },
   { label: "Just Agency", href: "/just-agency" },
   { label: "Contact", href: "/contact" },
 ] as const

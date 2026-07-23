@@ -28,42 +28,80 @@ const C = {
   buttonTextHover: "#000000",
 }
 
+export type TalentPlatform = { name: string; followers: string; desc: string; main?: boolean }
+export type TalentStat = { value: string; label: string }
+export type TalentPillar = { title: string; desc: string; icon: string }
+export type TalentCollab = { title: string; desc: string }
+
+export type TalentData = {
+  name: string
+  handle: string
+  categories: string[]
+  tagline?: string
+  bio: string
+  location: string
+  image: string
+  imageAlt?: string
+  platforms: TalentPlatform[]
+  stats: TalentStat[]
+  pillars: TalentPillar[]
+  quote: string
+  quoteEyebrow?: string
+  manifesto: string
+  manifestoEyebrow?: string
+  collabs?: TalentCollab[]
+  sectors?: string[]
+  marqueeTop?: string[]
+  marqueeMid?: string[]
+  ctaTitle?: string
+  ctaDesc?: string
+}
+
+const DEFAULT_COLLABS: TalentCollab[] = [
+  { title: "Placement de produit", desc: "Intégration naturelle dans le contenu quotidien via stories, vlogs et formats courts." },
+  { title: "Concept dédié", desc: "Création d'un concept sur mesure autour de votre marque avec mise en scène et narration intégrée." },
+  { title: "Événement & Activation", desc: "Présence physique, meet & greet, activation en point de vente avec la communauté." },
+  { title: "Série sponsorisée", desc: "Plusieurs épisodes dédiés à votre marque pour installer un vrai récit dans la durée." },
+]
+
+const DEFAULT_SECTORS = ["Mode", "Food", "Tech", "Sport", "Lifestyle", "Voyage"]
+
 function useFontsAndStyles() {
   useEffect(() => {
     if (typeof document === "undefined") return
-    if (!document.getElementById("talent-karim-fonts")) {
+    if (!document.getElementById("talent-tpl-fonts")) {
       const link = document.createElement("link")
-      link.id = "talent-karim-fonts"
+      link.id = "talent-tpl-fonts"
       link.rel = "stylesheet"
       link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
       document.head.appendChild(link)
     }
-    if (!document.getElementById("talent-karim-styles")) {
+    if (!document.getElementById("talent-tpl-styles")) {
       const style = document.createElement("style")
-      style.id = "talent-karim-styles"
+      style.id = "talent-tpl-styles"
       style.innerHTML = `
-        .talent-karim-root * { box-sizing: border-box; }
-        .talent-karim-root a:focus-visible,
-        .talent-karim-root button:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
-        .talent-karim-root .skip-link {
+        .talent-tpl-root * { box-sizing: border-box; }
+        .talent-tpl-root a:focus-visible,
+        .talent-tpl-root button:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
+        .talent-tpl-root .skip-link {
           position: absolute; left: 16px; top: 16px; z-index: 30;
           transform: translateY(-140%); transition: transform 0.2s ease;
           background: #fff; color: #000; text-decoration: none;
           font-size: 14px; font-weight: 700; border-radius: 999px; padding: 12px 16px;
         }
-        .talent-karim-root .skip-link:focus { transform: translateY(0); }
+        .talent-tpl-root .skip-link:focus { transform: translateY(0); }
         @media (max-width: 1024px) {
-          .talent-karim-hero { grid-template-columns: 1fr !important; min-height: auto !important; }
-          .talent-karim-hero-media { height: min(70vh, 700px) !important; order: -1; }
-          .talent-karim-platforms-grid, .talent-karim-collabs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-          .talent-karim-pillars-grid { grid-template-columns: 1fr !important; }
-          .talent-karim-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-          .talent-karim-footer { flex-direction: column !important; gap: 12px; align-items: flex-start !important; }
+          .talent-tpl-hero { grid-template-columns: 1fr !important; min-height: auto !important; }
+          .talent-tpl-hero-media { height: min(70vh, 700px) !important; order: -1; }
+          .talent-tpl-platforms-grid, .talent-tpl-collabs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+          .talent-tpl-pillars-grid { grid-template-columns: 1fr !important; }
+          .talent-tpl-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+          .talent-tpl-footer { flex-direction: column !important; gap: 12px; align-items: flex-start !important; }
         }
         @media (max-width: 640px) {
-          .talent-karim-platforms-grid, .talent-karim-collabs-grid, .talent-karim-stats-grid { grid-template-columns: 1fr !important; }
-          .talent-karim-hero-copy { padding: 32px 20px 48px !important; }
-          .talent-karim-section { padding-left: 20px !important; padding-right: 20px !important; }
+          .talent-tpl-platforms-grid, .talent-tpl-collabs-grid, .talent-tpl-stats-grid { grid-template-columns: 1fr !important; }
+          .talent-tpl-hero-copy { padding: 32px 20px 48px !important; }
+          .talent-tpl-section { padding-left: 20px !important; padding-right: 20px !important; }
         }
       `
       document.head.appendChild(style)
@@ -167,41 +205,27 @@ function SectionIntro({ eyebrow, title, mutedWord, id }: { eyebrow: string; titl
   )
 }
 
-export default function TalentKarimLipton() {
+export default function TalentTemplate({ data }: { data: TalentData }) {
   useFontsAndStyles()
   const reducedMotion = useReducedMotion()
 
   const ids = {
     main: useId(), stats: useId(), platforms: useId(), ascension: useId(),
-    pillars: useId(), collabs: useId(), sectors: useId(), manifesto: useId(), cta: useId(),
+    pillars: useId(), collabs: useId(), cta: useId(),
   }
 
-  const catList = ["Humour", "Voyage", "Lifestyle", "Storytelling"]
-  const brandList = ["E-commerce", "Formation", "Tech", "Food", "Mode", "Voyage"]
-
-  const platforms = [
-    { name: "Snapchat", followers: "1.3–1.5M", desc: "Plateforme principale. +1M de vues en moins de 24h de manière régulière. Contenu quotidien, stories immersives, storytelling en temps réel.", main: true },
-    { name: "Instagram", followers: "1.4M", desc: "Photos lifestyle, behind the scenes, et communication directe avec sa communauté via les stories.", main: false },
-    { name: "TikTok", followers: "650.7K", desc: "Contenus courts, extraits viraux de ses aventures Snapchat. Formats humoristiques et pranks qui performent fort dans l'algorithme.", main: false },
-    { name: "YouTube", followers: "100K", desc: "Rediffusions longues de ses concepts, vlogs de voyage et compilations de ses meilleurs moments.", main: false },
-  ]
-
-  const pillars = [
-    { title: "Téléréalité 2.0", desc: "Sa vie amoureuse tumultueuse est son fond de commerce principal : ruptures scénarisées, fausses demandes en mariage, crises de jalousie avec sa compagne Inès et rebondissements avec son ex-fiancée Ismo.", icon: "❤️‍🔥" },
-    { title: "Les Concepts", desc: "Karim organise régulièrement des concepts dignes d'émissions TV : voyages, villas, défis, cast récurrent et narration feuilletonnante.", icon: "🎬" },
-    { title: "Le Bienfaiteur", desc: "Distribution d'argent, cadeaux, surprises pour sa communauté. Un format émotionnel qui pousse fort l'engagement.", icon: "🎁" },
-    { title: "La Team Lipton", desc: "Une bande récurrente qui donne une vraie logique de série au contenu. Chaque personnage nourrit l'attachement audience.", icon: "👥" },
-  ]
-
-  const collabs = [
-    { title: "Placement de produit", desc: "Intégration naturelle dans le contenu quotidien de Karim via stories, vlogs et formats courts." },
-    { title: "Concept dédié", desc: "Création d'un concept sur mesure autour de votre marque avec mise en scène et narration intégrée." },
-    { title: "Événement & Activation", desc: "Présence physique, meet & greet, activation en point de vente avec la communauté." },
-    { title: "Série sponsorisée", desc: "Plusieurs épisodes dédiés à votre marque pour installer un vrai récit dans la durée." },
-  ]
+  const firstName = data.name.split(" ")[0]
+  const tagline = data.tagline ?? data.categories.join(" · ")
+  const collabs = data.collabs ?? DEFAULT_COLLABS
+  const sectors = data.sectors ?? DEFAULT_SECTORS
+  const platformNames = data.platforms.map((pf) => pf.name)
+  const marqueeTop = data.marqueeTop ?? [data.name, ...data.categories, "Just Impact"]
+  const marqueeMid = data.marqueeMid ?? [...data.categories, ...platformNames]
+  const ctaTitle = data.ctaTitle ?? `Collaborer avec ${firstName}.`
+  const ctaDesc = data.ctaDesc ?? "Placement, concept dédié, activation : discutons de la meilleure façon d'intégrer votre marque dans son univers."
 
   return (
-    <div className="talent-karim-root" style={{ width: "100%", overflowX: "hidden", background: C.bg, color: C.textBody, fontFamily: BODY, WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
+    <div className="talent-tpl-root" style={{ width: "100%", overflowX: "hidden", background: C.bg, color: C.textBody, fontFamily: BODY, WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" }}>
       <Link href={`#${ids.main}`} className="skip-link">Aller au contenu principal</Link>
 
       <div style={{ position: "fixed", top: 24, left: 24, zIndex: 50 }}>
@@ -212,24 +236,24 @@ export default function TalentKarimLipton() {
       </div>
 
       {/* HERO */}
-      <header aria-label="Présentation de Karim Lipton" className="talent-karim-hero" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh", alignItems: "stretch", position: "relative" }}>
-        <div className="talent-karim-hero-copy" style={{ padding: "80px 72px", display: "flex", alignItems: "center" }}>
+      <header aria-label={`Présentation de ${data.name}`} className="talent-tpl-hero" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh", alignItems: "stretch", position: "relative" }}>
+        <div className="talent-tpl-hero-copy" style={{ padding: "80px 72px", display: "flex", alignItems: "center" }}>
           <div style={{ width: "100%", maxWidth: 620 }}>
             <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.15)} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginBottom: 28 }}>
-              <span style={{ padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>Karim LPTN</span>
-              <span style={{ fontSize: 13, color: C.textMuted }}>@karimlipton94</span>
+              <span style={{ padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2.5, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>{firstName}</span>
+              <span style={{ fontSize: 13, color: C.textMuted }}>{data.handle}</span>
             </motion.div>
 
             <motion.h1 initial={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 40 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.9, 0.25)} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(46px, 7vw, 92px)", color: C.text, letterSpacing: -4, lineHeight: 0.92, margin: "0 0 16px 0" }}>
-              Karim Lipton
+              {data.name}
             </motion.h1>
 
             <motion.p initial={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 20 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.38)} style={{ fontSize: 14, lineHeight: 1.8, marginBottom: 24, color: C.textSoft }}>
-              Humour · Voyage · Lifestyle · Storytelling
+              {tagline}
             </motion.p>
 
             <motion.ul initial={{ opacity: 1 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.6, 0.48)} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24, listStyle: "none", padding: 0 }}>
-              {catList.map((cat) => (
+              {data.categories.map((cat) => (
                 <li key={cat}>
                   <span style={{ display: "inline-flex", padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>{cat}</span>
                 </li>
@@ -237,16 +261,16 @@ export default function TalentKarimLipton() {
             </motion.ul>
 
             <motion.p initial={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 20 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} transition={makeTransition(reducedMotion ?? false, 0.7, 0.58)} style={{ fontSize: 15, lineHeight: 1.9, maxWidth: 560, marginBottom: 24, color: C.textBody }}>
-              Créateur dynamique et authentique, reconnu pour son sens du divertissement. Karim est un poids lourd de Snapchat avec 1,3 à 1,5 million d&apos;abonnés. Il tape régulièrement le million de vues en moins de 24 heures.
+              {data.bio}
             </motion.p>
 
             <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.55, 0.68)} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textMuted, marginBottom: 32 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span>Val-de-Marne (94), France</span>
+              <span>{data.location}</span>
             </motion.div>
 
             <motion.ul initial={{ opacity: 1 }} animate={{ opacity: 1 }} transition={makeTransition(reducedMotion ?? false, 0.55, 0.78)} style={{ display: "flex", flexWrap: "wrap", gap: 12, listStyle: "none", padding: 0 }}>
-              {["Snapchat", "Instagram", "TikTok", "YouTube"].map((platform) => (
+              {platformNames.map((platform) => (
                 <li key={platform}>
                   <div style={{ width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: C.panelSoft, border: `1px solid ${C.border}`, color: C.textSoft }} aria-label={platform} title={platform}>
                     <PlatformIcon platform={platform} size={16} />
@@ -257,10 +281,10 @@ export default function TalentKarimLipton() {
           </div>
         </div>
 
-        <motion.div className="talent-karim-hero-media" initial={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1.03 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }} transition={makeTransition(reducedMotion ?? false, 1, 0.2)} style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}>
+        <motion.div className="talent-tpl-hero-media" initial={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1.03 }} animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }} transition={makeTransition(reducedMotion ?? false, 1, 0.2)} style={{ height: "100vh", position: "relative", overflow: "hidden", background: C.panel }}>
           <Image
-            src="https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg"
-            alt="Portrait de Karim Lipton"
+            src={data.image}
+            alt={data.imageAlt ?? `Portrait de ${data.name}`}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -272,39 +296,36 @@ export default function TalentKarimLipton() {
       </header>
 
       <main id={ids.main}>
-        <Marquee items={["Karim Lipton", "Team Lipton", "Snapchat", "1M+ vues", "Storytelling", "Humour", "Concepts", "Val-de-Marne"]} speed={40} ariaLabel="Mots-clés liés au talent" />
+        <Marquee items={marqueeTop} speed={40} ariaLabel="Mots-clés liés au talent" />
 
         {/* STATS */}
-        <section className="talent-karim-section" style={{ position: "relative", padding: "96px 72px" }}>
+        <section className="talent-tpl-section" style={{ position: "relative", padding: "96px 72px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal>
               <div style={{ textAlign: "center", marginBottom: 48 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 14px 0" }}>En chiffres</p>
                 <h2 id={ids.stats} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 44px)", color: C.text, letterSpacing: -1.5, margin: 0 }}>
-                  L&apos;audience <span style={{ color: C.textGhost }}>Karim Lipton.</span>
+                  L&apos;audience <span style={{ color: C.textGhost }}>{data.name}.</span>
                 </h2>
               </div>
             </Reveal>
             <Reveal>
-              <div className="talent-karim-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 32, rowGap: 44 }}>
-                <Counter value="1.4M" label="Abonnés Snapchat" delay={0} />
-                <Counter value="650K" label="Abonnés TikTok" delay={0.06} />
-                <Counter value="100K" label="Abonnés YouTube" delay={0.12} />
-                <Counter value="7.4M" label="Vues totales" delay={0.18} />
-                <Counter value="1M+" label="Vues en -24h" delay={0.24} />
-                <Counter value="8.5%" label="Taux d'engagement" delay={0.3} />
+              <div className="talent-tpl-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 32, rowGap: 44 }}>
+                {data.stats.map((stat, index) => (
+                  <Counter key={stat.label} value={stat.value} label={stat.label} delay={index * 0.06} />
+                ))}
               </div>
             </Reveal>
           </div>
         </section>
 
         {/* PLATFORMS */}
-        <section className="talent-karim-section" style={{ padding: "40px 72px 80px" }}>
+        <section className="talent-tpl-section" style={{ padding: "40px 72px 80px" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal><SectionIntro eyebrow="Plateformes" title="Où il performe." id={ids.platforms} /></Reveal>
-            <div className="talent-karim-platforms-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
-              {platforms.map((platform, index) => (
+            <div className="talent-tpl-platforms-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(4, data.platforms.length)}, minmax(0, 1fr))`, gap: 12 }}>
+              {data.platforms.map((platform, index) => (
                 <Reveal key={platform.name} delay={index * 0.05}>
                   <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ position: "relative", overflow: "hidden", borderRadius: 20, padding: "36px 24px", minHeight: 255, background: C.panelSoft, border: `1px solid ${platform.main ? C.borderStrong : C.border}` }}>
                     {platform.main && <span style={{ position: "absolute", top: 12, right: 14, padding: "4px 10px", borderRadius: 100, background: "rgba(255,255,255,0.08)", fontSize: 8, fontWeight: 700, textTransform: "uppercase", color: C.textMuted, letterSpacing: 2 }}>Principal</span>}
@@ -319,14 +340,14 @@ export default function TalentKarimLipton() {
           </div>
         </section>
 
-        {/* ASCENSION */}
-        <section className="talent-karim-section" style={{ padding: "80px 72px", display: "flex", justifyContent: "center" }}>
+        {/* ASCENSION / QUOTE */}
+        <section className="talent-tpl-section" style={{ padding: "80px 72px", display: "flex", justifyContent: "center" }}>
           <Reveal>
             <div style={{ maxWidth: 860, textAlign: "center" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 28px 0" }}>L&apos;ascension</p>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 28px 0" }}>{data.quoteEyebrow ?? "Son univers"}</p>
               <blockquote style={{ margin: 0 }}>
-                <p style={{ fontFamily: DISPLAY, fontSize: "clamp(22px, 2.8vw, 34px)", fontWeight: 400, color: C.textSoft, letterSpacing: -0.5, fontStyle: "italic", lineHeight: 1.55 }}>
-                  &ldquo;Karim a véritablement explosé après avoir été propulsé et validé par Nasdas. Il a repris l&apos;énergie du contenu quotidien, l&apos;effet bande et le storytelling, tout en y ajoutant sa propre mise en scène.&rdquo;
+                <p id={ids.ascension} style={{ fontFamily: DISPLAY, fontSize: "clamp(22px, 2.8vw, 34px)", fontWeight: 400, color: C.textSoft, letterSpacing: -0.5, fontStyle: "italic", lineHeight: 1.55 }}>
+                  &ldquo;{data.quote}&rdquo;
                 </p>
               </blockquote>
               <motion.div aria-hidden="true" initial={reducedMotion ? { opacity: 1 } : { width: 0 }} whileInView={reducedMotion ? { opacity: 1 } : { width: 60 }} viewport={{ once: true }} transition={makeTransition(reducedMotion ?? false, 0.9, 0.2)} style={{ height: 2, margin: "32px auto 0", background: C.textGhost, width: reducedMotion ? 60 : undefined }} />
@@ -335,11 +356,11 @@ export default function TalentKarimLipton() {
         </section>
 
         {/* PILLARS */}
-        <section className="talent-karim-section" style={{ padding: "40px 72px 80px" }}>
+        <section className="talent-tpl-section" style={{ padding: "40px 72px 80px" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal><SectionIntro eyebrow="Le contenu" title="Ses piliers" mutedWord="de contenu." id={ids.pillars} /></Reveal>
-            <div className="talent-karim-pillars-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
-              {pillars.map((pillar, index) => (
+            <div className="talent-tpl-pillars-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+              {data.pillars.map((pillar, index) => (
                 <Reveal key={pillar.title} delay={index * 0.06}>
                   <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)" }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ display: "flex", gap: 20, alignItems: "flex-start", borderRadius: 24, padding: "40px 32px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}>
                     <div style={{ fontSize: 34, lineHeight: 1, flexShrink: 0 }} aria-hidden="true">{pillar.icon}</div>
@@ -355,14 +376,14 @@ export default function TalentKarimLipton() {
         </section>
 
         <div style={{ padding: "40px 0" }}>
-          <Marquee items={["Téléréalité 2.0", "Team Lipton", "Concepts TV", "Voyages", "Humour", "Bienfaiteur", "Storytelling"]} speed={30} ariaLabel="Axes éditoriaux du talent" />
+          <Marquee items={marqueeMid} speed={30} ariaLabel="Axes éditoriaux du talent" />
         </div>
 
         {/* COLLABS */}
-        <section className="talent-karim-section" style={{ padding: "80px 72px" }}>
+        <section className="talent-tpl-section" style={{ padding: "80px 72px" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal><SectionIntro eyebrow="Collaborer" title="Formats de" mutedWord="collaboration." id={ids.collabs} /></Reveal>
-            <div className="talent-karim-collabs-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+            <div className="talent-tpl-collabs-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
               {collabs.map((item, index) => (
                 <Reveal key={item.title} delay={index * 0.05}>
                   <motion.article whileHover={reducedMotion ? undefined : { backgroundColor: "rgba(255,255,255,0.04)", borderColor: C.borderStrong }} transition={makeTransition(reducedMotion ?? false, 0.25)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", borderRadius: 20, padding: "40px 24px", minHeight: 220, background: C.panelSoft, border: `1px solid ${C.border}` }}>
@@ -377,12 +398,12 @@ export default function TalentKarimLipton() {
         </section>
 
         {/* SECTORS */}
-        <section className="talent-karim-section" style={{ padding: "40px 72px 80px" }}>
+        <section className="talent-tpl-section" style={{ padding: "40px 72px 80px" }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <Reveal>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 16px 0" }}>Secteurs d&apos;activité</p>
               <ul style={{ display: "flex", flexWrap: "wrap", gap: 10, listStyle: "none", padding: 0, margin: 0 }}>
-                {brandList.map((brand, index) => (
+                {sectors.map((brand, index) => (
                   <motion.li key={brand} initial={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 10 }} whileInView={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={makeTransition(reducedMotion ?? false, 0.35, index * 0.04)}>
                     <span style={{ display: "inline-flex", padding: "10px 24px", borderRadius: 100, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, background: C.chipBg, border: `1px solid ${C.chipBorder}`, color: C.textMuted }}>{brand}</span>
                   </motion.li>
@@ -393,13 +414,13 @@ export default function TalentKarimLipton() {
         </section>
 
         {/* MANIFESTO */}
-        <section className="talent-karim-section" style={{ padding: "96px 72px", display: "flex", justifyContent: "center" }}>
+        <section className="talent-tpl-section" style={{ padding: "96px 72px", display: "flex", justifyContent: "center" }}>
           <Reveal>
             <div style={{ maxWidth: 860, textAlign: "center" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 28px 0" }}>Pourquoi Karim</p>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 4, color: C.textMuted, margin: "0 0 28px 0" }}>{data.manifestoEyebrow ?? `Pourquoi ${firstName}`}</p>
               <blockquote style={{ margin: 0 }}>
                 <p style={{ fontFamily: DISPLAY, fontSize: "clamp(24px, 3vw, 38px)", fontWeight: 400, color: C.textSoft, letterSpacing: -0.8, fontStyle: "italic", lineHeight: 1.5 }}>
-                  &ldquo;Karim ne fait pas de la publicité. Il vit son contenu, et votre marque peut s&apos;y intégrer de manière organique, mémorable et massive.&rdquo;
+                  &ldquo;{data.manifesto}&rdquo;
                 </p>
               </blockquote>
               <motion.div aria-hidden="true" initial={reducedMotion ? { opacity: 1 } : { width: 0 }} whileInView={reducedMotion ? { opacity: 1 } : { width: 60 }} viewport={{ once: true }} transition={makeTransition(reducedMotion ?? false, 0.9, 0.2)} style={{ height: 2, margin: "32px auto 0", background: C.textGhost, width: reducedMotion ? 60 : undefined }} />
@@ -408,16 +429,16 @@ export default function TalentKarimLipton() {
         </section>
 
         {/* CTA */}
-        <section className="talent-karim-section" style={{ position: "relative", textAlign: "center", padding: "112px 72px" }}>
+        <section className="talent-tpl-section" style={{ position: "relative", textAlign: "center", padding: "112px 72px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center bottom, rgba(255,255,255,0.03) 0%, transparent 60%)", pointerEvents: "none" }} />
           <Reveal>
             <h2 id={ids.cta} style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(42px, 7vw, 100px)", color: C.text, letterSpacing: -4, lineHeight: 0.95, margin: "0 0 16px 0" }}>
-              Collaborer avec Karim.
+              {ctaTitle}
             </h2>
           </Reveal>
           <Reveal delay={0.08}>
             <p style={{ fontSize: 15, lineHeight: 1.8, maxWidth: 560, margin: "0 auto 36px", color: C.textBody }}>
-              Placement, concept dédié, activation : discutons de la meilleure façon d&apos;intégrer votre marque dans son univers.
+              {ctaDesc}
             </p>
           </Reveal>
           <Reveal delay={0.16}>
@@ -429,7 +450,7 @@ export default function TalentKarimLipton() {
         </section>
       </main>
 
-      <footer className="talent-karim-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "28px 72px", borderTop: `1px solid ${C.border}` }}>
+      <footer className="talent-tpl-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "28px 72px", borderTop: `1px solid ${C.border}` }}>
         <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 3, color: C.textMuted, fontFamily: DISPLAY, margin: 0 }}>
           JUST IMPACT<span style={{ color: C.textBody }}>.</span> © 2026
         </p>

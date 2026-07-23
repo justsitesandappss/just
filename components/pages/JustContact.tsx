@@ -1,20 +1,20 @@
 "use client"
 
-import { Fragment, useId, useMemo, useRef, useState, useCallback } from "react"
+import { Fragment, useId, useMemo, useState, useCallback } from "react"
 import type { ReactNode, HTMLAttributes, FormEvent } from "react"
-import { motion, useInView, useReducedMotion, AnimatePresence } from "framer-motion"
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion"
 
 const DISPLAY = "'Syne', sans-serif"
 const BODY = "'Outfit', sans-serif"
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
 const C = {
-  bg: "#ffffff",
-  text: "#000000",
-  border: "rgba(0,0,0,0.15)",
-  borderStrong: "rgba(0,0,0,0.3)",
-  borderFocus: "#000000",
-  surface: "rgba(0,0,0,0.03)",
+  bg: "#000000",
+  text: "#ffffff",
+  border: "rgba(255,255,255,0.15)",
+  borderStrong: "rgba(255,255,255,0.3)",
+  borderFocus: "#ffffff",
+  surface: "rgba(255,255,255,0.03)",
   error: "#dc2626",
   errorBg: "rgba(220,38,38,0.06)",
   errorBorder: "rgba(220,38,38,0.18)",
@@ -50,17 +50,14 @@ function Reveal({
   delay?: number
   y?: number
 }) {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
   const reduceMotion = useReducedMotion()
 
-  if (reduceMotion) return <div ref={ref}>{children}</div>
+  if (reduceMotion) return <div>{children}</div>
 
   return (
     <motion.div
-      ref={ref}
       initial={{ opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay, ease: EASE }}
     >
       {children}
@@ -105,7 +102,7 @@ function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
                 fontFamily: DISPLAY,
                 fontSize: "clamp(40px, 6vw, 72px)",
                 fontWeight: 800,
-                color: "rgba(0,0,0,0.06)",
+                color: "rgba(255,255,255,0.06)",
                 letterSpacing: -3,
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
@@ -119,7 +116,7 @@ function Marquee({ items, speed = 35 }: { items: string[]; speed?: number }) {
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: "rgba(0,0,0,0.12)",
+                background: "rgba(255,255,255,0.12)",
                 display: "inline-block",
                 flexShrink: 0,
               }}
@@ -170,7 +167,7 @@ function InputField({
         animate={{
           top: active ? 6 : 24,
           fontSize: active ? 11 : 15,
-          color: error ? C.error : "#000000",
+          color: error ? C.error : "#ffffff",
           letterSpacing: active ? 3.5 : 0,
         }}
         transition={{ duration: 0.22 }}
@@ -187,7 +184,7 @@ function InputField({
       >
         {label}
         {required && (
-          <span aria-hidden="true" style={{ color: "#000000" }}>
+          <span aria-hidden="true" style={{ color: "#ffffff" }}>
             {" "}
             *
           </span>
@@ -224,7 +221,7 @@ function InputField({
           fontFamily: BODY,
           fontSize: 17,
           fontWeight: 400,
-          color: "#000000",
+          color: "#ffffff",
           outline: "none",
           transition: "border-color 0.25s ease",
           letterSpacing: 0.2,
@@ -239,7 +236,7 @@ function InputField({
             fontFamily: BODY,
             fontSize: 12,
             lineHeight: 1.6,
-            color: "#000000",
+            color: "#ffffff",
           }}
         >
           {hint}
@@ -298,7 +295,7 @@ function TextareaField({
         animate={{
           top: active ? 6 : 24,
           fontSize: active ? 11 : 15,
-          color: error ? C.error : "#000000",
+          color: error ? C.error : "#ffffff",
           letterSpacing: active ? 3.5 : 0,
         }}
         transition={{ duration: 0.22 }}
@@ -315,7 +312,7 @@ function TextareaField({
       >
         {label}
         {required && (
-          <span aria-hidden="true" style={{ color: "#000000" }}>
+          <span aria-hidden="true" style={{ color: "#ffffff" }}>
             {" "}
             *
           </span>
@@ -350,7 +347,7 @@ function TextareaField({
           fontFamily: BODY,
           fontSize: 17,
           fontWeight: 400,
-          color: "#000000",
+          color: "#ffffff",
           outline: "none",
           resize: "vertical",
           minHeight: 130,
@@ -367,7 +364,7 @@ function TextareaField({
             fontFamily: BODY,
             fontSize: 12,
             lineHeight: 1.6,
-            color: "#000000",
+            color: "#ffffff",
           }}
         >
           {hint}
@@ -418,7 +415,7 @@ function PillSelect({
           fontWeight: 700,
           letterSpacing: 4,
           textTransform: "uppercase",
-          color: "#000000",
+          color: "#ffffff",
           marginBottom: 18,
         }}
       >
@@ -442,9 +439,9 @@ function PillSelect({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               animate={{
-                background: active ? "#000000" : "transparent",
-                borderColor: active ? "#000000" : "rgba(0,0,0,0.18)",
-                color: active ? "#ffffff" : "#000000",
+                background: active ? "#ffffff" : "transparent",
+                borderColor: active ? "#ffffff" : "rgba(255,255,255,0.18)",
+                color: active ? "#000000" : "#ffffff",
               }}
               transition={{ duration: 0.2 }}
               style={{
@@ -622,8 +619,8 @@ export default function JustContactPage() {
       className="just-contact-root"
       style={{
         width: "100%",
-        background: "#ffffff",
-        color: "#000000",
+        background: "#000000",
+        color: "#ffffff",
         fontFamily: BODY,
         overflowX: "hidden",
         WebkitFontSmoothing: "antialiased",
@@ -633,13 +630,13 @@ export default function JustContactPage() {
       <style>{`
         .just-contact-root * { box-sizing: border-box; }
         .just-contact-root input::placeholder,
-        .just-contact-root textarea::placeholder { color: rgba(0,0,0,0.3); }
+        .just-contact-root textarea::placeholder { color: rgba(255,255,255,0.3); }
 
         .just-contact-root button:focus-visible,
         .just-contact-root input:focus-visible,
         .just-contact-root textarea:focus-visible,
         .just-contact-root a:focus-visible {
-          outline: 2px solid #000000;
+          outline: 2px solid #ffffff;
           outline-offset: 4px;
           border-radius: 8px;
         }
@@ -648,9 +645,9 @@ export default function JustContactPage() {
         .just-contact-root input:-webkit-autofill:hover,
         .just-contact-root input:-webkit-autofill:focus,
         .just-contact-root textarea:-webkit-autofill {
-          -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
-          -webkit-text-fill-color: #000 !important;
-          caret-color: #000 !important;
+          -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
+          -webkit-text-fill-color: #fff !important;
+          caret-color: #fff !important;
         }
 
         @media (max-width: 980px) {
@@ -719,7 +716,7 @@ export default function JustContactPage() {
             position: "absolute",
             inset: 0,
             backgroundImage:
-              "radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px)",
+              "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             pointerEvents: "none",
           }}
@@ -734,7 +731,7 @@ export default function JustContactPage() {
             fontWeight: 700,
             letterSpacing: 6,
             textTransform: "uppercase",
-            color: "#000000",
+            color: "#ffffff",
             margin: "0 0 48px",
             display: "flex",
             alignItems: "center",
@@ -755,7 +752,7 @@ export default function JustContactPage() {
               width: 5,
               height: 5,
               borderRadius: "50%",
-              background: "#000000",
+              background: "#ffffff",
               display: "inline-block",
             }}
           />
@@ -772,7 +769,7 @@ export default function JustContactPage() {
               fontWeight: 800,
               fontSize: "clamp(52px, 9vw, 120px)",
               lineHeight: 0.92,
-              color: "#000000",
+              color: "#ffffff",
               margin: 0,
               letterSpacing: -5,
             }}
@@ -783,7 +780,7 @@ export default function JustContactPage() {
                 display: "block",
                 fontWeight: 300,
                 fontStyle: "italic",
-                color: "#000000",
+                color: "#ffffff",
                 letterSpacing: -3,
               }}
             >
@@ -801,7 +798,7 @@ export default function JustContactPage() {
             fontSize: 17,
             lineHeight: 1.9,
             maxWidth: 560,
-            color: "#000000",
+            color: "#ffffff",
             fontWeight: 300,
             position: "relative",
             zIndex: 1,
@@ -867,7 +864,7 @@ export default function JustContactPage() {
                         width: 56,
                         height: 56,
                         borderRadius: "50%",
-                        border: "2px solid #000000",
+                        border: "2px solid #ffffff",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -880,7 +877,7 @@ export default function JustContactPage() {
                         height="24"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="#000000"
+                        stroke="#ffffff"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -895,7 +892,7 @@ export default function JustContactPage() {
                         fontFamily: DISPLAY,
                         fontWeight: 800,
                         fontSize: 34,
-                        color: "#000000",
+                        color: "#ffffff",
                         letterSpacing: -2,
                         margin: "0 0 12px",
                       }}
@@ -907,7 +904,7 @@ export default function JustContactPage() {
                       style={{
                         fontFamily: BODY,
                         fontSize: 16,
-                        color: "#000000",
+                        color: "#ffffff",
                         fontWeight: 300,
                         lineHeight: 1.8,
                         maxWidth: 420,
@@ -926,9 +923,9 @@ export default function JustContactPage() {
                         marginTop: 36,
                         padding: "14px 30px",
                         borderRadius: 100,
-                        border: "1px solid #000000",
+                        border: "1px solid #ffffff",
                         background: "transparent",
-                        color: "#000000",
+                        color: "#ffffff",
                         fontFamily: BODY,
                         fontSize: 12,
                         fontWeight: 600,
@@ -948,7 +945,7 @@ export default function JustContactPage() {
                         fontWeight: 700,
                         letterSpacing: 6,
                         textTransform: "uppercase",
-                        color: "#000000",
+                        color: "#ffffff",
                         margin: "0 0 14px",
                       }}
                     >
@@ -961,7 +958,7 @@ export default function JustContactPage() {
                         fontFamily: DISPLAY,
                         fontWeight: 800,
                         fontSize: "clamp(32px, 4vw, 48px)",
-                        color: "#000000",
+                        color: "#ffffff",
                         lineHeight: 1,
                         letterSpacing: -2,
                         margin: "0 0 18px",
@@ -977,7 +974,7 @@ export default function JustContactPage() {
                         fontFamily: BODY,
                         fontSize: 15,
                         lineHeight: 1.8,
-                        color: "#000000",
+                        color: "#ffffff",
                         maxWidth: 620,
                       }}
                     >
@@ -1117,7 +1114,7 @@ export default function JustContactPage() {
                           aria-disabled={isSubmitDisabled}
                           whileHover={
                             !isSubmitDisabled && !reduceMotion
-                              ? { y: -2, backgroundColor: "#000", color: "#fff" }
+                              ? { y: -2, backgroundColor: "#fff", color: "#000" }
                               : undefined
                           }
                           whileTap={
@@ -1133,8 +1130,8 @@ export default function JustContactPage() {
                             padding: "18px 42px",
                             background: "transparent",
                             color: isSubmitDisabled
-                              ? "rgba(0,0,0,0.25)"
-                              : "#000000",
+                              ? "rgba(255,255,255,0.25)"
+                              : "#ffffff",
                             fontFamily: DISPLAY,
                             fontWeight: 700,
                             fontSize: 13,
@@ -1142,8 +1139,8 @@ export default function JustContactPage() {
                             textTransform: "uppercase",
                             border: `1px solid ${
                               isSubmitDisabled
-                                ? "rgba(0,0,0,0.12)"
-                                : "#000000"
+                                ? "rgba(255,255,255,0.12)"
+                                : "#ffffff"
                             }`,
                             borderRadius: 100,
                             cursor: isSubmitDisabled ? "not-allowed" : "pointer",
@@ -1219,7 +1216,7 @@ export default function JustContactPage() {
                       fontFamily: BODY,
                       fontSize: 13,
                       fontWeight: 500,
-                      color: "#000000",
+                      color: "#ffffff",
                     }}
                   >
                     Réponse sous 24h
@@ -1248,7 +1245,7 @@ export default function JustContactPage() {
                 fontSize: "clamp(24px, 3.5vw, 42px)",
                 fontWeight: 300,
                 lineHeight: 1.45,
-                color: "#000000",
+                color: "#ffffff",
                 margin: 0,
                 letterSpacing: -1,
                 fontStyle: "italic",
@@ -1265,7 +1262,7 @@ export default function JustContactPage() {
               transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
               style={{
                 height: 2,
-                background: "rgba(0,0,0,0.15)",
+                background: "rgba(255,255,255,0.15)",
                 margin: "36px auto 0",
               }}
             />

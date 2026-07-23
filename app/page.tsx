@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import HeroMedia from "@/components/HeroMedia"
 import ScrollCue from "@/components/ScrollCue"
 import IntroStats from "@/components/IntroStats"
@@ -9,7 +10,9 @@ export default function HomePage() {
       <HeroMedia />
       <ScrollCue />
       <IntroStats />
-      <RoomsExperience />
+      <Suspense fallback={null}>
+        <RoomsExperience />
+      </Suspense>
     </>
   )
 }

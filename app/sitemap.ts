@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     // 🥇 Pages principales
     create("", 1, "weekly"),
+    create("/just", 0.9, "weekly"),
     create("/just-agency", 0.9, "weekly"),
     create("/just-impact", 0.9, "weekly"),
 
@@ -25,18 +26,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     create("/nos-talents", 0.9, "weekly"),
     create("/media", 0.8, "weekly"),
     create("/podcast", 0.8, "weekly"),
-    create("/nos-sponsors", 0.7, "monthly"),
+    create("/nosponsors", 0.7, "monthly"),
 
     // 👤 Talents
     create("/nos-talents/karim-lipton", 0.8, "weekly"),
     create("/nos-talents/riles-freestyle", 0.8, "weekly"),
-    create("/nos-talents/moumlame", 0.8, "weekly"),
-    create("/nos-talents/romain-benn", 0.8, "weekly"),
     create("/nos-talents/kimo-djz", 0.8, "weekly"),
     create("/nos-talents/ines-hmz", 0.8, "weekly"),
     create("/nos-talents/naoil-kohlanta", 0.8, "weekly"),
     create("/nos-talents/d-chinois-93", 0.8, "weekly"),
     create("/nos-talents/just-mini", 0.8, "weekly"),
+    create("/nos-talents/bedjik", 0.8, "weekly"),
+    create("/nos-talents/lenny-freestyle", 0.8, "weekly"),
+    create("/nos-talents/manal", 0.8, "weekly"),
 
     // 📩 Conversion
     create("/contact", 0.7, "monthly"),

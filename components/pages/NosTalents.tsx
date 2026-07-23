@@ -1,11 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect, useRef, useCallback, useId, useMemo } from "react"
+import { useState, useEffect, useCallback, useId, useMemo } from "react"
 import {
     motion,
     AnimatePresence,
-    useInView,
     useReducedMotion,
 } from "framer-motion"
 import Image from "next/image"
@@ -71,7 +70,7 @@ type ContactErrorState = Partial<Record<keyof ContactFormDataState, string>>
 
 const FOOTER_NAV = [
     { label: "Just Impact", href: "/just-impact" },
-    { label: "Just Prod", href: "/just-prod" },
+    { label: "Just Prod", href: "/?jumpToRoom=4" },
     { label: "Just Agency", href: "/just-agency" },
     { label: "Contact", href: "/contact" },
 ] as const
@@ -104,74 +103,6 @@ function loadFonts() {
 function useGlobalStyles() {
     useEffect(() => {
         loadFonts()
-        if (document.getElementById("just-merged-styles")) return
-        const style = document.createElement("style")
-        style.id = "just-merged-styles"
-        style.innerHTML = `
-            .just-merged-root, .just-merged-root * { box-sizing: border-box; }
-            .just-merged-root { color-scheme: dark; width: 100%; min-width: 0; }
-            .just-merged-root main, .just-merged-root section, .just-merged-root div,
-            .just-merged-root article, .just-merged-root p, .just-merged-root h1,
-            .just-merged-root h2, .just-merged-root h3, .just-merged-root ul,
-            .just-merged-root li, .just-merged-root blockquote { min-width: 0; }
-            .just-merged-root img { max-width: 100%; display: block; }
-            .just-merged-root a, .just-merged-root button { -webkit-tap-highlight-color: transparent; }
-            .just-merged-root a:focus-visible, .just-merged-root button:focus-visible {
-                outline: 2px solid ${COLORS.focus}; outline-offset: 3px;
-                box-shadow: 0 0 0 4px rgba(255,255,255,0.14);
-            }
-            .just-merged-root .sr-only {
-                position: absolute !important; width: 1px !important; height: 1px !important;
-                padding: 0 !important; margin: -1px !important; overflow: hidden !important;
-                clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
-            }
-            .just-merged-root .jm-link-overlay { position: absolute; inset: 0; z-index: 5; border-radius: inherit; }
-            .just-merged-root .jm-section-inner { width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; }
-            .just-merged-root .jm-cards-grid > *, .just-merged-root .jm-values-grid > *, .just-merged-root .jm-stats-grid > * { min-width: 0; }
-            .jm2-contact-root input::placeholder, .jm2-contact-root textarea::placeholder { color: ${JC.placeholder}; }
-            .jm2-contact-root input:-webkit-autofill, .jm2-contact-root input:-webkit-autofill:hover,
-            .jm2-contact-root input:-webkit-autofill:focus, .jm2-contact-root textarea:-webkit-autofill {
-                -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
-                -webkit-text-fill-color: #fff !important; caret-color: #fff !important;
-            }
-            @media (max-width: 980px) {
-                .jm2-contact-grid { grid-template-columns: 1fr !important; gap: 56px !important; }
-                .jm2-contact-two-cols { grid-template-columns: 1fr !important; gap: 28px !important; }
-                .jm2-contact-sticky { position: relative !important; top: 0 !important; }
-            }
-            @media (max-width: 640px) { .jm2-contact-root .jm2-contact-pad { padding-left: 20px !important; padding-right: 20px !important; } }
-            @media (max-width: 1279px) {
-                .just-merged-root .jm-section { padding-left: 48px !important; padding-right: 48px !important; }
-                .just-merged-root .jm-hero-scroll { left: 48px !important; }
-                .just-merged-root .jm-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-                .just-merged-root .jm-values-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-                .just-merged-root .jm-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 32px !important; }
-            }
-            @media (max-width: 767px) {
-                .just-merged-root .jm-section { padding-left: 20px !important; padding-right: 20px !important; }
-                .just-merged-root .jm-hero { min-height: auto !important; padding-top: 72px !important; padding-bottom: 72px !important; }
-                .just-merged-root .jm-hero-tagline { gap: 8px !important; margin-bottom: 28px !important; letter-spacing: 2.5px !important; line-height: 1.5 !important; flex-wrap: wrap !important; }
-                .just-merged-root .jm-hero-title { letter-spacing: -2px !important; line-height: 0.98 !important; }
-                .just-merged-root .jm-hero-desc { margin-top: 24px !important; font-size: 14px !important; line-height: 1.8 !important; }
-                .just-merged-root .jm-stats-grid, .just-merged-root .jm-cards-grid, .just-merged-root .jm-values-grid { grid-template-columns: minmax(0, 1fr) !important; }
-                .just-merged-root .jm-stats-grid { gap: 24px !important; }
-                .just-merged-root .jm-filter-wrap { margin-bottom: 32px !important; }
-                .just-merged-root .jm-card-body { padding: 18px 18px 22px !important; }
-                .just-merged-root .jm-card-number { top: 12px !important; left: 14px !important; font-size: 22px !important; }
-                .just-merged-root .jm-card-views { top: 12px !important; right: 12px !important; padding: 5px 10px !important; }
-                .just-merged-root .jm-footer { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-                .just-merged-root .jm-hero-scroll { display: none !important; }
-                .just-merged-root .jm-marquee-item { letter-spacing: -1px !important; }
-            }
-            @media (max-width: 479px) {
-                .just-merged-root .jm-section { padding-left: 16px !important; padding-right: 16px !important; }
-                .just-merged-root .jm-filter-pill { padding: 9px 14px !important; font-size: 10px !important; letter-spacing: 1.4px !important; }
-            }
-            @media (prefers-reduced-motion: reduce) {
-                .just-merged-root *, .just-merged-root *::before, .just-merged-root *::after { scroll-behavior: auto !important; }
-            }
-        `
-        document.head.appendChild(style)
     }, [])
 }
 
@@ -221,8 +152,8 @@ function getMotionProps(reducedMotion: boolean | null, inView = true, initialY =
         return { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } }
     }
     return {
-        initial: { opacity: 0, y: initialY },
-        animate: inView ? { opacity: 1, y: 0 } : { opacity: 0, y: initialY },
+        initial: { opacity: 1, y: initialY },
+        animate: { opacity: 1, y: 0 },
         transition: { duration, delay, ease: EASE },
     }
 }
@@ -237,47 +168,41 @@ type Follower = { platform: string; count: string }
 type Talent = { imageUrl: string; name: string; handle: string; categories: string[]; followers: Follower[]; views: string; bio: string; number: string; link: string }
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-    const ref = useRef<HTMLDivElement | null>(null)
-    const inView = useInView(ref, { once: true, margin: "-60px" })
-    const reducedMotion = useReducedMotion()
     return (
-        <motion.div ref={ref} {...getMotionProps(reducedMotion, inView, 40, 0.8, delay)} style={{ width: "100%", minWidth: 0 }}>
+        <div className="jm-reveal" style={{ width: "100%", minWidth: 0, animationDelay: `${delay}s` }}>
             {children}
-        </motion.div>
+        </div>
     )
 }
 
 function Marquee({ items, speed = 35, label = "Liste défilante" }: { items: string[]; speed?: number; label?: string }) {
-    const reducedMotion = useReducedMotion()
     const visibleItems = items.map(sanitizeText).filter(Boolean)
     const tripled = [...visibleItems, ...visibleItems, ...visibleItems]
     if (visibleItems.length === 0) return null
+    const trackStyle = { display: "flex", gap: 40, width: "max-content", alignItems: "center", minWidth: 0, "--marquee-duration": `${speed}s` } as React.CSSProperties
     return (
         <div role="region" aria-label={label} style={{ overflow: "hidden", width: "100%", minWidth: 0, maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
-            <motion.div aria-hidden="true" animate={reducedMotion ? { x: "0%" } : { x: ["0%", "-33.333%"] }} transition={reducedMotion ? { duration: 0 } : { duration: speed, repeat: Infinity, ease: "linear" }} style={{ display: "flex", gap: 40, width: "max-content", alignItems: "center", minWidth: 0 }}>
+            <div className="jm-marquee-track" aria-hidden="true" style={trackStyle}>
                 {tripled.map((item, i) => (
                     <React.Fragment key={`${item}-${i}`}>
                         <span className="jm-marquee-item" style={{ fontFamily: DISPLAY, fontSize: "clamp(34px, 7vw, 72px)", fontWeight: 800, color: "rgba(255,255,255,0.08)", letterSpacing: -2, textTransform: "uppercase", whiteSpace: "nowrap", lineHeight: 1, flexShrink: 0 }}>{item}</span>
                         <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.14)", display: "inline-block", flexShrink: 0 }} />
                     </React.Fragment>
                 ))}
-            </motion.div>
+            </div>
         </div>
     )
 }
 
 function Counter({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
-    const ref = useRef<HTMLDivElement | null>(null)
-    const inView = useInView(ref, { once: true })
     const reducedMotion = useReducedMotion()
     const { numeric, suffix } = useMemo(() => parseCountValue(value), [value])
     const [count, setCount] = useState(0)
 
     useEffect(() => {
-        if (!inView) return
+        if (reducedMotion) { setCount(numeric); return }
+        let raf = 0
         const timer = window.setTimeout(() => {
-            if (reducedMotion) { setCount(numeric); return }
-            let raf = 0
             const duration = 2200
             const start = performance.now()
             const animate = (now: number) => {
@@ -287,15 +212,14 @@ function Counter({ value, label, delay = 0 }: { value: string; label: string; de
                 if (progress < 1) raf = requestAnimationFrame(animate)
             }
             raf = requestAnimationFrame(animate)
-            return () => { if (raf) cancelAnimationFrame(raf) }
-        }, reducedMotion ? 0 : delay * 1000)
-        return () => { window.clearTimeout(timer) }
-    }, [delay, inView, numeric, reducedMotion])
+        }, delay * 1000)
+        return () => { window.clearTimeout(timer); if (raf) cancelAnimationFrame(raf) }
+    }, [delay, numeric, reducedMotion])
 
     return (
-        <div ref={ref} style={{ textAlign: "center", width: "100%", minWidth: 0 }} aria-label={`${sanitizeText(label)} : ${sanitizeText(value)}`}>
+        <div style={{ textAlign: "center", width: "100%", minWidth: 0 }} aria-label={`${sanitizeText(label)} : ${sanitizeText(value)}`}>
             <p style={{ fontFamily: NUMERIC, fontWeight: 900, fontSize: "clamp(34px, 6vw, 64px)", color: COLORS.text, lineHeight: 0.95, margin: "0 0 10px 0", letterSpacing: -2, fontVariantNumeric: "tabular-nums lining-nums", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                <span aria-hidden="true">{inView || reducedMotion ? count : 0}{suffix}</span>
+                <span aria-hidden="true">{count}{suffix}</span>
             </p>
             <p style={{ margin: 0, fontSize: 11, color: COLORS.textMuted, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase", fontFamily: BODY, lineHeight: 1.5, overflowWrap: "anywhere" }}>{label}</p>
         </div>
@@ -312,9 +236,7 @@ function PlatformIcon({ platform, size = 14 }: { platform: string; size?: number
     return <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10" /><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20M2 12h20" /></svg>
 }
 
-function TalentCard({ imageUrl, name, handle, categories, followers, views, bio, number, link, delay = 0 }: Talent & { delay?: number }) {
-    const ref = useRef<HTMLElement | null>(null)
-    const inView = useInView(ref, { once: true, margin: "-40px" })
+function TalentCard({ imageUrl, name, handle, categories, followers, views, bio, number, link }: Talent) {
     const [hovered, setHovered] = useState(false)
     const reducedMotion = useReducedMotion()
     const titleId = useId()
@@ -333,7 +255,7 @@ function TalentCard({ imageUrl, name, handle, categories, followers, views, bio,
     const filteredFollowers = followers.filter((f) => sanitizeText(f.platform) || sanitizeText(f.count))
 
     return (
-        <motion.article ref={ref} {...getMotionProps(reducedMotion, inView, 40, 0.7, delay)} aria-labelledby={titleId} aria-describedby={safeBio ? descId : undefined} style={{ borderRadius: 24, overflow: "hidden", position: "relative", background: COLORS.panel, border: `1px solid ${hovered && hasLink ? COLORS.borderStrong : COLORS.border}`, display: "flex", flexDirection: "column", transition: reducedMotion ? "none" : "border-color 0.3s ease", minHeight: "100%", width: "100%", minWidth: 0, justifySelf: "stretch" }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+        <motion.article aria-labelledby={titleId} aria-describedby={safeBio ? descId : undefined} style={{ borderRadius: 24, overflow: "hidden", position: "relative", background: COLORS.panel, border: `1px solid ${hovered && hasLink ? COLORS.borderStrong : COLORS.border}`, display: "flex", flexDirection: "column", transition: reducedMotion ? "none" : "border-color 0.3s ease", minHeight: "100%", width: "100%", minWidth: 0, justifySelf: "stretch" }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             {hasLink && (<a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} aria-label={`Voir le profil de ${safeName}${external ? " (nouvel onglet)" : ""}`} className="jm-link-overlay" />)}
 
             <div style={{ position: "relative", aspectRatio: "1 / 1", overflow: "hidden", background: COLORS.panel, width: "100%", minWidth: 0 }}>
@@ -503,17 +425,18 @@ export default function NosTalents() {
         heroTagline: "Influence · Créativité · Authenticité · Résultats",
         heroTitle1: "Nos talents", heroTitle2: "font la différence.",
         heroDesc: "Un réseau de créateurs triés sur le volet, alignés avec vos valeurs. Des voix authentiques, des communautés engagées, des résultats mesurables, c'est la force de Just Impact.",
-        stat1: "9+", stat1Label: "Créateurs & Artistes", stat2: "50M+", stat2Label: "Reach cumulé",
+        stat1: "10+", stat1Label: "Créateurs & Artistes", stat2: "50M+", stat2Label: "Reach cumulé",
         stat3: "4.8%", stat3Label: "Engagement moyen", stat4: "200+", stat4Label: "Campagnes activées",
         t1Name: "Karim Lipton", t1Handle: "@karimlipton94", t1Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg", t1Cats: "Humour, Voyage, Lifestyle", t1Followers: "Instagram:1.4M, TikTok:650.7K, YouTube:100K", t1Views: "7.4M", t1Bio: "Créateur dynamique et authentique, reconnu pour son sens du divertissement.", t1Link: "/nos-talents/karim-lipton",
         t2Name: "Riles Freestyle", t2Handle: "@rilesfreestyle", t2Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-riles.jpg", t2Cats: "Foot, Journalisme, Lifestyle", t2Followers: "Instagram:200.9K, TikTok:1.3M, YouTube:61.9K", t2Views: "139.1M", t2Bio: "Pro du foot freestyle. Partenaire PSG, Canal+ et SNCF.", t2Link: "/nos-talents/riles-freestyle",
-        t3Name: "Moumlame", t3Handle: "@moumlame59", t3Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-moumlame.jpg", t3Cats: "Musique, Lifestyle", t3Followers: "Instagram:604.8K, TikTok:732.7K, Snapchat:19K, YouTube:12.9K", t3Views: "7.9M", t3Bio: "Figure de la Team Nasdas. Spontanéité et authenticité de la nouvelle scène digitale.", t3Link: "/nos-talents/moumlame",
-        t4Name: "Romain Benn", t4Handle: "@romain.benn", t4Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-romainbenn.jpg", t4Cats: "Fitness, Lifestyle", t4Followers: "Instagram:144.2K, TikTok:703.1K, YouTube:185K", t4Views: "4.3M", t4Bio: "Vainqueur The Circle France. Ambassadeur Lifestyle & Fitness.", t4Link: "/nos-talents/romain-benn",
         t5Name: "Kimo DJZ", t5Handle: "@kimo_djz", t5Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-kimodjz.jpg", t5Cats: "Voyage, Caméras Cachées, Lifestyle", t5Followers: "Instagram:170.8K, TikTok:86.3K, YouTube:22.7K", t5Views: "3.1M", t5Bio: "Bac+6 en marketing digital. Caméras cachées, voyage et actions humanitaires.", t5Link: "/nos-talents/kimo-djz",
         t6Name: "Inès HMZ", t6Handle: "@ines_hmz04", t6Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-ineshmz.jpg", t6Cats: "Voyage, Lifestyle", t6Followers: "Instagram:160K, TikTok:34.6K, YouTube:14.6K", t6Views: "4.2M", t6Bio: "Figure montante du lifestyle et du voyage.", t6Link: "/nos-talents/ines-hmz",
         t7Name: "Naoil Kohlanta", t7Handle: "@naoil_kohlanta2k20", t7Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-naoil.jpg", t7Cats: "Voyage, Boxe, Lifestyle", t7Followers: "Instagram:1.7K, TikTok:95.5K, YouTube:82.8K", t7Views: "1.6M", t7Bio: "Gagnante Koh-Lanta. Ancienne boxeuse pro, inspiration quotidienne.", t7Link: "/nos-talents/naoil-kohlanta",
         t8Name: "D.Chinois 93", t8Handle: "@d.chinois93", t8Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-dchinois.jpg", t8Cats: "Humour, Lifestyle", t8Followers: "Instagram:150K, TikTok:3.1K", t8Views: "79.5K", t8Bio: "Humour spontané et style direct qui résonne avec une audience jeune.", t8Link: "/nos-talents/d-chinois-93",
         t9Name: "Just Mini", t9Handle: "@justminioff", t9Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-justmini.jpg", t9Cats: "Boxe, Lifestyle", t9Followers: "Instagram:40K, TikTok:19.4K, YouTube:38.7K", t9Views: "3.2M", t9Bio: "Créateur dynamique et boxeur engagé. Performance sportive et authenticité.", t9Link: "/nos-talents/just-mini",
+        t10Name: "Bedjik", t10Handle: "@bedjikoff", t10Image: "/talent-bedjik-portrait.jpg", t10Cats: "Musique, Business", t10Followers: "Snapchat:51.3K, TikTok:40.8K", t10Views: "2.4M", t10Bio: "Artiste et booker au cœur de l'industrie musicale, aux côtés de son frère Gims.", t10Link: "/nos-talents/bedjik",
+        t11Name: "Lenny Freestyle", t11Handle: "@lennyfreestyle", t11Image: "/talent-lenny.jpg", t11Cats: "Sport, Divertissement, Lifestyle", t11Followers: "Snapchat:672K, YouTube:647K, TikTok:565.1K, Instagram:156K", t11Views: "3.5M", t11Bio: "Créateur divertissement : défis, lifestyle et sport, à plusieurs millions de vues.", t11Link: "/nos-talents/lenny-freestyle",
+        t12Name: "Manal V2V", t12Handle: "@manal_v2v", t12Image: "/talent-manal.jpg", t12Cats: "Lifestyle, Gaming, Automobile", t12Followers: "Snapchat:206.8K, TikTok:17.6K", t12Views: "2M", t12Bio: "Double univers gaming et covering automobile, une communauté fidèle et engagée.", t12Link: "/nos-talents/manal",
         formHeroEyebrow: "Formulaire de contact", formEyebrow: "Formulaire", formTitle: "Dites-nous tout.",
         formDesc: "Les champs marqués d'un astérisque sont obligatoires.",
         formHeroTitle1: "Parlons", formHeroTitle2: "de votre projet.",
@@ -589,12 +512,13 @@ export default function NosTalents() {
         parseTalent(p.t2Name, p.t2Handle, p.t2Image, p.t2Cats, p.t2Followers, p.t2Views, p.t2Bio, "01", p.t2Link),
         parseTalent(p.t1Name, p.t1Handle, p.t1Image, p.t1Cats, p.t1Followers, p.t1Views, p.t1Bio, "02", p.t1Link),
         parseTalent(p.t9Name, p.t9Handle, p.t9Image, p.t9Cats, p.t9Followers, p.t9Views, p.t9Bio, "03", p.t9Link),
-        parseTalent(p.t4Name, p.t4Handle, p.t4Image, p.t4Cats, p.t4Followers, p.t4Views, p.t4Bio, "04", p.t4Link),
-        parseTalent(p.t5Name, p.t5Handle, p.t5Image, p.t5Cats, p.t5Followers, p.t5Views, p.t5Bio, "05", p.t5Link),
-        parseTalent(p.t6Name, p.t6Handle, p.t6Image, p.t6Cats, p.t6Followers, p.t6Views, p.t6Bio, "06", p.t6Link),
-        parseTalent(p.t7Name, p.t7Handle, p.t7Image, p.t7Cats, p.t7Followers, p.t7Views, p.t7Bio, "07", p.t7Link),
-        parseTalent(p.t8Name, p.t8Handle, p.t8Image, p.t8Cats, p.t8Followers, p.t8Views, p.t8Bio, "08", p.t8Link),
-        parseTalent(p.t3Name, p.t3Handle, p.t3Image, p.t3Cats, p.t3Followers, p.t3Views, p.t3Bio, "09", p.t3Link),
+        parseTalent(p.t5Name, p.t5Handle, p.t5Image, p.t5Cats, p.t5Followers, p.t5Views, p.t5Bio, "04", p.t5Link),
+        parseTalent(p.t6Name, p.t6Handle, p.t6Image, p.t6Cats, p.t6Followers, p.t6Views, p.t6Bio, "05", p.t6Link),
+        parseTalent(p.t7Name, p.t7Handle, p.t7Image, p.t7Cats, p.t7Followers, p.t7Views, p.t7Bio, "06", p.t7Link),
+        parseTalent(p.t8Name, p.t8Handle, p.t8Image, p.t8Cats, p.t8Followers, p.t8Views, p.t8Bio, "07", p.t8Link),
+        parseTalent(p.t10Name, p.t10Handle, p.t10Image, p.t10Cats, p.t10Followers, p.t10Views, p.t10Bio, "08", p.t10Link),
+        parseTalent(p.t11Name, p.t11Handle, p.t11Image, p.t11Cats, p.t11Followers, p.t11Views, p.t11Bio, "09", p.t11Link),
+        parseTalent(p.t12Name, p.t12Handle, p.t12Image, p.t12Cats, p.t12Followers, p.t12Views, p.t12Bio, "10", p.t12Link),
     ].filter((talent) => talent.name || talent.handle || talent.bio), [p])
 
     const allCats = useMemo(() => Array.from(new Set(allTalents.flatMap((t) => t.categories))), [allTalents])
@@ -674,15 +598,13 @@ export default function NosTalents() {
                             </div>
                         </Reveal>
                         <p id={resultCountId} aria-live="polite" className="sr-only">{filteredTalents.length} talent{filteredTalents.length > 1 ? "s" : ""} affiché{filteredTalents.length > 1 ? "s" : ""} pour le filtre {activeFilter}.</p>
-                        <motion.div layout={!reducedMotion} className="jm-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, width: "100%", minWidth: 0, alignItems: "stretch" }}>
-                            <AnimatePresence mode="popLayout">
-                                {filteredTalents.map((talent, index) => (
-                                    <motion.div key={`${talent.name}-${talent.number}-${activeFilter}`} layout={!reducedMotion} initial={reducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }} transition={reducedMotion ? { duration: 0 } : { duration: 0.4, ease: EASE }} style={{ width: "100%", minWidth: 0, display: "flex" }}>
-                                        <TalentCard {...talent} delay={index * 0.04} />
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </motion.div>
+                        <div className="jm-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, width: "100%", minWidth: 0, alignItems: "stretch" }}>
+                            {filteredTalents.map((talent, index) => (
+                                <div key={`${talent.name}-${talent.number}-${activeFilter}`} className="jm-reveal" style={{ width: "100%", minWidth: 0, display: "flex", animationDelay: `${Math.min(index * 0.05, 0.4)}s` }}>
+                                    <TalentCard {...talent} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
 

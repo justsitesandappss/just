@@ -74,13 +74,11 @@ function useFontsAndGlobalStyles() {
 }
 
 function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
-    const ref = useRef<HTMLDivElement | null>(null)
-    const inView = useInView(ref, { once: true, margin: "-60px" })
     const reduceMotion = useReducedMotion()
-    const initial = reduceMotion ? { opacity: 0 } : { opacity: 0, y }
-    const animate = inView ? (reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }) : {}
+    const initial = reduceMotion ? { opacity: 1 } : { opacity: 1, y }
+    const animate = reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }
     return (
-        <motion.div ref={ref} initial={initial} animate={animate} transition={{ ...TRANSITION_BASE, delay }}>
+        <motion.div initial={initial} animate={animate} transition={{ ...TRANSITION_BASE, delay }}>
             {children}
         </motion.div>
     )
@@ -194,7 +192,7 @@ export default function TalentRilesFreestyle() {
     const manifesto = "Riles ne fait pas que jongler. Il inspire. Quand plus d'un million de personnes suivent chacune de ses vidéos, c'est parce qu'il incarne quelque chose de vrai : la passion du foot, l'accessibilité et le travail."
     const ctaTitle = "Collaborer avec Riles."
     const ctaDesc = "Placement, challenge, ambassadeur, activation terrain : discutons de la meilleure manière pour votre marque d'entrer dans l'univers Riles Freestyle."
-    const ctaUrl = "#"
+    const ctaUrl = "/contact"
     const ctaLabel = "Proposer une collaboration avec Riles Freestyle"
 
     useFontsAndGlobalStyles()
@@ -414,7 +412,7 @@ export default function TalentRilesFreestyle() {
                         <h2 id={sectorsId} className="sr-only">Secteurs d&apos;activité visés</h2>
                         <ul style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: 0, padding: 0, listStyle: "none" }}>
                             {brandList.map((brand, index) => (
-                                <motion.li key={brand} initial={reduceMotion ? undefined : { opacity: 0, y: 10 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduceMotion ? undefined : { duration: 0.4, delay: index * 0.05, ease: EASE }} style={{ padding: "10px 24px", borderRadius: 100, border: `1px solid ${COLORS.borderStrong}`, background: COLORS.panelSoft, fontSize: 12, fontWeight: 600, color: COLORS.textSoft, letterSpacing: 1, textTransform: "uppercase" }}>
+                                <motion.li key={brand} initial={reduceMotion ? undefined : { opacity: 1, y: 10 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduceMotion ? undefined : { duration: 0.4, delay: index * 0.05, ease: EASE }} style={{ padding: "10px 24px", borderRadius: 100, border: `1px solid ${COLORS.borderStrong}`, background: COLORS.panelSoft, fontSize: 12, fontWeight: 600, color: COLORS.textSoft, letterSpacing: 1, textTransform: "uppercase" }}>
                                     {brand}
                                 </motion.li>
                             ))}
