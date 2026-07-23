@@ -8,7 +8,7 @@ const data: TalentData = {
   categories: ["Sport", "Divertissement", "Lifestyle"],
   bio: "Lenny est un créateur de contenu spécialisé dans le divertissement. À travers des défis, des expériences et des contenus lifestyle et sportifs, il propose des vidéos qui touchent un large public et génèrent régulièrement plusieurs millions de vues.",
   location: "Marseille, France",
-  image: "/talent-lenny.jpg",
+  image: "/talent-lenny2.jpg",
   platforms: [
     { name: "Snapchat", followers: "672K", desc: "Stories quotidiennes, coulisses et proximité avec sa communauté. Une audience fidèle et très engagée.", main: true },
     { name: "YouTube", followers: "647K", desc: "Formats longs, défis et vlogs. La maison de ses concepts les plus ambitieux.", main: false },

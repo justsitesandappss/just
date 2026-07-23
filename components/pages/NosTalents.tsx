@@ -425,7 +425,7 @@ export default function NosTalents() {
         heroTagline: "Influence · Créativité · Authenticité · Résultats",
         heroTitle1: "Nos talents", heroTitle2: "font la différence.",
         heroDesc: "Un réseau de créateurs triés sur le volet, alignés avec vos valeurs. Des voix authentiques, des communautés engagées, des résultats mesurables, c'est la force de Just Impact.",
-        stat1: "10+", stat1Label: "Créateurs & Artistes", stat2: "50M+", stat2Label: "Reach cumulé",
+        stat1: "11+", stat1Label: "Créateurs & Artistes", stat2: "50M+", stat2Label: "Reach cumulé",
         stat3: "4.8%", stat3Label: "Engagement moyen", stat4: "200+", stat4Label: "Campagnes activées",
         t1Name: "Karim Lipton", t1Handle: "@karimlipton94", t1Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-karimlipton.jpg", t1Cats: "Humour, Voyage, Lifestyle", t1Followers: "Instagram:1.4M, TikTok:650.7K, YouTube:100K", t1Views: "7.4M", t1Bio: "Créateur dynamique et authentique, reconnu pour son sens du divertissement.", t1Link: "/nos-talents/karim-lipton",
         t2Name: "Riles Freestyle", t2Handle: "@rilesfreestyle", t2Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-riles.jpg", t2Cats: "Foot, Journalisme, Lifestyle", t2Followers: "Instagram:200.9K, TikTok:1.3M, YouTube:61.9K", t2Views: "139.1M", t2Bio: "Pro du foot freestyle. Partenaire PSG, Canal+ et SNCF.", t2Link: "/nos-talents/riles-freestyle",
@@ -435,8 +435,9 @@ export default function NosTalents() {
         t8Name: "D.Chinois 93", t8Handle: "@d.chinois93", t8Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-dchinois.jpg", t8Cats: "Humour, Lifestyle", t8Followers: "Instagram:150K, TikTok:3.1K", t8Views: "79.5K", t8Bio: "Humour spontané et style direct qui résonne avec une audience jeune.", t8Link: "/nos-talents/d-chinois-93",
         t9Name: "Just Mini", t9Handle: "@justminioff", t9Image: "https://cdn.jsdelivr.net/gh/justsitesandappss/Assets@main/talent-justmini.jpg", t9Cats: "Boxe, Lifestyle", t9Followers: "Instagram:40K, TikTok:19.4K, YouTube:38.7K", t9Views: "3.2M", t9Bio: "Créateur dynamique et boxeur engagé. Performance sportive et authenticité.", t9Link: "/nos-talents/just-mini",
         t10Name: "Bedjik", t10Handle: "@bedjikoff", t10Image: "/talent-bedjik-portrait.jpg", t10Cats: "Musique, Business", t10Followers: "Snapchat:51.3K, TikTok:40.8K", t10Views: "2.4M", t10Bio: "Artiste et booker au cœur de l'industrie musicale, aux côtés de son frère Gims.", t10Link: "/nos-talents/bedjik",
-        t11Name: "Lenny Freestyle", t11Handle: "@lennyfreestyle", t11Image: "/talent-lenny.jpg", t11Cats: "Sport, Divertissement, Lifestyle", t11Followers: "Snapchat:672K, YouTube:647K, TikTok:565.1K, Instagram:156K", t11Views: "3.5M", t11Bio: "Créateur divertissement : défis, lifestyle et sport, à plusieurs millions de vues.", t11Link: "/nos-talents/lenny-freestyle",
+        t11Name: "Lenny Freestyle", t11Handle: "@lennyfreestyle", t11Image: "/talent-lenny2.jpg", t11Cats: "Sport, Divertissement, Lifestyle", t11Followers: "Snapchat:672K, YouTube:647K, TikTok:565.1K, Instagram:156K", t11Views: "3.5M", t11Bio: "Créateur divertissement : défis, lifestyle et sport, à plusieurs millions de vues.", t11Link: "/nos-talents/lenny-freestyle",
         t12Name: "Manal V2V", t12Handle: "@manal_v2v", t12Image: "/talent-manal.jpg", t12Cats: "Lifestyle, Gaming, Automobile", t12Followers: "Snapchat:206.8K, TikTok:17.6K", t12Views: "2M", t12Bio: "Double univers gaming et covering automobile, une communauté fidèle et engagée.", t12Link: "/nos-talents/manal",
+        t13Name: "Selma 8émerveille", t13Handle: "@selma8émerveille", t13Image: "/talent-selma.jpg", t13Cats: "Beauté, Lifestyle, Mode", t13Followers: "Instagram:67.8K, TikTok:34.4K, Snapchat:6.8K", t13Views: "271.5K", t13Bio: "Créatrice beauté, lifestyle et mode. Maman et femme inspirante, communauté fidèle et engagée.", t13Link: "/nos-talents/selma",
         formHeroEyebrow: "Formulaire de contact", formEyebrow: "Formulaire", formTitle: "Dites-nous tout.",
         formDesc: "Les champs marqués d'un astérisque sont obligatoires.",
         formHeroTitle1: "Parlons", formHeroTitle2: "de votre projet.",
@@ -519,6 +520,7 @@ export default function NosTalents() {
         parseTalent(p.t10Name, p.t10Handle, p.t10Image, p.t10Cats, p.t10Followers, p.t10Views, p.t10Bio, "08", p.t10Link),
         parseTalent(p.t11Name, p.t11Handle, p.t11Image, p.t11Cats, p.t11Followers, p.t11Views, p.t11Bio, "09", p.t11Link),
         parseTalent(p.t12Name, p.t12Handle, p.t12Image, p.t12Cats, p.t12Followers, p.t12Views, p.t12Bio, "10", p.t12Link),
+        parseTalent(p.t13Name, p.t13Handle, p.t13Image, p.t13Cats, p.t13Followers, p.t13Views, p.t13Bio, "11", p.t13Link),
     ].filter((talent) => talent.name || talent.handle || talent.bio), [p])
 
     const allCats = useMemo(() => Array.from(new Set(allTalents.flatMap((t) => t.categories))), [allTalents])

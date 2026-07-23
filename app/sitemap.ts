@@ -39,6 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     create("/nos-talents/bedjik", 0.8, "weekly"),
     create("/nos-talents/lenny-freestyle", 0.8, "weekly"),
     create("/nos-talents/manal", 0.8, "weekly"),
+    create("/nos-talents/selma", 0.8, "weekly"),
 
     // 📩 Conversion
     create("/contact", 0.7, "monthly"),
